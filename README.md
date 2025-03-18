@@ -1,4 +1,3 @@
 # roka_moka_app
 
-teste rules 2
-
+teste rules 3
