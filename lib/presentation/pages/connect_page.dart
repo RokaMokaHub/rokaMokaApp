@@ -29,7 +29,7 @@ class _ConnectPageState extends State<ConnectPage> {
             left: 0,
             right: 0,
             child: Image.asset(
-              'assets/backgroundConnect.png',
+              'lib/presentation/assets/images/backgroundConnect.png',
               fit: BoxFit.cover,
               height: MediaQuery.of(context).size.height * 0.3,
             ),
@@ -229,7 +229,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                 );
                               },
                               icon: Image.asset(
-                                'assets/google.png',
+                                'lib/presentation/assets/icons/google.png',
                                 height: 24,
                               ),
                               label: Text(
@@ -255,7 +255,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                   ),
                                 );
                               },
-                              icon: Image.asset('assets/apple.png', height: 24),
+                              icon: Image.asset('lib/presentation/assets/icons/apple.png', height: 24),
                               label: Text(
                                 'Faça login com Apple',
                                 style: GoogleFonts.poppins(
@@ -280,7 +280,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                 );
                               },
                               icon: Image.asset(
-                                'assets/facebook.png',
+                                'lib/presentation/assets/icons/facebook.png',
                                 height: 24,
                               ),
                               label: Text(

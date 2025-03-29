@@ -30,7 +30,7 @@ class _SignupPageState extends State<SignupPage> {
             left: 0,
             right: 0,
             child: Image.asset(
-              'assets/backgroundSignup.png',
+              'lib/presentation/assets/images/backgroundSignup.png',
               fit: BoxFit.cover,
               height: MediaQuery.of(context).size.height * 0.48,
             ),
