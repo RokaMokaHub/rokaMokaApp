@@ -56,20 +56,20 @@ class LoginPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       // Botão "Acessar"
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 120, vertical: 14),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
+                      GestureDetector( // Envolve o Container inteiro
+                        onTap: () {
+                          Navigator.pushNamed(context, '/connect');
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 120, vertical: 14),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(32),
                           ),
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/connect');
-                          },
                           child: Center(
                             child: Text(
                               'Acessar',
