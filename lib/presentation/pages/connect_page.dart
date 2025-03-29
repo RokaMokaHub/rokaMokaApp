@@ -21,6 +21,7 @@ class _ConnectPageState extends State<ConnectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Image.asset(
@@ -91,6 +92,14 @@ class _ConnectPageState extends State<ConnectPage> {
                                   Icons.alternate_email,
                                   color: Color(0xFFE94C19),
                                 ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
                                 ),
@@ -125,6 +134,14 @@ class _ConnectPageState extends State<ConnectPage> {
                                     });
                                   },
                                 ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
                                 ),
@@ -136,9 +153,7 @@ class _ConnectPageState extends State<ConnectPage> {
                               child: TextButton(
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Esqueceu a senha'),
-                                    ),
+                                    SnackBar(content: Text('Esqueceu a senha')),
                                   );
                                 },
                                 child: Text(
@@ -237,10 +252,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                   ),
                                 );
                               },
-                              icon: Image.asset(
-                                'assets/apple.png',
-                                height: 24,
-                              ),
+                              icon: Image.asset('assets/apple.png', height: 24),
                               label: Text(
                                 'Faça login com Apple',
                                 style: GoogleFonts.poppins(
@@ -260,9 +272,7 @@ class _ConnectPageState extends State<ConnectPage> {
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                      'Autenticação via Facebook',
-                                    ),
+                                    content: Text('Autenticação via Facebook'),
                                   ),
                                 );
                               },
