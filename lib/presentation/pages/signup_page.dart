@@ -23,7 +23,6 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Stack(
         children: [
           Positioned(
@@ -88,14 +87,15 @@ class _SignupPageState extends State<SignupPage> {
                               controller: _nameController,
                               decoration: InputDecoration(
                                 labelText: 'Nome Completo',
+                                labelStyle: TextStyle(color: Color(0xFFABABAB)), // Label text color
                                 prefixIcon: Icon(Icons.person, color: Color(0xFFE94C19)),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
@@ -107,14 +107,15 @@ class _SignupPageState extends State<SignupPage> {
                               controller: _emailController,
                               decoration: InputDecoration(
                                 labelText: 'Email',
+                                labelStyle: TextStyle(color: Color(0xFFABABAB)), // Label text color
                                 prefixIcon: Icon(Icons.alternate_email, color: Color(0xFFE94C19)),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
@@ -127,6 +128,7 @@ class _SignupPageState extends State<SignupPage> {
                               obscureText: _obscureText,
                               decoration: InputDecoration(
                                 labelText: 'Senha',
+                                labelStyle: TextStyle(color: Color(0xFFABABAB)), // Label text color
                                 prefixIcon: Icon(Icons.lock_rounded, color: Color(0xFFE94C19)),
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -141,11 +143,11 @@ class _SignupPageState extends State<SignupPage> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)), // Cor da borda igual ao texto
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),

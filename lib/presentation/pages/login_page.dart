@@ -7,12 +7,15 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          Image.asset(
-            'assets/backgroundLogin.png',
-            fit: BoxFit.none,
-            width: double.infinity,
-            height: double.infinity,
-            alignment: Alignment.topCenter,
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Image.asset(
+              'assets/backgroundLogin.png',
+              fit: BoxFit.cover,
+              height: MediaQuery.of(context).size.height * 0.6,
+            ),
           ),
           Align(
             alignment: Alignment.bottomCenter,

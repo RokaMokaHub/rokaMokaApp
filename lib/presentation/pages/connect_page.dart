@@ -24,12 +24,15 @@ class _ConnectPageState extends State<ConnectPage> {
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          Image.asset(
-            'assets/backgroundConnect.png',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-            alignment: Alignment.topCenter,
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Image.asset(
+              'assets/backgroundConnect.png',
+              fit: BoxFit.cover,
+              height: MediaQuery.of(context).size.height * 0.3,
+            ),
           ),
           SafeArea(
             child: Column(
