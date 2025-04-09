@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roka_moka_app/presentation/pages/edit_profile.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 
 void main() {
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => ProfileScreen(), // Página inicial - Para fins de teste a página de perfil é a página inicial
+        '/editar_perfil': (context) => EditProfile(), // Página de Perfil
         //  '/perfil': (context) => ProfileScreen(), // Página de Perfil
       },
       initialRoute: '/',

@@ -28,9 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Container(
               padding: EdgeInsets.only(top: 80, bottom: 20),
-              decoration: BoxDecoration(
-                color: Color(0xFFB23F1A),
-              ),
+              decoration: BoxDecoration(color: Color(0xFFB23F1A)),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -62,7 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             _buildStack(),
-            _buildListButtons(),
+            _buildListButtons(context),
             Expanded(child: Container(color: Colors.white)),
             BottomNavBar(currentIndex: currentIndex, onTap: onTap),
           ],
@@ -143,21 +141,21 @@ Widget _buildCards(int quantity, List<String> texts) {
   );
 }
 
-Widget _buildListButtons() {
+Widget _buildListButtons(BuildContext context) {
   return Padding(
     padding: EdgeInsetsDirectional.only(start: 16, end: 16),
     child: Column(
       spacing: 25,
       children: [
-        _buildButton('Editar perfil'),
-        _buildButton('Ajuda'),
-        _buildButton('Sair'),
+        _buildButton('Editar perfil', context),
+        _buildButton('Ajuda', context),
+        _buildButton('Sair', context),
       ],
     ),
   );
 }
 
-Widget _buildButton(String descrButton) {
+Widget _buildButton(String descrButton, BuildContext context) {
   return Container(
     width: double.infinity,
     height: 48,
@@ -170,7 +168,11 @@ Widget _buildButton(String descrButton) {
       borderRadius: BorderRadius.circular(25), // Bordas arredondadas
     ),
     child: ElevatedButton(
-      onPressed: () => debugPrint('Clicou em $descrButton'),
+      onPressed: () {
+        if (descrButton == 'Editar perfil') {
+          Navigator.pushNamed(context, '/editar_perfil');
+        }
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
