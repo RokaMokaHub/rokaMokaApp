@@ -52,6 +52,7 @@ class _EditProfileState extends State<EditProfile> {
                   _textField('Nome Completo', _userNameController),
                   _textField('Email', _emailController),
                   PasswordTextField(controller: _passwordController, placeholder: 'Senha'),
+                  _buttonSave(),
                 ],
               ),
             ),
@@ -60,6 +61,40 @@ class _EditProfileState extends State<EditProfile> {
       ),
     );
   }
+}
+
+Widget _buttonSave() {
+  return Container(
+    width: double.infinity,
+    height: 48,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Color(0xFFB23F1A), Color(0xFFE94C19)], // Cores do degradê
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      borderRadius: BorderRadius.circular(25), // Bordas arredondadas
+    ),
+    child: ElevatedButton(
+      onPressed: () {
+
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        padding: EdgeInsets.zero,
+      ),
+      child: Text(
+        'Salvar',
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
+    ),
+  );
 }
 
 Widget _textField(String placeholder, TextEditingController textController) {
