@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/screens/profile_screen.dart';
+import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 
 void main() {
   runApp(const MyApp());

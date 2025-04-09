@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/widgets/bottom_navbar.dart';
+import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
 
 // ignore: use_key_in_widget_constructors
 class ProfileScreen extends StatefulWidget {
