@@ -43,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         border: Border.all(color: Colors.white, width: 2),
                         image: DecorationImage(
                           image: AssetImage('./assets/images/user_icon.png'),
-                          fit: BoxFit.cover,
+                          fit: BoxFit.none,
                         ),
                       ),
                     ),
