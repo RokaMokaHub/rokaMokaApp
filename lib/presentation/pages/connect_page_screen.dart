@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ConnectPage extends StatefulWidget {
+class ConnectScreen extends StatefulWidget {
   @override
   _ConnectPageState createState() => _ConnectPageState();
 }
 
-class _ConnectPageState extends State<ConnectPage> {
+class _ConnectPageState extends State<ConnectScreen> {
   bool _obscureText = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -48,10 +48,13 @@ class _ConnectPageState extends State<ConnectPage> {
                   ),
                 ),
                 Expanded(
-                  child: Column( // Usando um Column aqui
+                  child: Column(
+                    // Usando um Column aqui
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.15,
+                      ),
                       Expanded(
                         child: Container(
                           width: double.infinity,
@@ -100,11 +103,15 @@ class _ConnectPageState extends State<ConnectPage> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                      borderSide: BorderSide(
+                                        color: Color(0xFFE94C19),
+                                      ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                      borderSide: BorderSide(
+                                        color: Color(0xFFE94C19),
+                                      ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
@@ -142,11 +149,15 @@ class _ConnectPageState extends State<ConnectPage> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                      borderSide: BorderSide(
+                                        color: Color(0xFFE94C19),
+                                      ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                      borderSide: BorderSide(
+                                        color: Color(0xFFE94C19),
+                                      ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
@@ -158,8 +169,14 @@ class _ConnectPageState extends State<ConnectPage> {
                                   alignment: Alignment.centerRight,
                                   child: TextButton(
                                     onPressed: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('     Fale com o administrador (53) 9xxxx - xxxx')),
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            '     Fale com o administrador (53) 9xxxx - xxxx',
+                                          ),
+                                        ),
                                       );
                                     },
                                     child: Text(
@@ -227,7 +244,9 @@ class _ConnectPageState extends State<ConnectPage> {
                                   onPressed: () {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Entrar de forma anônima'),
+                                        content: Text(
+                                          'Entrar de forma anônima',
+                                        ),
                                       ),
                                     );
                                   },

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:roka_moka_app/presentation/widgets/password_text_field.dart';
 
 // ignore: use_key_in_widget_constructors
-class EditProfile extends StatefulWidget {
+class EditProfileScreen extends StatefulWidget {
   @override
   // ignore: library_private_types_in_public_api
   _EditProfileState createState() => _EditProfileState();
 }
 
-class _EditProfileState extends State<EditProfile> {
+class _EditProfileState extends State<EditProfileScreen> {
   late TextEditingController _userNameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;

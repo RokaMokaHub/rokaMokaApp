@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'presentation/pages/login_page.dart';
-import 'presentation/pages/connect_page.dart';
-import 'presentation/pages/signup_page.dart';
+import 'package:roka_moka_app/presentation/pages/connect_page_screen.dart';
+import 'package:roka_moka_app/presentation/pages/login_screen.dart';
+import 'package:roka_moka_app/presentation/pages/signup_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,11 +18,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: LoginPage(),
+      home: LoginScreen(),
       routes: {
-        '/login': (context) => LoginPage(),
-        '/connect': (context) => ConnectPage(),
-        '/signup': (context) => SignupPage(),
+        '/login': (context) => LoginScreen(),
+        '/connect': (context) => ConnectScreen(),
+        '/signup': (context) => SignupScreen(),
       },
     );
   }

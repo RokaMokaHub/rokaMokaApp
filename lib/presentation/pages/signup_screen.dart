@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class RegistryScreen extends StatefulWidget {
+class SignupScreen extends StatefulWidget {
   @override
-  _RegistryScreenState createState() => _RegistryScreenState();
+  _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _RegistryScreenState extends State<RegistryScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   bool _obscureText = true;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();

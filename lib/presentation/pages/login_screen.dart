@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,12 +59,16 @@ class LoginPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       // Botão "Acessar"
-                      GestureDetector( // Envolve o Container inteiro
+                      GestureDetector(
+                        // Envolve o Container inteiro
                         onTap: () {
                           Navigator.pushNamed(context, '/connect');
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 120, vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 120,
+                            vertical: 14,
+                          ),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
@@ -100,7 +104,10 @@ class LoginPage extends StatelessWidget {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Color(0xFFE94C19),
-                          padding: EdgeInsets.symmetric(horizontal: 127, vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 127,
+                            vertical: 14,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32),
                           ),
