@@ -51,7 +51,10 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                   _textField('Nome Completo', _userNameController),
                   _textField('Email', _emailController),
-                  PasswordTextField(controller: _passwordController, placeholder: 'Senha'),
+                  PasswordTextField(
+                    controller: _passwordController,
+                    placeholder: 'Senha',
+                  ),
                   _buttonSave(),
                 ],
               ),
@@ -76,9 +79,7 @@ Widget _buttonSave() {
       borderRadius: BorderRadius.circular(25), // Bordas arredondadas
     ),
     child: ElevatedButton(
-      onPressed: () {
-
-      },
+      onPressed: () {},
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
@@ -100,6 +101,7 @@ Widget _buttonSave() {
 Widget _textField(String placeholder, TextEditingController textController) {
   return TextField(
     controller: textController,
+    enabled: false,
     decoration: InputDecoration(
       contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       hintText: placeholder,
@@ -112,6 +114,11 @@ Widget _textField(String placeholder, TextEditingController textController) {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
         borderSide: BorderSide(color: Color(0xFFE94C19), width: 2),
+      ),
+      disabledBorder: OutlineInputBorder(
+        // 👈 Estilo quando desabilitado
+        borderRadius: BorderRadius.circular(50),
+        borderSide: BorderSide(color: Color(0xFFABABAB), width: 2),
       ),
     ),
     style: TextStyle(height: 1.2),
