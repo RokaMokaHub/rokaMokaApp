@@ -86,7 +86,7 @@ class _SignupPageState extends State<SignupPage> {
                             TextField(
                               controller: _nameController,
                               decoration: InputDecoration(
-                                labelText: 'Nome Completo',
+                                labelText: 'Username',
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)), // Label text color
                                 prefixIcon: Icon(Icons.person, color: Color(0xFFE94C19)),
                                 focusedBorder: OutlineInputBorder(
