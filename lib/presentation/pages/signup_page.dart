@@ -7,17 +7,65 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  bool _obscureText = true;
+  bool _obscureTextPassword = true;
+  bool _obscureTextConfirmPassword = true;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  String? _passwordError;
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  String? _validatePassword(String password) {
+    if (password.length < 8) {
+      return 'A senha deve ter no mínimo 8 caracteres.';
+    }
+    if (!password.contains(RegExp(r'[0-9]'))) {
+      return 'A senha deve conter pelo menos um número.';
+    }
+    if (!password.contains(RegExp(r'[A-Z]'))) {
+      return 'A senha deve conter pelo menos uma letra maiúscula.';
+    }
+    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      return 'A senha deve conter pelo menos um caractere especial.';
+    }
+    return null;
+  }
+
+  void _validateAndCreateAccount() {
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    final passwordError = _validatePassword(password);
+    setState(() {
+      _passwordError = passwordError;
+    });
+
+    if (passwordError != null) {
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('As senhas não coincidem.')),
+      );
+      return;
+    }
+
+    // Se a senha for válida e as senhas coincidirem, prossiga com a criação da conta
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Conta criada com sucesso (simulação)')),
+    );
+    // lógica de criação de conta real
   }
 
   @override
@@ -87,7 +135,7 @@ class _SignupPageState extends State<SignupPage> {
                               controller: _nameController,
                               decoration: InputDecoration(
                                 labelText: 'Username',
-                                labelStyle: TextStyle(color: Color(0xFFABABAB)), // Label text color
+                                labelStyle: TextStyle(color: Color(0xFFABABAB)),
                                 prefixIcon: Icon(Icons.person, color: Color(0xFFE94C19)),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
@@ -107,7 +155,7 @@ class _SignupPageState extends State<SignupPage> {
                               controller: _emailController,
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                labelStyle: TextStyle(color: Color(0xFFABABAB)), // Label text color
+                                labelStyle: TextStyle(color: Color(0xFFABABAB)),
                                 prefixIcon: Icon(Icons.alternate_email, color: Color(0xFFE94C19)),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
@@ -125,19 +173,71 @@ class _SignupPageState extends State<SignupPage> {
                             SizedBox(height: 16),
                             TextField(
                               controller: _passwordController,
-                              obscureText: _obscureText,
+                              obscureText: _obscureTextPassword,
+                              onChanged: (value) {
+                                setState(() {
+                                  _passwordError = _validatePassword(value);
+                                });
+                              },
                               decoration: InputDecoration(
                                 labelText: 'Senha',
-                                labelStyle: TextStyle(color: Color(0xFFABABAB)), // Label text color
-                                prefixIcon: Icon(Icons.lock_rounded, color: Color(0xFFE94C19)),
+                                labelStyle: TextStyle(color: Color(0xFFABABAB)),
+                                prefixIcon: Icon(Icons.lock_outline_rounded, color: Color(0xFFE94C19)),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                    _obscureTextPassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
                                     color: Color(0xFFABABAB),
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      _obscureText = !_obscureText;
+                                      _obscureTextPassword = !_obscureTextPassword;
+                                    });
+                                  },
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                            ),
+                            if (_passwordError != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Center( // Adicione o Center aqui
+                                  child: Text(
+                                    _passwordError!,
+                                    style: TextStyle(color: Colors.red[700],
+                                      fontSize:  12),
+                                  ),
+                                ),
+                              ),
+                            SizedBox(height: 16),
+                            TextField(
+                              controller: _confirmPasswordController,
+                              obscureText: _obscureTextConfirmPassword,
+                              decoration: InputDecoration(
+                                labelText: 'Confirmar Senha',
+                                labelStyle: TextStyle(color: Color(0xFFABABAB)),
+                                prefixIcon: Icon(Icons.lock_rounded, color: Color(0xFFE94C19)),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureTextConfirmPassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: Color(0xFFABABAB),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscureTextConfirmPassword = !_obscureTextConfirmPassword;
                                     });
                                   },
                                 ),
@@ -156,11 +256,7 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                             SizedBox(height: 30),
                             GestureDetector(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Ação de criar conta')),
-                                );
-                              },
+                              onTap: _validateAndCreateAccount,
                               child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 120, vertical: 14),
                                 decoration: BoxDecoration(

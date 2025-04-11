@@ -10,12 +10,31 @@ class _ConnectPageState extends State<ConnectPage> {
   bool _obscureText = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String? _emailErrorText;
+  String? _passwordErrorText;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _validateFields() {
+    //Caso algum dos campos(Email e senha) não esteja preenchido
+    setState(() {
+      _emailErrorText = _emailController.text.isEmpty ? 'O email não pode estar vazio' : null;
+      _passwordErrorText = _passwordController.text.isEmpty ? 'A senha não pode estar vazia' : null;
+    });
+
+    if (_emailErrorText == null && _passwordErrorText == null) {
+      //Lógica de autenticação:
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Autenticando com: ${_emailController.text}'),
+        ),
+      );
+    }
   }
 
   @override
@@ -48,7 +67,7 @@ class _ConnectPageState extends State<ConnectPage> {
                   ),
                 ),
                 Expanded(
-                  child: Column( // Usando um Column aqui
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SizedBox(height: MediaQuery.of(context).size.height * 0.15),
@@ -92,7 +111,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                     labelStyle: GoogleFonts.poppins(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFFABABAB),
+                                      color: _emailErrorText == null ? Color(0xFFABABAB) : Colors.red,
                                     ),
                                     prefixIcon: Icon(
                                       Icons.alternate_email,
@@ -109,6 +128,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
+                                    errorText: _emailErrorText,
                                   ),
                                 ),
                                 SizedBox(height: 20),
@@ -120,7 +140,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                     labelStyle: GoogleFonts.poppins(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFFABABAB),
+                                      color: _passwordErrorText == null ? Color(0xFFABABAB) : Colors.red,
                                     ),
                                     prefixIcon: Icon(
                                       Icons.lock_rounded,
@@ -151,6 +171,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
+                                    errorText: _passwordErrorText,
                                   ),
                                 ),
                                 SizedBox(height: 8),
@@ -174,15 +195,7 @@ class _ConnectPageState extends State<ConnectPage> {
                                 ),
                                 SizedBox(height: 20),
                                 GestureDetector(
-                                  onTap: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Autenticação via email/senha',
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                  onTap: _validateFields,
                                   child: Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 120,
