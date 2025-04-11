@@ -218,7 +218,7 @@ class _SignupPageState extends State<SignupScreen> {
                               },
                               decoration: InputDecoration(
                                 labelText: 'Senha',
-                                errorText: _passwordError, 
+                                errorText: _passwordError,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
                                 prefixIcon: Icon(Icons.lock_outline_rounded, color: Color(0xFFE94C19)),
                                 suffixIcon: IconButton(

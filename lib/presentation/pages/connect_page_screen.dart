@@ -135,6 +135,20 @@ class _ConnectPageState extends State<ConnectScreen> {
                                 SizedBox(height: 30),
                                 TextField(
                                   controller: _emailController,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (value.isEmpty) {
+                                        _emailErrorText = 'O email não pode estar vazio';
+                                        _isEmailValid = false;
+                                      } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
+                                        _emailErrorText = 'Insira um email válido';
+                                        _isEmailValid = false;
+                                      } else {
+                                        _emailErrorText = null;
+                                        _isEmailValid = true;
+                                      }
+                                    });
+                                  },
                                   decoration: InputDecoration(
                                     labelText: 'Email',
                                     labelStyle: GoogleFonts.poppins(
@@ -148,11 +162,11 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color:  Color(0xFFE94C19)),
+                                      borderSide: BorderSide(color:Color(0xFFE94C19)),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                      borderSide: BorderSide(color:  Color(0xFFE94C19)),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
@@ -164,6 +178,12 @@ class _ConnectPageState extends State<ConnectScreen> {
                                 TextField(
                                   controller: _passwordController,
                                   obscureText: _obscureText,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _passwordErrorText = value.isEmpty ? 'A senha não pode estar vazia' : null;
+                                      _isPasswordValid = value.isNotEmpty;
+                                    });
+                                  },
                                   decoration: InputDecoration(
                                     labelText: 'Senha',
                                     labelStyle: GoogleFonts.poppins(
