@@ -10,12 +10,60 @@ class _ConnectPageState extends State<ConnectScreen> {
   bool _obscureText = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String? _emailErrorText;
+  String? _passwordErrorText;
+  bool _isEmailValid = false;
+  bool _isPasswordValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_validateEmail);
+    _passwordController.addListener(_validatePassword);
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _validateEmail() {
+    final email = _emailController.text;
+    setState(() {
+      if (email.isEmpty) {
+        _emailErrorText = 'O email não pode estar vazio';
+        _isEmailValid = false;
+      } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(email)) {
+        _emailErrorText = 'Insira um email válido';
+        _isEmailValid = false;
+      } else {
+        _emailErrorText = null;
+        _isEmailValid = true;
+      }
+    });
+  }
+
+  void _validatePassword() {
+    setState(() {
+      _passwordErrorText = _passwordController.text.isEmpty ? 'A senha não pode estar vazia' : null;
+      _isPasswordValid = _passwordController.text.isNotEmpty;
+    });
+  }
+
+  void _validateFields() {
+    _validateEmail();
+    _validatePassword();
+
+    if (_isEmailValid && _isPasswordValid) {
+      //Lógica de autenticação:
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Autenticando com: ${_emailController.text}'),
+        ),
+      );
+    }
   }
 
   @override
@@ -49,12 +97,9 @@ class _ConnectPageState extends State<ConnectScreen> {
                 ),
                 Expanded(
                   child: Column(
-                    // Usando um Column aqui
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.15,
-                      ),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.15),
                       Expanded(
                         child: Container(
                           width: double.infinity,
@@ -103,19 +148,16 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(
-                                        color: Color(0xFFE94C19),
-                                      ),
+                                      borderSide: BorderSide(color:  Color(0xFFE94C19)),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(
-                                        color: Color(0xFFE94C19),
-                                      ),
+                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
+                                    errorText: _emailErrorText,
                                   ),
                                 ),
                                 SizedBox(height: 20),
@@ -131,7 +173,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     prefixIcon: Icon(
                                       Icons.lock_rounded,
-                                      color: Color(0xFFE94C19),
+                                      color:  Color(0xFFE94C19),
                                     ),
                                     suffixIcon: IconButton(
                                       icon: Icon(
@@ -149,19 +191,16 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(
-                                        color: Color(0xFFE94C19),
-                                      ),
+                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(
-                                        color: Color(0xFFE94C19),
-                                      ),
+                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
+                                    errorText: _passwordErrorText,
                                   ),
                                 ),
                                 SizedBox(height: 8),
@@ -169,14 +208,8 @@ class _ConnectPageState extends State<ConnectScreen> {
                                   alignment: Alignment.centerRight,
                                   child: TextButton(
                                     onPressed: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            '     Fale com o administrador (53) 9xxxx - xxxx',
-                                          ),
-                                        ),
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('     Fale com o administrador (53) 9xxxx - xxxx')),
                                       );
                                     },
                                     child: Text(
@@ -191,15 +224,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                 ),
                                 SizedBox(height: 20),
                                 GestureDetector(
-                                  onTap: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Autenticação via email/senha',
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                  onTap: _validateFields,
                                   child: Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 120,
@@ -244,9 +269,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                   onPressed: () {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(
-                                          'Entrar de forma anônima',
-                                        ),
+                                        content: Text('Entrar de forma anônima'),
                                       ),
                                     );
                                   },
