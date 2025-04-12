@@ -17,6 +17,11 @@ class _SignupPageState extends State<SignupScreen> {
   String? _passwordError;
   String? _nameError;
   String? _emailError;
+  String? _confirmPasswordError;
+
+  final Color _errorBorderColor = Color(0xFFB94022);
+  final Color _focusedBorderColor = Color(0xFFE94C19);
+  bool _submitted = false; // Flag para verificar se o botão "Criar conta" foi clicado
 
   @override
   void dispose() {
@@ -28,62 +33,67 @@ class _SignupPageState extends State<SignupScreen> {
   }
 
   String? _validateName(String name) {
-    if (name.isEmpty) {
+    if (_submitted && name.isEmpty) {
       return 'O nome de usuário é obrigatório.';
     }
     return null;
   }
 
   String? _validateEmail(String email) {
-    if (email.isEmpty) {
-      return 'O email é obrigatório.';
-    }
-    // Expressão regular para validar o formato do email
-    if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(email)) {
-      return 'Insira um email válido.';
+    if (_submitted) {
+      if (email.isEmpty) {
+        return 'O email é obrigatório.';
+      }
+      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(email)) {
+        return 'Insira um email válido.';
+      }
     }
     return null;
   }
 
   String? _validatePassword(String password) {
-    if (password.isEmpty) {
-      return 'A senha é obrigatória.';
+    if (_submitted) {
+      if (password.isEmpty) {
+        return 'A senha é obrigatória.';
+      }
+      if (password.length < 8) {
+        return 'Deve ter no mínimo 8 caracteres.';
+      }
+      if (!password.contains(RegExp(r'[0-9]'))) {
+        return 'Deve conter pelo menos um número.';
+      }
+      if (!password.contains(RegExp(r'[A-Z]'))) {
+        return 'Deve conter pelo menos uma letra maiúscula.';
+      }
+      if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+        return 'Deve conter pelo menos um caractere especial.';
+      }
     }
-    if (password.length < 8) {
-      return 'Deve ter no mínimo 8 caracteres.';
-    }
-    if (!password.contains(RegExp(r'[0-9]'))) {
-      return 'Deve conter pelo menos um número.';
-    }
-    if (!password.contains(RegExp(r'[A-Z]'))) {
-      return 'Deve conter pelo menos uma letra maiúscula.';
-    }
-    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-      return 'Deve conter pelo menos um caractere especial.';
+    return null;
+  }
+
+  String? _validateConfirmPassword(String confirmPassword) {
+    if (_submitted) {
+      if (confirmPassword.isEmpty) {
+        return 'Confirme sua senha.';
+      }
+      if (confirmPassword != _passwordController.text) {
+        return 'As senhas não coincidem.';
+      }
     }
     return null;
   }
 
   void _validateAndCreateAccount() {
-    final name = _nameController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-
     setState(() {
-      _nameError = _validateName(name);
-      _emailError = _validateEmail(email);
-      _passwordError = _validatePassword(password);
+      _submitted = true;
+      _nameError = _validateName(_nameController.text);
+      _emailError = _validateEmail(_emailController.text);
+      _passwordError = _validatePassword(_passwordController.text);
+      _confirmPasswordError = _validateConfirmPassword(_confirmPasswordController.text);
     });
 
-    if (_nameError != null || _emailError != null || _passwordError != null) {
-      return;
-    }
-
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('As senhas não coincidem.')),
-      );
+    if (_nameError != null || _emailError != null || _passwordError != null || _confirmPasswordError != null) {
       return;
     }
 
@@ -165,19 +175,28 @@ class _SignupPageState extends State<SignupScreen> {
                               },
                               decoration: InputDecoration(
                                 labelText: 'Username',
-                                errorText: _nameError,
+                                errorText: _submitted ? _nameError : null,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Icon(Icons.person, color: Color(0xFFE94C19)),
+                                prefixIcon: Icon(Icons.person, color: _nameError == null ? _focusedBorderColor : _errorBorderColor),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(width: 2.0),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
                                 ),
                               ),
                             ),
@@ -191,19 +210,28 @@ class _SignupPageState extends State<SignupScreen> {
                               },
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                errorText: _emailError,
+                                errorText: _submitted ? _emailError : null,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Icon(Icons.alternate_email, color: Color(0xFFE94C19)),
+                                prefixIcon: Icon(Icons.alternate_email, color: _emailError == null ? _focusedBorderColor : _errorBorderColor),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(width: 2.0),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
                                 ),
                               ),
                             ),
@@ -214,13 +242,15 @@ class _SignupPageState extends State<SignupScreen> {
                               onChanged: (value) {
                                 setState(() {
                                   _passwordError = _validatePassword(value);
+                                  // Also validate confirm password when password changes
+                                  _confirmPasswordController.text = _confirmPasswordController.text; // Trigger onChanged for confirm password
                                 });
                               },
                               decoration: InputDecoration(
                                 labelText: 'Senha',
-                                errorText: _passwordError,
+                                errorText: _submitted ? _passwordError : null,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Icon(Icons.lock_outline_rounded, color: Color(0xFFE94C19)),
+                                prefixIcon: Icon(Icons.lock_outline_rounded, color: _passwordError == null ? _focusedBorderColor : _errorBorderColor),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscureTextPassword
@@ -236,14 +266,23 @@ class _SignupPageState extends State<SignupScreen> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(width: 2.0),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
                                 ),
                               ),
                             ),
@@ -251,10 +290,16 @@ class _SignupPageState extends State<SignupScreen> {
                             TextField(
                               controller: _confirmPasswordController,
                               obscureText: _obscureTextConfirmPassword,
+                              onChanged: (value) {
+                                setState(() {
+                                  _confirmPasswordError = _validateConfirmPassword(value);
+                                });
+                              },
                               decoration: InputDecoration(
                                 labelText: 'Confirmar Senha',
+                                errorText: _submitted ? _confirmPasswordError : null,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Icon(Icons.lock_rounded, color: Color(0xFFE94C19)),
+                                prefixIcon: Icon(Icons.lock_rounded, color: _confirmPasswordError == null ? _focusedBorderColor : _errorBorderColor),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscureTextConfirmPassword
@@ -270,14 +315,23 @@ class _SignupPageState extends State<SignupScreen> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(width: 2.0),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
                                 ),
                               ),
                             ),

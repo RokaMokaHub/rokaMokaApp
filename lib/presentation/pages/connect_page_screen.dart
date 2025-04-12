@@ -12,14 +12,16 @@ class _ConnectPageState extends State<ConnectScreen> {
   final TextEditingController _passwordController = TextEditingController();
   String? _emailErrorText;
   String? _passwordErrorText;
-  bool _isEmailValid = false;
-  bool _isPasswordValid = false;
+  bool _isEmailValid = true;
+  bool _isPasswordValid = true;
+  bool _submitted = false; // Flag para verificar se o botão "Entrar" foi clicado
+
+  final Color _errorBorderColor = Color(0xFFB94022);
+  final Color _focusedBorderColor = Color(0xFFE94C19);
 
   @override
   void initState() {
     super.initState();
-    _emailController.addListener(_validateEmail);
-    _passwordController.addListener(_validatePassword);
   }
 
   @override
@@ -31,30 +33,47 @@ class _ConnectPageState extends State<ConnectScreen> {
 
   void _validateEmail() {
     final email = _emailController.text;
-    setState(() {
-      if (email.isEmpty) {
-        _emailErrorText = 'O email não pode estar vazio';
-        _isEmailValid = false;
-      } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(email)) {
-        _emailErrorText = 'Insira um email válido';
-        _isEmailValid = false;
-      } else {
+    if (_submitted) {
+      setState(() {
+        if (email.isEmpty) {
+          _emailErrorText = 'O email não pode estar vazio';
+          _isEmailValid = false;
+        } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(email)) {
+          _emailErrorText = 'Insira um email válido';
+          _isEmailValid = false;
+        } else {
+          _emailErrorText = null;
+          _isEmailValid = true;
+        }
+      });
+    } else {
+      setState(() {
         _emailErrorText = null;
         _isEmailValid = true;
-      }
-    });
+      });
+    }
   }
 
   void _validatePassword() {
-    setState(() {
-      _passwordErrorText = _passwordController.text.isEmpty ? 'A senha não pode estar vazia' : null;
-      _isPasswordValid = _passwordController.text.isNotEmpty;
-    });
+    if (_submitted) {
+      setState(() {
+        _passwordErrorText = _passwordController.text.isEmpty ? 'A senha não pode estar vazia' : null;
+        _isPasswordValid = _passwordController.text.isNotEmpty;
+      });
+    } else {
+      setState(() {
+        _passwordErrorText = null;
+        _isPasswordValid = true;
+      });
+    }
   }
 
   void _validateFields() {
-    _validateEmail();
-    _validatePassword();
+    setState(() {
+      _submitted = true; // Define a flag como true ao clicar em "Entrar"
+      _validateEmail();
+      _validatePassword();
+    });
 
     if (_isEmailValid && _isPasswordValid) {
       //Lógica de autenticação:
@@ -136,18 +155,13 @@ class _ConnectPageState extends State<ConnectScreen> {
                                 TextField(
                                   controller: _emailController,
                                   onChanged: (value) {
-                                    setState(() {
-                                      if (value.isEmpty) {
-                                        _emailErrorText = 'O email não pode estar vazio';
-                                        _isEmailValid = false;
-                                      } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
-                                        _emailErrorText = 'Insira um email válido';
-                                        _isEmailValid = false;
-                                      } else {
+                                    if (_submitted) {
+                                      _validateEmail();
+                                    } else {
+                                      setState(() {
                                         _emailErrorText = null;
-                                        _isEmailValid = true;
-                                      }
-                                    });
+                                      });
+                                    }
                                   },
                                   decoration: InputDecoration(
                                     labelText: 'Email',
@@ -158,20 +172,29 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     prefixIcon: Icon(
                                       Icons.alternate_email,
-                                      color: Color(0xFFE94C19),
+                                      color: _emailErrorText == null ? _focusedBorderColor : _errorBorderColor,
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color:Color(0xFFE94C19)),
+                                      borderSide: BorderSide(color: _emailErrorText == null ? _focusedBorderColor : _errorBorderColor, width: 2.0),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color:  Color(0xFFE94C19)),
+                                      borderSide: BorderSide(color: _emailErrorText == null ? _focusedBorderColor : _errorBorderColor, width: 2.0),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: BorderSide(width: 2.0),
                                     ),
-                                    errorText: _emailErrorText,
+                                    errorBorder: OutlineInputBorder( // Adicionado errorBorder
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder( // Adicionado focusedErrorBorder
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                    ),
+                                    errorText: _submitted ? _emailErrorText : null,
                                   ),
                                 ),
                                 SizedBox(height: 20),
@@ -179,10 +202,13 @@ class _ConnectPageState extends State<ConnectScreen> {
                                   controller: _passwordController,
                                   obscureText: _obscureText,
                                   onChanged: (value) {
-                                    setState(() {
-                                      _passwordErrorText = value.isEmpty ? 'A senha não pode estar vazia' : null;
-                                      _isPasswordValid = value.isNotEmpty;
-                                    });
+                                    if (_submitted) {
+                                      _validatePassword();
+                                    } else {
+                                      setState(() {
+                                        _passwordErrorText = null;
+                                      });
+                                    }
                                   },
                                   decoration: InputDecoration(
                                     labelText: 'Senha',
@@ -193,7 +219,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     prefixIcon: Icon(
                                       Icons.lock_rounded,
-                                      color:  Color(0xFFE94C19),
+                                      color: _passwordErrorText == null ? _focusedBorderColor : _errorBorderColor,
                                     ),
                                     suffixIcon: IconButton(
                                       icon: Icon(
@@ -211,16 +237,25 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                      borderSide: BorderSide(color: _passwordErrorText == null ? _focusedBorderColor : _errorBorderColor, width: 2.0),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: BorderSide(color: Color(0xFFE94C19)),
+                                      borderSide: BorderSide(color: _passwordErrorText == null ? _focusedBorderColor : _errorBorderColor, width: 2.0),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: BorderSide(width: 2.0),
                                     ),
-                                    errorText: _passwordErrorText,
+                                    errorBorder: OutlineInputBorder( // Adicionado errorBorder
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder( // Adicionado focusedErrorBorder
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                    ),
+                                    errorText: _submitted ? _passwordErrorText : null,
                                   ),
                                 ),
                                 SizedBox(height: 8),
