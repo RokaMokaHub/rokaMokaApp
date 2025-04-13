@@ -16,13 +16,8 @@ class _ConnectPageState extends State<ConnectScreen> {
   bool _isPasswordValid = true;
   bool _submitted = false; // Flag para verificar se o botão "Entrar" foi clicado
 
-  final Color _errorBorderColor = Color(0xFFB94022);
+  final Color _errorBorderColor = Color(0xFF960000);
   final Color _focusedBorderColor = Color(0xFFE94C19);
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -36,7 +31,7 @@ class _ConnectPageState extends State<ConnectScreen> {
     if (_submitted) {
       setState(() {
         if (email.isEmpty) {
-          _emailErrorText = 'O email não pode estar vazio';
+          _emailErrorText = 'O email deve estar preenchido.';
           _isEmailValid = false;
         } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(email)) {
           _emailErrorText = 'Insira um email válido';
@@ -57,7 +52,7 @@ class _ConnectPageState extends State<ConnectScreen> {
   void _validatePassword() {
     if (_submitted) {
       setState(() {
-        _passwordErrorText = _passwordController.text.isEmpty ? 'A senha não pode estar vazia' : null;
+        _passwordErrorText = _passwordController.text.isEmpty ? 'A senha deve estar preenchida.' : null;
         _isPasswordValid = _passwordController.text.isNotEmpty;
       });
     } else {
@@ -170,10 +165,18 @@ class _ConnectPageState extends State<ConnectScreen> {
                                       fontWeight: FontWeight.w500,
                                       color: Color(0xFFABABAB),
                                     ),
-                                    prefixIcon: Icon(
-                                      Icons.alternate_email,
-                                      color: _emailErrorText == null ? _focusedBorderColor : _errorBorderColor,
+                                    prefixIcon: Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 20.0,
+                                        top: 11.5,
+                                        bottom: 11.5,
+                                      ),
+                                      child: Icon(
+                                        Icons.alternate_email,
+                                        color: _emailErrorText == null ? _focusedBorderColor : _errorBorderColor,
+                                      ),
                                     ),
+                                    contentPadding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 26.0),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                       borderSide: BorderSide(color: _emailErrorText == null ? _focusedBorderColor : _errorBorderColor, width: 2.0),
@@ -186,11 +189,11 @@ class _ConnectPageState extends State<ConnectScreen> {
                                       borderRadius: BorderRadius.circular(30.0),
                                       borderSide: BorderSide(width: 2.0),
                                     ),
-                                    errorBorder: OutlineInputBorder( // Adicionado errorBorder
+                                    errorBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                       borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
                                     ),
-                                    focusedErrorBorder: OutlineInputBorder( // Adicionado focusedErrorBorder
+                                    focusedErrorBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                       borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
                                     ),
@@ -217,10 +220,18 @@ class _ConnectPageState extends State<ConnectScreen> {
                                       fontWeight: FontWeight.w500,
                                       color: Color(0xFFABABAB),
                                     ),
-                                    prefixIcon: Icon(
-                                      Icons.lock_rounded,
-                                      color: _passwordErrorText == null ? _focusedBorderColor : _errorBorderColor,
+                                    prefixIcon: Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 20.0,
+                                        top: 11.5,
+                                        bottom: 11.5,
+                                      ),
+                                      child: Icon(
+                                        Icons.lock_rounded,
+                                        color: _passwordErrorText == null ? _focusedBorderColor : _errorBorderColor,
+                                      ),
                                     ),
+                                    contentPadding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 26.0),
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         _obscureText
@@ -247,11 +258,11 @@ class _ConnectPageState extends State<ConnectScreen> {
                                       borderRadius: BorderRadius.circular(30.0),
                                       borderSide: BorderSide(width: 2.0),
                                     ),
-                                    errorBorder: OutlineInputBorder( // Adicionado errorBorder
+                                    errorBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                       borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
                                     ),
-                                    focusedErrorBorder: OutlineInputBorder( // Adicionado focusedErrorBorder
+                                    focusedErrorBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                       borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
                                     ),

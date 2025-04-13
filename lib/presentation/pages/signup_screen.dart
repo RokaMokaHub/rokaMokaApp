@@ -19,7 +19,7 @@ class _SignupPageState extends State<SignupScreen> {
   String? _emailError;
   String? _confirmPasswordError;
 
-  final Color _errorBorderColor = Color(0xFFB94022);
+  final Color _errorBorderColor = Color(0xFF960000);
   final Color _focusedBorderColor = Color(0xFFE94C19);
   bool _submitted = false; // Flag para verificar se o botão "Criar conta" foi clicado
 
@@ -100,7 +100,6 @@ class _SignupPageState extends State<SignupScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Conta criada com sucesso (simulação)')),
     );
-    // lógica de criação de conta
   }
 
   @override
@@ -177,7 +176,11 @@ class _SignupPageState extends State<SignupScreen> {
                                 labelText: 'Username',
                                 errorText: _submitted ? _nameError : null,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Icon(Icons.person, color: _nameError == null ? _focusedBorderColor : _errorBorderColor),
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
+                                  child: Icon(Icons.person, color: _nameError == null ? _focusedBorderColor : _errorBorderColor),
+                                ),
+                                contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 16.0),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
                                   borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
@@ -212,7 +215,11 @@ class _SignupPageState extends State<SignupScreen> {
                                 labelText: 'Email',
                                 errorText: _submitted ? _emailError : null,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Icon(Icons.alternate_email, color: _emailError == null ? _focusedBorderColor : _errorBorderColor),
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
+                                  child: Icon(Icons.alternate_email, color: _emailError == null ? _focusedBorderColor : _errorBorderColor),
+                                ),
+                                contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 16.0),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
                                   borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
@@ -242,15 +249,18 @@ class _SignupPageState extends State<SignupScreen> {
                               onChanged: (value) {
                                 setState(() {
                                   _passwordError = _validatePassword(value);
-                                  // Also validate confirm password when password changes
-                                  _confirmPasswordController.text = _confirmPasswordController.text; // Trigger onChanged for confirm password
+                                  _confirmPasswordController.text = _confirmPasswordController.text;
                                 });
                               },
                               decoration: InputDecoration(
                                 labelText: 'Senha',
                                 errorText: _submitted ? _passwordError : null,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Icon(Icons.lock_outline_rounded, color: _passwordError == null ? _focusedBorderColor : _errorBorderColor),
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
+                                  child: Icon(Icons.lock_outline_rounded, color: _passwordError == null ? _focusedBorderColor : _errorBorderColor),
+                                ),
+                                contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscureTextPassword
@@ -299,7 +309,11 @@ class _SignupPageState extends State<SignupScreen> {
                                 labelText: 'Confirmar Senha',
                                 errorText: _submitted ? _confirmPasswordError : null,
                                 labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Icon(Icons.lock_rounded, color: _confirmPasswordError == null ? _focusedBorderColor : _errorBorderColor),
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
+                                  child: Icon(Icons.lock_rounded, color: _confirmPasswordError == null ? _focusedBorderColor : _errorBorderColor),
+                                ),
+                                contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscureTextConfirmPassword
