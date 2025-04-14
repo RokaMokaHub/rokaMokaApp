@@ -21,7 +21,7 @@ class _SignupPageState extends State<SignupScreen> {
 
   final Color _errorBorderColor = Color(0xFF960000);
   final Color _focusedBorderColor = Color(0xFFE94C19);
-  bool _submitted = false; // Flag para verificar se o botão "Criar conta" foi clicado
+  bool _submitted = false;
 
   @override
   void dispose() {
@@ -105,285 +105,293 @@ class _SignupPageState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Image.asset(
-              'lib/presentation/assets/images/backgroundSignup.png',
-              fit: BoxFit.cover,
-              height: MediaQuery.of(context).size.height * 0.48,
+      resizeToAvoidBottomInset: true,
+      body: GestureDetector(
+        onTap: () {
+          // Fecha o teclado ao clicar fora
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                'lib/presentation/assets/images/backgroundSignup.png',
+                fit: BoxFit.cover,
+                height: MediaQuery.of(context).size.height * 0.48,
+              ),
             ),
-          ),
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white, size: 30),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          topRight: Radius.circular(16),
-                        ),
+            SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 10),
-                            Text(
-                              'Cadastre-se',
-                              style: GoogleFonts.poppins(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFFE94C19),
-                              ),
-                            ),
-                            Text(
-                              'Crie sua conta.',
-                              style: GoogleFonts.poppins(
-                                color: Color(0xFF555555),
-                                fontWeight: FontWeight.w500,
-                                fontSize: 20,
-                              ),
-                            ),
-                            SizedBox(height: 30),
-                            TextField(
-                              controller: _nameController,
-                              onChanged: (value) {
-                                setState(() {
-                                  _nameError = _validateName(value);
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'Username',
-                                errorText: _submitted ? _nameError : null,
-                                labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
-                                  child: Icon(Icons.person, color: _nameError == null ? _focusedBorderColor : _errorBorderColor),
-                                ),
-                                contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 16.0),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(width: 2.0),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16),
+                          ),
+                        ),
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.all(24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 10),
+                              Text(
+                                'Cadastre-se',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFE94C19),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 16),
-                            TextField(
-                              controller: _emailController,
-                              onChanged: (value) {
-                                setState(() {
-                                  _emailError = _validateEmail(value);
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                errorText: _submitted ? _emailError : null,
-                                labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
-                                  child: Icon(Icons.alternate_email, color: _emailError == null ? _focusedBorderColor : _errorBorderColor),
-                                ),
-                                contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 16.0),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(width: 2.0),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                              Text(
+                                'Crie sua conta.',
+                                style: GoogleFonts.poppins(
+                                  color: Color(0xFF555555),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 16),
-                            TextField(
-                              controller: _passwordController,
-                              obscureText: _obscureTextPassword,
-                              onChanged: (value) {
-                                setState(() {
-                                  _passwordError = _validatePassword(value);
-                                  _confirmPasswordController.text = _confirmPasswordController.text;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'Senha',
-                                errorText: _submitted ? _passwordError : null,
-                                labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
-                                  child: Icon(Icons.lock_outline_rounded, color: _passwordError == null ? _focusedBorderColor : _errorBorderColor),
-                                ),
-                                contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscureTextPassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                    color: Color(0xFFABABAB),
+                              SizedBox(height: 30),
+                              // Campo de Nome
+                              TextField(
+                                controller: _nameController,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _nameError = _validateName(value);
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Usuário',
+                                  errorText: _submitted ? _nameError : null,
+                                  labelStyle: TextStyle(color: Color(0xFFABABAB)),
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
+                                    child: Icon(Icons.person_outline_sharp, color: _nameError == null ? _focusedBorderColor : _errorBorderColor),
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscureTextPassword = !_obscureTextPassword;
-                                    });
-                                  },
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(width: 2.0),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(width: 2.0),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 16),
-                            TextField(
-                              controller: _confirmPasswordController,
-                              obscureText: _obscureTextConfirmPassword,
-                              onChanged: (value) {
-                                setState(() {
-                                  _confirmPasswordError = _validateConfirmPassword(value);
-                                });
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'Confirmar Senha',
-                                errorText: _submitted ? _confirmPasswordError : null,
-                                labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
-                                  child: Icon(Icons.lock_rounded, color: _confirmPasswordError == null ? _focusedBorderColor : _errorBorderColor),
-                                ),
-                                contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscureTextConfirmPassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                    color: Color(0xFFABABAB),
+                              SizedBox(height: 16),
+                              // Campo de Email
+                              TextField(
+                                controller: _emailController,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _emailError = _validateEmail(value);
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Email',
+                                  errorText: _submitted ? _emailError : null,
+                                  labelStyle: TextStyle(color: Color(0xFFABABAB)),
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
+                                    child: Icon(Icons.alternate_email, color: _emailError == null ? _focusedBorderColor : _errorBorderColor),
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscureTextConfirmPassword = !_obscureTextConfirmPassword;
-                                    });
-                                  },
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(width: 2.0),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(width: 2.0),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 30),
-                            GestureDetector(
-                              onTap: _validateAndCreateAccount,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 120, vertical: 14),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
+                              SizedBox(height: 16),
+                              // Campo de Senha
+                              TextField(
+                                controller: _passwordController,
+                                obscureText: _obscureTextPassword,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _passwordError = _validatePassword(value);
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Senha',
+                                  errorText: _submitted ? _passwordError : null,
+                                  labelStyle: TextStyle(color: Color(0xFFABABAB)),
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
+                                    child: Icon(Icons.lock_outline_rounded, color: _passwordError == null ? _focusedBorderColor : _errorBorderColor),
                                   ),
-                                  borderRadius: BorderRadius.circular(32),
+                                  contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureTextPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                      color: Color(0xFFABABAB),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscureTextPassword = !_obscureTextPassword;
+                                      });
+                                    },
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(width: 2.0),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  ),
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    'Criar conta',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 15,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
+                              ),
+                              SizedBox(height: 16),
+                              // Campo de Confirmar Senha
+                              TextField(
+                                controller: _confirmPasswordController,
+                                obscureText: _obscureTextConfirmPassword,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _confirmPasswordError = _validateConfirmPassword(value);
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Confirmar Senha',
+                                  errorText: _submitted ? _confirmPasswordError : null,
+                                  labelStyle: TextStyle(color: Color(0xFFABABAB)),
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
+                                    child: Icon(Icons.lock_outline_rounded, color: _confirmPasswordError == null ? _focusedBorderColor : _errorBorderColor),
+                                  ),
+                                  contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureTextConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                      color: Color(0xFFABABAB),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscureTextConfirmPassword = !_obscureTextConfirmPassword;
+                                      });
+                                    },
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(width: 2.0),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 30),
+                              GestureDetector(
+                                onTap: _validateAndCreateAccount,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 120, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Criar conta',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
