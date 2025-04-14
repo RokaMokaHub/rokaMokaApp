@@ -114,7 +114,7 @@ class _SignupPageState extends State<SignupScreen> {
             child: Image.asset(
               'lib/presentation/assets/images/backgroundSignup.png',
               fit: BoxFit.cover,
-              height: MediaQuery.of(context).size.height * 0.4,
+              height: MediaQuery.of(context).size.height * 0.35,
             ),
           ),
           SafeArea(
@@ -140,7 +140,7 @@ class _SignupPageState extends State<SignupScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+                                SizedBox(height: MediaQuery.of(context).size.height * 0.20),
                                 Expanded(
                                   child: Container(
                                     width: double.infinity,
