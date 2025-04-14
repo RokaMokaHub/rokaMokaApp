@@ -7,24 +7,33 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupScreen> {
+  // Controla a visibilidade da senha
   bool _obscureTextPassword = true;
+  // Controla a visibilidade da confirmação da senha
   bool _obscureTextConfirmPassword = true;
+
+  // Controladores para os campos de texto
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
+  // Variáveis para armazenar mensagens de erro dos campos
   String? _passwordError;
   String? _nameError;
   String? _emailError;
   String? _confirmPasswordError;
 
+  // Cores personalizadas para as bordas dos campos de texto em diferentes estados
   final Color _errorBorderColor = Color(0xFF960000);
   final Color _focusedBorderColor = Color(0xFFE94C19);
+
+  // Indica se o formulário foi submetido
   bool _submitted = false;
 
   @override
   void dispose() {
+    // Libera os recursos dos controladores quando o widget é descartado
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -32,6 +41,7 @@ class _SignupPageState extends State<SignupScreen> {
     super.dispose();
   }
 
+  // Valida o campo de nome de usuário
   String? _validateName(String name) {
     if (_submitted && name.isEmpty) {
       return 'O nome de usuário é obrigatório.';
@@ -39,6 +49,7 @@ class _SignupPageState extends State<SignupScreen> {
     return null;
   }
 
+  // Valida o campo de email
   String? _validateEmail(String email) {
     if (_submitted) {
       if (email.isEmpty) {
@@ -51,6 +62,7 @@ class _SignupPageState extends State<SignupScreen> {
     return null;
   }
 
+  // Valida o campo de senha com critérios de segurança
   String? _validatePassword(String password) {
     if (_submitted) {
       if (password.isEmpty) {
@@ -72,6 +84,7 @@ class _SignupPageState extends State<SignupScreen> {
     return null;
   }
 
+  // Valida o campo de confirmação de senha, comparando com a senha digitada
   String? _validateConfirmPassword(String confirmPassword) {
     if (_submitted) {
       if (confirmPassword.isEmpty) {
@@ -84,6 +97,7 @@ class _SignupPageState extends State<SignupScreen> {
     return null;
   }
 
+  // Valida todos os campos e simula a criação da conta se todos forem válidos
   void _validateAndCreateAccount() {
     setState(() {
       _submitted = true;
@@ -107,6 +121,7 @@ class _SignupPageState extends State<SignupScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          // Imagem de fundo posicionada no topo da tela
           Positioned(
             top: 0,
             left: 0,
@@ -117,6 +132,7 @@ class _SignupPageState extends State<SignupScreen> {
               height: MediaQuery.of(context).size.height * 0.35,
             ),
           ),
+          // Conteúdo principal dentro de um SafeArea para evitar sobreposição com a barra de status
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -127,6 +143,7 @@ class _SignupPageState extends State<SignupScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Botão de voltar na parte superior
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
                             child: IconButton(
@@ -136,11 +153,13 @@ class _SignupPageState extends State<SignupScreen> {
                               },
                             ),
                           ),
+                          // Conteúdo do formulário expandido para ocupar o espaço restante
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 SizedBox(height: MediaQuery.of(context).size.height * 0.20),
+                                // Container branco com bordas arredondadas para o formulário
                                 Expanded(
                                   child: Container(
                                     width: double.infinity,
@@ -156,6 +175,7 @@ class _SignupPageState extends State<SignupScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         SizedBox(height: 10),
+                                        // Título da tela de cadastro
                                         Text(
                                           'Cadastre-se',
                                           style: GoogleFonts.poppins(
@@ -164,6 +184,7 @@ class _SignupPageState extends State<SignupScreen> {
                                             color: Color(0xFFE94C19),
                                           ),
                                         ),
+                                        // Subtítulo da tela de cadastro
                                         Text(
                                           'Crie sua conta.',
                                           style: GoogleFonts.poppins(
@@ -173,6 +194,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           ),
                                         ),
                                         SizedBox(height: 30),
+                                        // Campo de texto para o nome de usuário
                                         TextField(
                                           controller: _nameController,
                                           onChanged: (value) {
@@ -208,6 +230,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           ),
                                         ),
                                         SizedBox(height: 16),
+                                        // Campo de texto para o email
                                         TextField(
                                           controller: _emailController,
                                           onChanged: (value) {
@@ -243,6 +266,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           ),
                                         ),
                                         SizedBox(height: 16),
+                                        // Campo de texto para a senha
                                         TextField(
                                           controller: _passwordController,
                                           obscureText: _obscureTextPassword,
@@ -290,6 +314,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           ),
                                         ),
                                         SizedBox(height: 16),
+                                        // Campo de texto para confirmar a senha
                                         TextField(
                                           controller: _confirmPasswordController,
                                           obscureText: _obscureTextConfirmPassword,
@@ -337,6 +362,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           ),
                                         ),
                                         SizedBox(height: 30),
+                                        // Botão para criar a conta
                                         GestureDetector(
                                           onTap: _validateAndCreateAccount,
                                           child: Container(
