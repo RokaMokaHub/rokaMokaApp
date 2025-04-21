@@ -1,17 +1,44 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
+
 import 'package:roka_moka_app/presentation/pages/connect_page_screen.dart';
 import 'package:roka_moka_app/presentation/pages/login_screen.dart';
 import 'package:roka_moka_app/presentation/pages/signup_screen.dart';
-import 'package:flutter/services.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
+
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]).then((_) {
-    runApp(const MyApp());
-  });
+  ]);
+
+  final deviceInfoPlugin = DeviceInfoPlugin();
+
+  try {
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfoPlugin.androidInfo;
+      if (kDebugMode) {
+        print('Device ID (Android ID): ${androidInfo.id}');
+      }
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfoPlugin.iosInfo;
+      if (kDebugMode) {
+        print(
+          'Device ID (identifierForVendor): ${iosInfo.identifierForVendor}',
+        );
+      }
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('Erro ao obter Device ID: $e');
+    }
+  }
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
