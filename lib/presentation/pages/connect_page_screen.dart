@@ -67,9 +67,10 @@ class _ConnectPageState extends State<ConnectScreen> {
   void _validatePassword() {
     if (_submitted) {
       setState(() {
-        _passwordErrorText = _passwordController.text.isEmpty
-            ? 'A senha deve estar preenchida.'
-            : null;
+        _passwordErrorText =
+            _passwordController.text.isEmpty
+                ? 'A senha deve estar preenchida.'
+                : null;
         _isPasswordValid = _passwordController.text.isNotEmpty;
       });
     } else {
@@ -147,7 +148,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                 // Espaçamento superior
                                 SizedBox(
                                   height:
-                                  MediaQuery.of(context).size.height * 0.15,
+                                      MediaQuery.of(context).size.height * 0.15,
                                 ),
                                 // Container branco com bordas arredondadas para o formulário
                                 Expanded(
@@ -163,7 +164,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         SizedBox(height: 10),
                                         // Título "Login"
@@ -212,9 +213,10 @@ class _ConnectPageState extends State<ConnectScreen> {
                                               ),
                                               child: Icon(
                                                 Icons.alternate_email,
-                                                color: _emailErrorText == null
-                                                    ? _focusedBorderColor
-                                                    : _errorBorderColor,
+                                                color:
+                                                    _emailErrorText == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
                                               ),
                                             ),
                                             contentPadding: EdgeInsets.only(
@@ -224,51 +226,56 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
-                                                color: _emailErrorText == null
-                                                    ? _focusedBorderColor
-                                                    : _errorBorderColor,
+                                                color:
+                                                    _emailErrorText == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
                                                 width: 2.0,
                                               ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
-                                                color: _emailErrorText == null
-                                                    ? _focusedBorderColor
-                                                    : _errorBorderColor,
+                                                color:
+                                                    _emailErrorText == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
                                                 width: 2.0,
                                               ),
                                             ),
                                             border: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 width: 2.0,
                                               ),
                                             ),
                                             errorBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 color: _errorBorderColor,
                                                 width: 2.0,
                                               ),
                                             ),
                                             focusedErrorBorder:
-                                            OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _errorBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            errorText: _submitted
-                                                ? _emailErrorText
-                                                : null,
+                                                OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        30.0,
+                                                      ),
+                                                  borderSide: BorderSide(
+                                                    color: _errorBorderColor,
+                                                    width: 2.0,
+                                                  ),
+                                                ),
+                                            errorText:
+                                                _submitted
+                                                    ? _emailErrorText
+                                                    : null,
                                           ),
                                         ),
                                         SizedBox(height: 20),
@@ -300,9 +307,10 @@ class _ConnectPageState extends State<ConnectScreen> {
                                               ),
                                               child: Icon(
                                                 Icons.lock_rounded,
-                                                color: _passwordErrorText == null
-                                                    ? _focusedBorderColor
-                                                    : _errorBorderColor,
+                                                color:
+                                                    _passwordErrorText == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
                                               ),
                                             ),
                                             contentPadding: EdgeInsets.only(
@@ -315,7 +323,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                 _obscureText
                                                     ? Icons.visibility_outlined
                                                     : Icons
-                                                    .visibility_off_outlined,
+                                                        .visibility_off_outlined,
                                                 color: Color(0xFFABABAB),
                                                 size: 25,
                                               ),
@@ -327,51 +335,56 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
-                                                color: _passwordErrorText == null
-                                                    ? _focusedBorderColor
-                                                    : _errorBorderColor,
+                                                color:
+                                                    _passwordErrorText == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
                                                 width: 2.0,
                                               ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
-                                                color: _passwordErrorText == null
-                                                    ? _focusedBorderColor
-                                                    : _errorBorderColor,
+                                                color:
+                                                    _passwordErrorText == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
                                                 width: 2.0,
                                               ),
                                             ),
                                             border: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 width: 2.0,
                                               ),
                                             ),
                                             errorBorder: OutlineInputBorder(
                                               borderRadius:
-                                              BorderRadius.circular(30.0),
+                                                  BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 color: _errorBorderColor,
                                                 width: 2.0,
                                               ),
                                             ),
                                             focusedErrorBorder:
-                                            OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _errorBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            errorText: _submitted
-                                                ? _passwordErrorText
-                                                : null,
+                                                OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        30.0,
+                                                      ),
+                                                  borderSide: BorderSide(
+                                                    color: _errorBorderColor,
+                                                    width: 2.0,
+                                                  ),
+                                                ),
+                                            errorText:
+                                                _submitted
+                                                    ? _passwordErrorText
+                                                    : null,
                                           ),
                                         ),
                                         SizedBox(height: 8),
@@ -403,7 +416,13 @@ class _ConnectPageState extends State<ConnectScreen> {
                                         SizedBox(height: 20),
                                         // Botão "Entrar" com gradiente
                                         GestureDetector(
-                                          onTap: _validateFields,
+                                          onTap: () {
+                                            _validateFields();
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/profile',
+                                            );
+                                          },
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
                                               horizontal: 120,
@@ -419,7 +438,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                 end: Alignment.centerRight,
                                               ),
                                               borderRadius:
-                                              BorderRadius.circular(32),
+                                                  BorderRadius.circular(32),
                                             ),
                                             child: Center(
                                               child: Text(

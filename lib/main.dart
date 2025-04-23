@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:roka_moka_app/presentation/pages/connect_page_screen.dart';
 import 'package:roka_moka_app/presentation/pages/login_screen.dart';
+import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/signup_screen.dart';
 
 void main() async {
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/connect': (context) => ConnectScreen(),
         '/signup': (context) => SignupScreen(),
+        '/profile': (context) => ProfileScreen(),
       },
     );
   }
