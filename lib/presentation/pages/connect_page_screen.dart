@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ConnectScreen extends StatefulWidget {
   @override
@@ -11,54 +13,55 @@ class _ConnectPageState extends State<ConnectScreen> {
   bool _obscureText = true;
 
   // Controladores dos campos de texto
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // Variáveis para mensagens de erro
-  String? _emailErrorText;
+  // Variáveis para exibir mensagens de erro
+  String? _usernameErrorText;
   String? _passwordErrorText;
 
   // Variáveis para controle de validade dos campos
-  bool _isEmailValid = true;
+  bool _isUsernameValid = true;
   bool _isPasswordValid = true;
 
-  // Variável para indicar se o formulário foi submetido
+  // Variável para indicar se o formulário foi submetido (Para começar a exibir os erros)
   bool _submitted = false;
 
   // Cores personalizadas para as bordas dos campos de texto
   final Color _errorBorderColor = Color(0xFF960000);
   final Color _focusedBorderColor = Color(0xFFE94C19);
 
+  // URL base da API
+  final String _baseUrl = 'http://10.0.2.2:8080';
+
+  //'http://localhost:8080' -> no insomnia funciona
+  final String _loginEndpoint = '/user/login';
+
   @override
   void dispose() {
     // Limpa os controladores quando o widget é removido
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  // Função para validar o campo de email
-  void _validateEmail() {
-    final email = _emailController.text;
+  // Função para validar o campo de username
+  void _validateUsername() {
+    final username = _usernameController.text;
     if (_submitted) {
       setState(() {
-        if (email.isEmpty) {
-          _emailErrorText = 'O email deve estar preenchido.';
-          _isEmailValid = false;
-        } else if (!RegExp(
-          r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$',
-        ).hasMatch(email)) {
-          _emailErrorText = 'Insira um email válido';
-          _isEmailValid = false;
+        if (username.isEmpty) {
+          _usernameErrorText = 'O nome de usuário deve estar preenchido.';
+          _isUsernameValid = false;
         } else {
-          _emailErrorText = null;
-          _isEmailValid = true;
+          _usernameErrorText = null;
+          _isUsernameValid = true;
         }
       });
     } else {
       setState(() {
-        _emailErrorText = null;
-        _isEmailValid = true;
+        _usernameErrorText = null;
+        _isUsernameValid = true;
       });
     }
   }
@@ -81,19 +84,65 @@ class _ConnectPageState extends State<ConnectScreen> {
     }
   }
 
-  // Função para validar ambos os campos
+  //Função de Login com Username
+  Future<void> _login() async {
+    if (_isUsernameValid && _isPasswordValid) {
+      try {
+        final Uri url = Uri.parse('$_baseUrl$_loginEndpoint');
+        final String credentials =
+            '${_usernameController.text}:${_passwordController.text}';
+        final String base64Credentials = base64Encode(utf8.encode(credentials));
+
+        final response = await http.get(
+          url,
+          headers: {'Authorization': 'Basic $base64Credentials'},
+        );
+
+        if (response.statusCode == 200) {
+          // Login bem-sucedido
+          final responseData = jsonDecode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login realizado com sucesso!')),
+          );
+          Navigator.pushNamed(
+            context,
+            '/profile',
+          ); // Navegar para a próxima tela
+        } else {
+          // Falha no login
+          String errorMessage = 'Erro ao fazer login';
+          if (response.body.isNotEmpty) {
+            try {
+              final errorData = jsonDecode(response.body);
+              errorMessage = errorData['message'] ?? errorMessage;
+            } catch (e) {
+              print('Erro ao decodificar resposta de erro: $e');
+            }
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Falha no login: $errorMessage')),
+          );
+        }
+      } catch (error) {
+        print('Erro de conexão: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao conectar com o servidor')),
+        );
+      }
+    }
+  }
+
+  // Função para validar ambos os campos e tentar o login
   void _validateFields() {
     setState(() {
       _submitted = true;
-      _validateEmail();
+      _validateUsername();
       _validatePassword();
     });
 
-    // Se ambos os campos são válidos, faz a requisição
-    if (_isEmailValid && _isPasswordValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Autenticando com: ${_emailController.text}')),
-      );
+    // Se ambos os campos são válidos, faz a requisição de login
+    if (_isUsernameValid && _isPasswordValid) {
+      _login();
     }
   }
 
@@ -186,20 +235,20 @@ class _ConnectPageState extends State<ConnectScreen> {
                                           ),
                                         ),
                                         SizedBox(height: 30),
-                                        // Campo de texto para o email
+                                        // Campo de texto para o username
                                         TextField(
-                                          controller: _emailController,
+                                          controller: _usernameController,
                                           onChanged: (value) {
                                             if (_submitted) {
-                                              _validateEmail();
+                                              _validateUsername();
                                             } else {
                                               setState(() {
-                                                _emailErrorText = null;
+                                                _usernameErrorText = null;
                                               });
                                             }
                                           },
                                           decoration: InputDecoration(
-                                            labelText: 'Email',
+                                            labelText: 'Usuário',
                                             labelStyle: GoogleFonts.poppins(
                                               fontSize: 15,
                                               fontWeight: FontWeight.w500,
@@ -212,9 +261,9 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                 bottom: 11.5,
                                               ),
                                               child: Icon(
-                                                Icons.alternate_email,
+                                                Icons.person_outline,
                                                 color:
-                                                    _emailErrorText == null
+                                                    _usernameErrorText == null
                                                         ? _focusedBorderColor
                                                         : _errorBorderColor,
                                               ),
@@ -229,7 +278,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                   BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 color:
-                                                    _emailErrorText == null
+                                                    _usernameErrorText == null
                                                         ? _focusedBorderColor
                                                         : _errorBorderColor,
                                                 width: 2.0,
@@ -240,7 +289,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                   BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 color:
-                                                    _emailErrorText == null
+                                                    _usernameErrorText == null
                                                         ? _focusedBorderColor
                                                         : _errorBorderColor,
                                                 width: 2.0,
@@ -274,7 +323,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                 ),
                                             errorText:
                                                 _submitted
-                                                    ? _emailErrorText
+                                                    ? _usernameErrorText
                                                     : null,
                                           ),
                                         ),
@@ -418,10 +467,6 @@ class _ConnectPageState extends State<ConnectScreen> {
                                         GestureDetector(
                                           onTap: () {
                                             _validateFields();
-                                            Navigator.pushNamed(
-                                              context,
-                                              '/profile',
-                                            );
                                           },
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
