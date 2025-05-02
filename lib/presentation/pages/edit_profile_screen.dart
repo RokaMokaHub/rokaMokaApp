@@ -12,6 +12,7 @@ class _EditProfileState extends State<EditProfileScreen> {
   late TextEditingController _userNameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+  bool _submitted = false;
 
   @override
   void initState() {
@@ -26,6 +27,42 @@ class _EditProfileState extends State<EditProfileScreen> {
   void dispose() {
     _userNameController.dispose();
     super.dispose();
+  }
+
+    Widget _buttonSave() {
+    return Container(
+      width: double.infinity,
+      height: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            _submitted = true;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          padding: EdgeInsets.zero,
+        ),
+        child: const Text(
+          'Salvar',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -54,6 +91,7 @@ class _EditProfileState extends State<EditProfileScreen> {
                   PasswordTextField(
                     controller: _passwordController,
                     placeholder: 'Senha',
+                    submitted: _submitted,
                   ),
                   _buttonSave(),
                 ],
@@ -64,38 +102,6 @@ class _EditProfileState extends State<EditProfileScreen> {
       ),
     );
   }
-}
-
-Widget _buttonSave() {
-  return Container(
-    width: double.infinity,
-    height: 48,
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [Color(0xFFB23F1A), Color(0xFFE94C19)], // Cores do degradê
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.circular(25), // Bordas arredondadas
-    ),
-    child: ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        padding: EdgeInsets.zero,
-      ),
-      child: Text(
-        'Salvar',
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
-      ),
-    ),
-  );
 }
 
 Widget _textField(String placeholder, TextEditingController textController) {
