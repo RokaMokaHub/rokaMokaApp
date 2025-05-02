@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'dart:io';
 
@@ -63,6 +64,10 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfileScreen(),
         '/emblems': (context) => EmblemsScreen(),
         '/collections': (context) => CollectionsScreen(),
+        '/collection/:id': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments;
+          return CollectionInfoScreen(id: args);
+        },
       },
     );
   }

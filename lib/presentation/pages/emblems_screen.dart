@@ -20,7 +20,10 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
       20,
       (index) => {
         'nome': index == 0 ? 'Edward Hopper' : 'Nome da emblema $index',
-        'imagem': index == 0 ? 'assets/edward_hopper.png' : '',
+        'imagem':
+            index == 0
+                ? 'lib/presentation/assets/images/yudana_tempestade.jpeg'
+                : 'lib/presentation/assets/images/yudana_tempestade.jpeg',
       },
     );
   }

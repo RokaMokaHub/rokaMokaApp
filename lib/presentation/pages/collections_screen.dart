@@ -117,7 +117,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                               height: 6,
                               width:
                                   MediaQuery.of(context).size.width *
-                                  0.55 *
+                                  1 *
                                   progressoPercentual,
                               decoration: BoxDecoration(
                                 color: Color(0xFFE94C19),
@@ -160,40 +160,68 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                   fontSize: 16,
                                   color: Colors.black54,
                                 ),
-                                softWrap:
-                                    true, // Permite a quebra de linha automática
-                                maxLines: null, // Não limita o número de linhas
+                                softWrap: true,
+                                maxLines: null,
                               ),
                             ),
-                            const SizedBox(
-                              width: 8,
-                            ), // Para separar o texto do botão
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colecao['completo'] ? Colors.grey : null,
-                                gradient:
-                                    colecao['completo']
-                                        ? null
-                                        : LinearGradient(
-                                          colors: [
-                                            Color(0xFFB23F1A),
-                                            Color(0xFFE94C19),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              child: Text(
-                                colecao['completo'] ? 'Completa' : 'Visualizar',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () async {
+                                final novoProgresso = await Navigator.pushNamed(
+                                  context,
+                                  '/collection/:id',
+                                  arguments:
+                                      '1', // você pode trocar esse valor pelo real id da coleção
+                                );
+
+                                if (novoProgresso != null && mounted) {
+                                  setState(() {
+                                    colecoes[index]['progresso'] =
+                                        novoProgresso;
+                                    final total = colecoes[index]['total'];
+                                    final completo =
+                                        (novoProgresso as int) >=
+                                        (total as int);
+                                    colecoes[index]['completo'] = completo;
+                                    if (completo) {
+                                      final completada = colecoes.removeAt(
+                                        index,
+                                      );
+                                      colecoes.add(completada);
+                                    }
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      colecao['completo'] ? Colors.grey : null,
+                                  gradient:
+                                      colecao['completo']
+                                          ? null
+                                          : LinearGradient(
+                                            colors: [
+                                              Color(0xFFB23F1A),
+                                              Color(0xFFE94C19),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Text(
+                                  colecao['progresso'] >= colecao['total']
+                                      ? 'Completa'
+                                      : 'Visualizar',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
