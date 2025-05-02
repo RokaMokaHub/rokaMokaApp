@@ -114,7 +114,7 @@ class _ConnectPageState extends State<ConnectScreen> {
           if (response.body.isNotEmpty) {
             try {
               final errorData = jsonDecode(response.body);
-              errorMessage = errorData['message'] ?? errorMessage;
+              errorMessage = errorData['error'] ?? errorMessage;
             } catch (e) {
               print('Erro ao decodificar resposta de erro: $e');
             }
