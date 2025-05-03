@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:roka_moka_app/constants/webservice.dart';
+
 class ConnectScreen extends StatefulWidget {
   @override
   _ConnectPageState createState() => _ConnectPageState();
@@ -30,12 +32,6 @@ class _ConnectPageState extends State<ConnectScreen> {
   // Cores personalizadas para as bordas dos campos de texto
   final Color _errorBorderColor = Color(0xFF960000);
   final Color _focusedBorderColor = Color(0xFFE94C19);
-
-  // URL base da API
-  final String _baseUrl = 'http://10.0.2.2:8080';
-
-  //'http://localhost:8080' -> no insomnia funciona
-  final String _loginEndpoint = '/user/login';
 
   @override
   void dispose() {
@@ -88,7 +84,7 @@ class _ConnectPageState extends State<ConnectScreen> {
   Future<void> _login() async {
     if (_isUsernameValid && _isPasswordValid) {
       try {
-        final Uri url = Uri.parse('$_baseUrl$_loginEndpoint');
+        final Uri url = Uri.parse(loginEndpoint);
         final String credentials =
             '${_usernameController.text}:${_passwordController.text}';
         final String base64Credentials = base64Encode(utf8.encode(credentials));
