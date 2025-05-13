@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   device_info_plus: ^11.3.3
   font_awesome_flutter: ^10.8.0
+  mobile_scanner: ^3.5.4
 
 dev_dependencies:
   flutter_test:

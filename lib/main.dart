@@ -7,6 +7,7 @@ import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'dart:io';
 
+import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
 import 'package:roka_moka_app/presentation/pages/connect_page_screen.dart';
 import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/login_screen.dart';
@@ -61,7 +62,7 @@ class MyApp extends StatelessWidget {
       routes: {
         loginRoute: (context) => LoginScreen(),
         connectRoute: (context) => ConnectScreen(),
-        signupRoute: (context) => SignupScreen(),
+        signupRoute: (context) => QRCodeScreen(),
         profileRoute: (context) => ProfileScreen(),
         emblemsRoute: (context) => EmblemsScreen(),
         collectionsRoute: (context) => CollectionsScreen(),

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:roka_moka_app/constants/webservice.dart';
+import 'package:roka_moka_app/constants/colors.dart';
 
 class ConnectScreen extends StatefulWidget {
   @override
@@ -28,10 +29,6 @@ class _ConnectPageState extends State<ConnectScreen> {
 
   // Variável para indicar se o formulário foi submetido (Para começar a exibir os erros)
   bool _submitted = false;
-
-  // Cores personalizadas para as bordas dos campos de texto
-  final Color _errorBorderColor = Color(0xFF960000);
-  final Color _focusedBorderColor = Color(0xFFE94C19);
 
   @override
   void dispose() {
@@ -67,9 +64,9 @@ class _ConnectPageState extends State<ConnectScreen> {
     if (_submitted) {
       setState(() {
         _passwordErrorText =
-            _passwordController.text.isEmpty
-                ? 'A senha deve estar preenchida.'
-                : null;
+        _passwordController.text.isEmpty
+            ? 'A senha deve estar preenchida.'
+            : null;
         _isPasswordValid = _passwordController.text.isNotEmpty;
       });
     } else {
@@ -193,7 +190,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                 // Espaçamento superior
                                 SizedBox(
                                   height:
-                                      MediaQuery.of(context).size.height * 0.15,
+                                  MediaQuery.of(context).size.height * 0.15,
                                 ),
                                 // Container branco com bordas arredondadas para o formulário
                                 Expanded(
@@ -209,7 +206,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         SizedBox(height: 10),
                                         // Título "Login"
@@ -218,14 +215,14 @@ class _ConnectPageState extends State<ConnectScreen> {
                                           style: GoogleFonts.poppins(
                                             fontSize: 32,
                                             fontWeight: FontWeight.w600,
-                                            color: Color(0xFFE94C19),
+                                            color: Color(titleColor),
                                           ),
                                         ),
                                         // Subtítulo "Conecte-se na sua conta"
                                         Text(
                                           'Conecte-se na sua conta',
                                           style: GoogleFonts.poppins(
-                                            color: Color(0xFF555555),
+                                            color: Color(greySubtitleColor),
                                             fontWeight: FontWeight.w500,
                                             fontSize: 20,
                                           ),
@@ -248,7 +245,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             labelStyle: GoogleFonts.poppins(
                                               fontSize: 15,
                                               fontWeight: FontWeight.w500,
-                                              color: Color(0xFFABABAB),
+                                              color: Color(borderColor),
                                             ),
                                             prefixIcon: Padding(
                                               padding: EdgeInsets.only(
@@ -259,9 +256,13 @@ class _ConnectPageState extends State<ConnectScreen> {
                                               child: Icon(
                                                 Icons.person_outline,
                                                 color:
-                                                    _usernameErrorText == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
+                                                _usernameErrorText == null
+                                                    ? Color(
+                                                  focusedBorderColor,
+                                                )
+                                                    : Color(
+                                                  errorBorderColor,
+                                                ),
                                               ),
                                             ),
                                             contentPadding: EdgeInsets.only(
@@ -271,56 +272,66 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 color:
-                                                    _usernameErrorText == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
+                                                _usernameErrorText == null
+                                                    ? Color(
+                                                  focusedBorderColor,
+                                                )
+                                                    : Color(
+                                                  errorBorderColor,
+                                                ),
                                                 width: 2.0,
                                               ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 color:
-                                                    _usernameErrorText == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
+                                                _usernameErrorText == null
+                                                    ? Color(
+                                                  focusedBorderColor,
+                                                )
+                                                    : Color(
+                                                  errorBorderColor,
+                                                ),
                                                 width: 2.0,
                                               ),
                                             ),
                                             border: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 width: 2.0,
                                               ),
                                             ),
                                             errorBorder: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
-                                                color: _errorBorderColor,
+                                                color: Color(errorBorderColor),
                                                 width: 2.0,
                                               ),
                                             ),
                                             focusedErrorBorder:
-                                                OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        30.0,
-                                                      ),
-                                                  borderSide: BorderSide(
-                                                    color: _errorBorderColor,
-                                                    width: 2.0,
-                                                  ),
+                                            OutlineInputBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(
+                                                30.0,
+                                              ),
+                                              borderSide: BorderSide(
+                                                color: Color(
+                                                  errorBorderColor,
                                                 ),
+                                                width: 2.0,
+                                              ),
+                                            ),
                                             errorText:
-                                                _submitted
-                                                    ? _usernameErrorText
-                                                    : null,
+                                            _submitted
+                                                ? _usernameErrorText
+                                                : null,
                                           ),
                                         ),
                                         SizedBox(height: 20),
@@ -342,7 +353,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             labelStyle: GoogleFonts.poppins(
                                               fontSize: 15,
                                               fontWeight: FontWeight.w500,
-                                              color: Color(0xFFABABAB),
+                                              color: Color(borderColor),
                                             ),
                                             prefixIcon: Padding(
                                               padding: EdgeInsets.only(
@@ -353,9 +364,13 @@ class _ConnectPageState extends State<ConnectScreen> {
                                               child: Icon(
                                                 Icons.lock_rounded,
                                                 color:
-                                                    _passwordErrorText == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
+                                                _passwordErrorText == null
+                                                    ? Color(
+                                                  focusedBorderColor,
+                                                )
+                                                    : Color(
+                                                  errorBorderColor,
+                                                ),
                                               ),
                                             ),
                                             contentPadding: EdgeInsets.only(
@@ -368,8 +383,8 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                 _obscureText
                                                     ? Icons.visibility_outlined
                                                     : Icons
-                                                        .visibility_off_outlined,
-                                                color: Color(0xFFABABAB),
+                                                    .visibility_off_outlined,
+                                                color: Color(borderColor),
                                                 size: 25,
                                               ),
                                               onPressed: () {
@@ -380,56 +395,66 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 color:
-                                                    _passwordErrorText == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
+                                                _passwordErrorText == null
+                                                    ? Color(
+                                                  focusedBorderColor,
+                                                )
+                                                    : Color(
+                                                  errorBorderColor,
+                                                ),
                                                 width: 2.0,
                                               ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 color:
-                                                    _passwordErrorText == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
+                                                _passwordErrorText == null
+                                                    ? Color(
+                                                  focusedBorderColor,
+                                                )
+                                                    : Color(
+                                                  errorBorderColor,
+                                                ),
                                                 width: 2.0,
                                               ),
                                             ),
                                             border: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
                                                 width: 2.0,
                                               ),
                                             ),
                                             errorBorder: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              BorderRadius.circular(30.0),
                                               borderSide: BorderSide(
-                                                color: _errorBorderColor,
+                                                color: Color(errorBorderColor),
                                                 width: 2.0,
                                               ),
                                             ),
                                             focusedErrorBorder:
-                                                OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        30.0,
-                                                      ),
-                                                  borderSide: BorderSide(
-                                                    color: _errorBorderColor,
-                                                    width: 2.0,
-                                                  ),
+                                            OutlineInputBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(
+                                                30.0,
+                                              ),
+                                              borderSide: BorderSide(
+                                                color: Color(
+                                                  errorBorderColor,
                                                 ),
+                                                width: 2.0,
+                                              ),
+                                            ),
                                             errorText:
-                                                _submitted
-                                                    ? _passwordErrorText
-                                                    : null,
+                                            _submitted
+                                                ? _passwordErrorText
+                                                : null,
                                           ),
                                         ),
                                         SizedBox(height: 8),
@@ -451,7 +476,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             child: Text(
                                               'Esqueceu a senha?',
                                               style: GoogleFonts.poppins(
-                                                color: Color(0xFFABABAB),
+                                                color: Color(borderColor),
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w300,
                                               ),
@@ -472,14 +497,14 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
                                                 colors: [
-                                                  Color(0xFFB23F1A),
-                                                  Color(0xFFE94C19),
+                                                  Color(primaryColorGradient),
+                                                  Color(secondaryColorGradient),
                                                 ],
                                                 begin: Alignment.centerLeft,
                                                 end: Alignment.centerRight,
                                               ),
                                               borderRadius:
-                                                  BorderRadius.circular(32),
+                                              BorderRadius.circular(32),
                                             ),
                                             child: Center(
                                               child: Text(
@@ -520,7 +545,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             );
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: Color(0xFFB1B1B1),
+                                            backgroundColor: Color(greyButton),
                                             foregroundColor: Colors.black,
                                             minimumSize: Size(
                                               double.infinity,
