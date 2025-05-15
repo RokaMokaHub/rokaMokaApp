@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roka_moka_app/domain/services/loginService.dart'; // Import do LoginService
-import 'package:roka_moka_app/constants/webservice.dart';
 
 class ConnectScreen extends StatefulWidget {
   @override
