@@ -7,20 +7,26 @@ class LoginService {
   // Método para realizar login
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse(loginEndpoint);
+    final credentials = base64Encode(utf8.encode('$email:$password'));
+
     try {
-      final response = await http.post(
+      final response = await http.get(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic $credentials',
+        },
       );
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        throw Exception('Erro ao fazer login: ${response.body}');
+        final responseData = jsonDecode(response.body);
+        final errorMessage = responseData['error'] ?? 'Erro ao fazer login.';
+        throw errorMessage;
       }
     } catch (e) {
-      throw Exception('Erro de conexão: $e');
+      throw Exception(e);
     }
   }
 

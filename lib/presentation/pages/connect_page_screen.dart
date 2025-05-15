@@ -85,16 +85,14 @@ class _ConnectPageState extends State<ConnectScreen> {
           _usernameController.text,
           _passwordController.text,
         );
-        // Login bem-sucedido
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Login realizado com sucesso!')));
-        Navigator.pushNamed(context, '/profile'); // Navegar para a próxima tela
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login realizado com sucesso!')),
+        );
+        Navigator.pushNamed(context, '/profile');
       } catch (error) {
-        // Falha no login
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Falha no login: $error')));
+        ).showSnackBar(SnackBar(content: Text(error.toString())));
       }
     }
   }

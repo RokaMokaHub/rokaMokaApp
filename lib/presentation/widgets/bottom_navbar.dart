@@ -31,7 +31,7 @@ class BottomNavBar extends StatelessWidget {
         // Navegar para a página de Perfil
         Navigator.pushNamedAndRemoveUntil(
           context,
-          '/connect',
+          '/profile',
           (route) => false,
         ); // Alterar para rota perfil
         break;
