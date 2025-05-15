@@ -26,42 +26,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
         bottom: false,
         child: Column(
           children: [
-            Container(
-              padding: EdgeInsets.only(top: 80, bottom: 20),
-              decoration: BoxDecoration(color: Color(0xFFB23F1A)),
-              child: Center(
+            Expanded(
+              child: SingleChildScrollView(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 10,
                   children: [
                     Container(
-                      width: 148,
-                      height: 148,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFFD9D9D9),
-                        border: Border.all(color: Colors.white, width: 2),
-                        image: DecorationImage(
-                          image: AssetImage('lib/presentation/assets/images/user_icon.png'),
-                          fit: BoxFit.none,
+                      padding: EdgeInsets.only(top: 80, bottom: 20),
+                      decoration: BoxDecoration(color: Color(0xFFB23F1A)),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 148,
+                              height: 148,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFFD9D9D9),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    'lib/presentation/assets/images/user_icon.png',
+                                  ),
+                                  fit: BoxFit.none,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'XingLing Sakuma',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    Text(
-                      'XingLing Sakuma',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    _buildStack(),
+                    _buildListButtons(context),
+                    Container(
+                      height: 20,
+                      color: Colors.white,
+                    ), // Spacer if needed
                   ],
                 ),
               ),
             ),
-            _buildStack(),
-            _buildListButtons(context),
-            Expanded(child: Container(color: Colors.white)),
             BottomNavBar(currentIndex: currentIndex, onTap: onTap),
           ],
         ),
