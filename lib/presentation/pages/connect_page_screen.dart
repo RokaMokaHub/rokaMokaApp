@@ -89,11 +89,20 @@ class _ConnectPageState extends State<ConnectScreen> {
         );
         Navigator.pushNamed(context, '/profile');
       } catch (error) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_verificaRetornoLoginInvalido(error.toString())),
+          ),
+        );
       }
     }
+  }
+
+  String _verificaRetornoLoginInvalido(String retorno) {
+    if (retorno == 'Exception: Unauthorized') {
+      return 'Credenciais inválidas, login não realizado!';
+    }
+    return 'Erro desconhecido';
   }
 
   // Função para validar ambos os campos e tentar o login
