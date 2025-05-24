@@ -29,7 +29,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
             padding: const EdgeInsets.only(top: 60, bottom: 20),
             alignment: Alignment.center,
             child: const Text(
-              'Coleções',
+              'Inserir Exposição',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
