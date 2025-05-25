@@ -26,17 +26,34 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                 bottomRight: Radius.circular(32),
               ),
             ),
-            padding: const EdgeInsets.only(top: 60, bottom: 20),
-            alignment: Alignment.center,
-            child: const Text(
-              'Inserir Exposição',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            padding: const EdgeInsets.only(
+              top: 60,
+              left: 16,
+              right: 16,
+              bottom: 20,
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+                const Text(
+                  'Inserir Exposição',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
+          // Conteúdo da tela continua aqui
         ],
       ),
     );
