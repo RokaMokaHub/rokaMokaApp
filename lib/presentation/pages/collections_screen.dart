@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
 
 class CollectionsScreen extends StatefulWidget {
   const CollectionsScreen({Key? key}) : super(key: key);
@@ -234,7 +233,6 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
               },
             ),
           ),
-          BottomNavBar(currentIndex: currentIndex, onTap: onTap),
         ],
       ),
     );

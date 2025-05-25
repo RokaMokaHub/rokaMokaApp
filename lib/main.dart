@@ -11,6 +11,7 @@ import 'dart:io';
 
 import 'package:roka_moka_app/presentation/pages/connect_page_screen.dart';
 import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
+import 'package:roka_moka_app/presentation/pages/edit_profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/login_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
@@ -65,6 +66,7 @@ class MyApp extends StatelessWidget {
       home: LoginScreen(),
       routes: {
         loginRoute: (context) => LoginScreen(),
+        editProfileRoute: (context) => EditProfileScreen(),
         connectRoute: (context) => ConnectScreen(),
         signupRoute: (context) => SignupScreen(),
         profileRoute: (context) => ProfileScreen(),

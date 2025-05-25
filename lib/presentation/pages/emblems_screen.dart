@@ -110,7 +110,6 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
               ),
             ),
           ),
-          BottomNavBar(currentIndex: currentIndex, onTap: onTap),
         ],
       ),
     );

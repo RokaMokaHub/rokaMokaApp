@@ -24,10 +24,7 @@ class BottomNavBar extends StatelessWidget {
     ];
 
     if (role == UserRole.comum) {
-      items.add({
-        'icon': Icons.assignment_ind_outlined,
-        'label': 'Solicitar Cargo',
-      });
+      items.add({'icon': FontAwesomeIcons.bell, 'label': 'Solicitar\nCargo'});
     } else {
       items.add({'icon': Icons.more_horiz, 'label': 'Mais'});
     }
@@ -79,7 +76,7 @@ class BottomNavBar extends StatelessWidget {
                 title: const Text('Inserir Exposição'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, '/insert_exhibition');
+                  Navigator.pushNamed(context, createExposureRoute);
                 },
               ),
             ],
@@ -129,6 +126,7 @@ class BottomNavBar extends StatelessWidget {
     final items = getNavItems(role);
 
     return BottomNavigationBar(
+      iconSize: 20,
       currentIndex: currentIndex,
       backgroundColor: Colors.white,
       onTap: (index) => _handleNavigation(index, context, role),
