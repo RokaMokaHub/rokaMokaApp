@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 
 class CreateExposureScreen extends StatefulWidget {
-  const CreateExposureScreen({Key? key}) : super(key: key);
+  final VoidCallback onBack;
+  const CreateExposureScreen({Key? key, required this.onBack})
+    : super(key: key);
 
   @override
   _CreateExposureScreenState createState() => _CreateExposureScreenState();
@@ -26,8 +27,8 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                 bottomRight: Radius.circular(32),
               ),
             ),
-            padding: const EdgeInsets.only(
-              top: 60,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 20,
               left: 16,
               right: 16,
               bottom: 20,
@@ -39,7 +40,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: widget.onBack,
                   ),
                 ),
                 const Text(
@@ -53,7 +54,17 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               ],
             ),
           ),
-          // Conteúdo da tela continua aqui
+          const Expanded(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  "Aqui viria o formulário ou conteúdo principal da tela de Inserir Exposição.",
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

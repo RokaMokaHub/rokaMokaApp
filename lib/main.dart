@@ -76,7 +76,12 @@ class MyApp extends StatelessWidget {
           final args = ModalRoute.of(context)!.settings.arguments;
           return CollectionInfoScreen(id: args);
         },
-        createExposureRoute: (context) => CreateExposureScreen(),
+        createExposureRoute:
+            (context) => CreateExposureScreen(
+              onBack: () {
+                Navigator.of(context).pop();
+              },
+            ),
       },
     );
   }

@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final VoidCallback onShowPermissions;
+  final VoidCallback onShowCreateExposure;
 
   const BottomNavBar({
     Key? key,
     required this.currentIndex,
     required this.onTap,
+    required this.onShowPermissions,
+    required this.onShowCreateExposure,
   }) : super(key: key);
 
   List<Map<String, dynamic>> getNavItems(UserRole role) {
@@ -33,9 +36,9 @@ class BottomNavBar extends StatelessWidget {
   }
 
   void _handleNavigation(int index, BuildContext context, UserRole role) {
-    if (index != 5) {
-      onTap(index);
-    } else {
+    onTap(index);
+
+    if (index == 5) {
       switch (role) {
         case UserRole.administrador:
           _showAdminModal(context);
@@ -59,28 +62,29 @@ class BottomNavBar extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder:
-          (context) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.notifications_none),
-                title: const Text('Permissões'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/permissions');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.image_outlined),
-                title: const Text('Inserir Exposição'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, createExposureRoute);
-                },
-              ),
-            ],
-          ),
+      builder: (modalContext) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.notifications_none),
+              title: const Text('Permissões'),
+              onTap: () {
+                Navigator.pop(modalContext);
+                onShowPermissions();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Inserir Exposição'),
+              onTap: () {
+                Navigator.pop(modalContext);
+                onShowCreateExposure();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -91,12 +95,12 @@ class BottomNavBar extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder:
-          (context) => ListTile(
+          (modalContext) => ListTile(
             leading: const Icon(Icons.notifications_none),
             title: const Text('Permissões'),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/permissions');
+              Navigator.pop(modalContext);
+              onShowPermissions();
             },
           ),
     );
@@ -109,12 +113,12 @@ class BottomNavBar extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder:
-          (context) => ListTile(
+          (modalContext) => ListTile(
             leading: const Icon(Icons.image_outlined),
             title: const Text('Inserir Exposição'),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, createExposureRoute);
+              Navigator.pop(modalContext);
+              onShowCreateExposure();
             },
           ),
     );
@@ -144,8 +148,8 @@ class BottomNavBar extends StatelessWidget {
       items:
           items.map((item) {
             return BottomNavigationBarItem(
-              icon: Icon(item['icon']),
-              label: item['label'],
+              icon: Icon(item['icon'] as IconData?),
+              label: item['label'] as String?,
             );
           }).toList(),
     );
