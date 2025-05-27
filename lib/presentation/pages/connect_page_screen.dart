@@ -96,11 +96,10 @@ class _ConnectPageState extends State<ConnectScreen> {
         );
         context.read<UserProvider>().setRole(UserRole.administrador);
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_verificaRetornoLoginInvalido(error.toString())),
-          ),
-        );
+        print(error.toString());
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.toString())));
       }
     }
   }

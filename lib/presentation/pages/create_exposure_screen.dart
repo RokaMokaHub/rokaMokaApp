@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:roka_moka_app/presentation/widgets/upload_image.dart';
+import 'package:roka_moka_app/presentation/widgets/upload_qrcode.dart';
 
 class CreateExposureScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -16,6 +21,8 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       TextEditingController();
   String? _museuSelecionado;
   final List<Obra> _obras = [Obra()];
+
+  XFile? _imagemDaExposicao;
 
   final OutlineInputBorder _permanentOrangeInputBorder = OutlineInputBorder(
     borderRadius: const BorderRadius.all(Radius.circular(8.0)),
@@ -90,6 +97,8 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
+                isExpanded: true,
+                dropdownColor: Colors.grey.shade200,
                 decoration: InputDecoration(
                   labelText: 'Selecione o museu',
                   border: _permanentOrangeInputBorder,
@@ -98,9 +107,12 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                 ),
                 value: _museuSelecionado,
                 items:
-                    <String>['Museu A', 'Museu B', 'Museu C'].map((
-                      String value,
-                    ) {
+                    <String>[
+                      'Museu da Baronesa',
+                      'Museu de Arte Leopoldo Gotuzzo (MALG)',
+                      'Museu do Doce',
+                      'Museu de História Natural Carlos Ritter',
+                    ].map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -120,7 +132,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Obra ${_obras.isNotEmpty ? 1 : 0}${_obras.length > 1 ? ' de ' + _obras.length.toString() : ''}',
+                'Obra ${_obras.isNotEmpty ? 1 : 0}${_obras.length > 1 ? ' de ${_obras.length}' : ''}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -151,12 +163,43 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               ),
               const SizedBox(height: 24),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Expanded(child: _buildImageUploadButton('Imagem da obra')),
-                  const SizedBox(width: 16),
                   Expanded(
-                    child: _buildQrCodeUploadButton('QR Code Vinculado'),
+                    // Envolve o ImageUploadField com Expanded
+                    child: ImageUploadField(
+                      label: 'Imagem da obra',
+                      onImageSelected: (XFile? imageFile) {
+                        setState(() {
+                          _imagemDaExposicao =
+                              imageFile; // Certifique-se que _imagemDaExposicao está definida no seu State
+                        });
+                        if (imageFile != null) {
+                          print(
+                            'Imagem selecionada na tela principal: ${imageFile.path}',
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ), // Adiciona um espaço entre os dois campos
+                  Expanded(
+                    // Envolve o QrCodeUploadField com Expanded
+                    child: QrCodeUploadField(
+                      label: 'QR Code da obra',
+                      onQrCodeSelected: (XFile? qrCodeFile) {
+                        // Se precisar usar o qrCodeFile, lembre-se de usar setState para uma variável de estado
+                        // setState(() {
+                        //   _qrCodeDaExposicao = qrCodeFile; // Crie _qrCodeDaExposicao se necessário
+                        // });
+                        if (qrCodeFile != null) {
+                          print(
+                            'QR Code selecionado na tela principal: ${qrCodeFile.path}',
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -173,32 +216,11 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                       horizontal: 40,
                       vertical: 20,
                     ),
-                    minimumSize: const Size(
-                      double.infinity,
-                      50,
-                    ), // Faz o botão ocupar a largura
+                    minimumSize: const Size(double.infinity, 50),
                   ),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      print(
-                        'Nome da Exposição: ${_nomeExposicaoController.text}',
-                      );
-                      print('Museu Selecionado: $_museuSelecionado');
-                      for (int i = 0; i < _obras.length; i++) {
-                        print('Obra ${i + 1}:');
-                        print(
-                          '  Nome do Artista: ${_obras.elementAt(i).artistaController.text}',
-                        );
-                        print(
-                          '  Título da Obra: ${_obras.elementAt(i).tituloController.text}',
-                        );
-                        print(
-                          '  Descrição da Obra: ${_obras.elementAt(i).descricaoController.text}',
-                        );
-                        print(
-                          '  Link da Obra: ${_obras.elementAt(i).linkController.text}',
-                        );
-                      }
+                      // Lógica de salvar
                     }
                   },
                   child: const Text(
@@ -295,66 +317,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
           ),
           const SizedBox(height: 16),
         ],
-      ),
-    );
-  }
-
-  Widget _buildImageUploadButton(String label) {
-    return InkWell(
-      onTap: () {
-        print('Clicou em $label');
-      },
-      child: Container(
-        height: 120,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.attach_file_outlined,
-              size: 32,
-              color: Colors.grey.shade600,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade700),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQrCodeUploadButton(String label) {
-    return InkWell(
-      onTap: () {
-        print('Clicou em $label');
-      },
-      child: Container(
-        height: 120,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.qr_code_sharp, size: 32, color: Colors.grey.shade600),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade700),
-            ),
-          ],
-        ),
       ),
     );
   }
