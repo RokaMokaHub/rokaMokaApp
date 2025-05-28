@@ -1,7 +1,6 @@
-// qrcode_upload_field.dart (novo arquivo)
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // Usaremos o mesmo image_picker
+import 'package:image_picker/image_picker.dart';
 
 class QrCodeUploadField extends StatefulWidget {
   final String label;
@@ -105,11 +104,7 @@ class _QrCodeUploadFieldState extends State<QrCodeUploadField> {
                 ),
               )
             else
-              const Icon(
-                Icons.qr_code_sharp, // Ícone específico de QR Code
-                size: 32,
-                color: Colors.grey,
-              ),
+              const Icon(Icons.qr_code_sharp, size: 32, color: Colors.grey),
             const SizedBox(height: 8),
             Text(
               _qrCodeImageFile != null ? 'Alterar QR Code' : widget.label,

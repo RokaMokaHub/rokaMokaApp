@@ -1,4 +1,3 @@
-// permissions_screen.dart
 import 'package:flutter/material.dart';
 
 class PermissionsScreen extends StatelessWidget {

@@ -23,6 +23,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
   final List<Obra> _obras = [Obra()];
 
   XFile? _imagemDaExposicao;
+  XFile? _qrCodeDaExposicao;
 
   final OutlineInputBorder _permanentOrangeInputBorder = OutlineInputBorder(
     borderRadius: const BorderRadius.all(Radius.circular(8.0)),
@@ -165,13 +166,11 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               Row(
                 children: [
                   Expanded(
-                    // Envolve o ImageUploadField com Expanded
                     child: ImageUploadField(
                       label: 'Imagem da obra',
                       onImageSelected: (XFile? imageFile) {
                         setState(() {
-                          _imagemDaExposicao =
-                              imageFile; // Certifique-se que _imagemDaExposicao está definida no seu State
+                          _imagemDaExposicao = imageFile;
                         });
                         if (imageFile != null) {
                           print(
@@ -181,18 +180,14 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(
-                    width: 16,
-                  ), // Adiciona um espaço entre os dois campos
+                  const SizedBox(width: 16),
                   Expanded(
-                    // Envolve o QrCodeUploadField com Expanded
                     child: QrCodeUploadField(
                       label: 'QR Code da obra',
                       onQrCodeSelected: (XFile? qrCodeFile) {
-                        // Se precisar usar o qrCodeFile, lembre-se de usar setState para uma variável de estado
-                        // setState(() {
-                        //   _qrCodeDaExposicao = qrCodeFile; // Crie _qrCodeDaExposicao se necessário
-                        // });
+                        setState(() {
+                          _qrCodeDaExposicao = qrCodeFile;
+                        });
                         if (qrCodeFile != null) {
                           print(
                             'QR Code selecionado na tela principal: ${qrCodeFile.path}',

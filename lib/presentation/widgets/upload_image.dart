@@ -5,8 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 class ImageUploadField extends StatefulWidget {
   final String label;
-  final Function(XFile? imageFile)
-  onImageSelected; // Callback para notificar o pai
+  final Function(XFile? imageFile) onImageSelected;
 
   const ImageUploadField({
     Key? key,
@@ -28,7 +27,7 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
       setState(() {
         _displayedImageFile = pickedFile;
       });
-      widget.onImageSelected(_displayedImageFile); // Notifica o widget pai
+      widget.onImageSelected(_displayedImageFile);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
