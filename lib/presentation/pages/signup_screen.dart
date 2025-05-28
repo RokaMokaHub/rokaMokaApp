@@ -16,7 +16,8 @@ class _SignupPageState extends State<SignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   // Variáveis para armazenar mensagens de erro dos campos
   String? _passwordError;
@@ -55,7 +56,9 @@ class _SignupPageState extends State<SignupScreen> {
       if (email.isEmpty) {
         return 'O email é obrigatório.';
       }
-      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(email)) {
+      if (!RegExp(
+        r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$',
+      ).hasMatch(email)) {
         return 'Insira um email válido.';
       }
     }
@@ -104,10 +107,15 @@ class _SignupPageState extends State<SignupScreen> {
       _nameError = _validateName(_nameController.text);
       _emailError = _validateEmail(_emailController.text);
       _passwordError = _validatePassword(_passwordController.text);
-      _confirmPasswordError = _validateConfirmPassword(_confirmPasswordController.text);
+      _confirmPasswordError = _validateConfirmPassword(
+        _confirmPasswordController.text,
+      );
     });
 
-    if (_nameError != null || _emailError != null || _passwordError != null || _confirmPasswordError != null) {
+    if (_nameError != null ||
+        _emailError != null ||
+        _passwordError != null ||
+        _confirmPasswordError != null) {
       return;
     }
 
@@ -138,7 +146,9 @@ class _SignupPageState extends State<SignupScreen> {
               builder: (context, constraints) {
                 return SingleChildScrollView(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
                     child: IntrinsicHeight(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +157,11 @@ class _SignupPageState extends State<SignupScreen> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
                             child: IconButton(
-                              icon: Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                              icon: Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                                size: 30,
+                              ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
@@ -158,7 +172,10 @@ class _SignupPageState extends State<SignupScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                SizedBox(height: MediaQuery.of(context).size.height * 0.20),
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.20,
+                                ),
                                 // Container branco com bordas arredondadas para o formulário
                                 Expanded(
                                   child: Container(
@@ -172,7 +189,8 @@ class _SignupPageState extends State<SignupScreen> {
                                       ),
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         SizedBox(height: 10),
                                         // Título da tela de cadastro
@@ -204,29 +222,66 @@ class _SignupPageState extends State<SignupScreen> {
                                           },
                                           decoration: InputDecoration(
                                             labelText: 'Usuário',
-                                            errorText: _submitted ? _nameError : null,
-                                            labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                            prefixIcon: Padding(
-                                              padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
-                                              child: Icon(Icons.person_outline_sharp, color: _nameError == null ? _focusedBorderColor : _errorBorderColor),
+                                            errorText:
+                                                _submitted ? _nameError : null,
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFFABABAB),
                                             ),
-                                            contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
+                                            prefixIcon: Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 20.0,
+                                                top: 11.5,
+                                                bottom: 11.5,
+                                              ),
+                                              child: Icon(
+                                                Icons.person_outline_sharp,
+                                                color:
+                                                    _nameError == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
+                                              ),
+                                            ),
+                                            contentPadding: EdgeInsets.only(
+                                              left: 26.0,
+                                              top: 10.0,
+                                              bottom: 10.0,
+                                              right: 4.0,
+                                            ),
                                             focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _focusedBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _focusedBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
                                             errorBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _errorBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
-                                            focusedErrorBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
-                                            ),
+                                            focusedErrorBorder:
+                                                OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        30.0,
+                                                      ),
+                                                  borderSide: BorderSide(
+                                                    color: _errorBorderColor,
+                                                    width: 2.0,
+                                                  ),
+                                                ),
                                           ),
                                         ),
                                         SizedBox(height: 16),
@@ -235,34 +290,73 @@ class _SignupPageState extends State<SignupScreen> {
                                           controller: _emailController,
                                           onChanged: (value) {
                                             setState(() {
-                                              _emailError = _validateEmail(value);
+                                              _emailError = _validateEmail(
+                                                value,
+                                              );
                                             });
                                           },
                                           decoration: InputDecoration(
                                             labelText: 'Email',
-                                            errorText: _submitted ? _emailError : null,
-                                            labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                            prefixIcon: Padding(
-                                              padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
-                                              child: Icon(Icons.alternate_email, color: _emailError == null ? _focusedBorderColor : _errorBorderColor),
+                                            errorText:
+                                                _submitted ? _emailError : null,
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFFABABAB),
                                             ),
-                                            contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
+                                            prefixIcon: Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 20.0,
+                                                top: 11.5,
+                                                bottom: 11.5,
+                                              ),
+                                              child: Icon(
+                                                Icons.alternate_email,
+                                                color:
+                                                    _emailError == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
+                                              ),
+                                            ),
+                                            contentPadding: EdgeInsets.only(
+                                              left: 26.0,
+                                              top: 10.0,
+                                              bottom: 10.0,
+                                              right: 4.0,
+                                            ),
                                             focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _focusedBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _focusedBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
                                             errorBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _errorBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
-                                            focusedErrorBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
-                                            ),
+                                            focusedErrorBorder:
+                                                OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        30.0,
+                                                      ),
+                                                  borderSide: BorderSide(
+                                                    color: _errorBorderColor,
+                                                    width: 2.0,
+                                                  ),
+                                                ),
                                           ),
                                         ),
                                         SizedBox(height: 16),
@@ -272,93 +366,186 @@ class _SignupPageState extends State<SignupScreen> {
                                           obscureText: _obscureTextPassword,
                                           onChanged: (value) {
                                             setState(() {
-                                              _passwordError = _validatePassword(value);
+                                              _passwordError =
+                                                  _validatePassword(value);
                                             });
                                           },
                                           decoration: InputDecoration(
                                             labelText: 'Senha',
-                                            errorText: _submitted ? _passwordError : null,
-                                            labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                            prefixIcon: Padding(
-                                              padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
-                                              child: Icon(Icons.lock_outline_rounded, color: _passwordError == null ? _focusedBorderColor : _errorBorderColor),
+                                            errorText:
+                                                _submitted
+                                                    ? _passwordError
+                                                    : null,
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFFABABAB),
                                             ),
-                                            contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
+                                            prefixIcon: Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 20.0,
+                                                top: 11.5,
+                                                bottom: 11.5,
+                                              ),
+                                              child: Icon(
+                                                Icons.lock_outline_rounded,
+                                                color:
+                                                    _passwordError == null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
+                                              ),
+                                            ),
+                                            contentPadding: EdgeInsets.only(
+                                              left: 26.0,
+                                              top: 10.0,
+                                              bottom: 10.0,
+                                              right: 4.0,
+                                            ),
                                             suffixIcon: IconButton(
                                               icon: Icon(
-                                                _obscureTextPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                                _obscureTextPassword
+                                                    ? Icons.visibility_outlined
+                                                    : Icons
+                                                        .visibility_off_outlined,
                                                 color: Color(0xFFABABAB),
                                               ),
                                               onPressed: () {
                                                 setState(() {
-                                                  _obscureTextPassword = !_obscureTextPassword;
+                                                  _obscureTextPassword =
+                                                      !_obscureTextPassword;
                                                 });
                                               },
                                             ),
                                             focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _focusedBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _focusedBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
                                             errorBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _errorBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
-                                            focusedErrorBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
-                                            ),
+                                            focusedErrorBorder:
+                                                OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        30.0,
+                                                      ),
+                                                  borderSide: BorderSide(
+                                                    color: _errorBorderColor,
+                                                    width: 2.0,
+                                                  ),
+                                                ),
                                           ),
                                         ),
                                         SizedBox(height: 16),
                                         // Campo de texto para confirmar a senha
                                         TextField(
-                                          controller: _confirmPasswordController,
-                                          obscureText: _obscureTextConfirmPassword,
+                                          controller:
+                                              _confirmPasswordController,
+                                          obscureText:
+                                              _obscureTextConfirmPassword,
                                           onChanged: (value) {
                                             setState(() {
-                                              _confirmPasswordError = _validateConfirmPassword(value);
+                                              _confirmPasswordError =
+                                                  _validateConfirmPassword(
+                                                    value,
+                                                  );
                                             });
                                           },
                                           decoration: InputDecoration(
                                             labelText: 'Confirmar Senha',
-                                            errorText: _submitted ? _confirmPasswordError : null,
-                                            labelStyle: TextStyle(color: Color(0xFFABABAB)),
-                                            prefixIcon: Padding(
-                                              padding: EdgeInsets.only(left: 20.0, top: 11.5, bottom: 11.5),
-                                              child: Icon(Icons.lock_outline_rounded, color: _confirmPasswordError == null ? _focusedBorderColor : _errorBorderColor),
+                                            errorText:
+                                                _submitted
+                                                    ? _confirmPasswordError
+                                                    : null,
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFFABABAB),
                                             ),
-                                            contentPadding: EdgeInsets.only(left: 26.0, top: 10.0, bottom: 10.0, right: 4.0),
+                                            prefixIcon: Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 20.0,
+                                                top: 11.5,
+                                                bottom: 11.5,
+                                              ),
+                                              child: Icon(
+                                                Icons.lock_outline_rounded,
+                                                color:
+                                                    _confirmPasswordError ==
+                                                            null
+                                                        ? _focusedBorderColor
+                                                        : _errorBorderColor,
+                                              ),
+                                            ),
+                                            contentPadding: EdgeInsets.only(
+                                              left: 26.0,
+                                              top: 10.0,
+                                              bottom: 10.0,
+                                              right: 4.0,
+                                            ),
                                             suffixIcon: IconButton(
                                               icon: Icon(
-                                                _obscureTextConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                                _obscureTextConfirmPassword
+                                                    ? Icons.visibility_outlined
+                                                    : Icons
+                                                        .visibility_off_outlined,
                                                 color: Color(0xFFABABAB),
                                               ),
                                               onPressed: () {
                                                 setState(() {
-                                                  _obscureTextConfirmPassword = !_obscureTextConfirmPassword;
+                                                  _obscureTextConfirmPassword =
+                                                      !_obscureTextConfirmPassword;
                                                 });
                                               },
                                             ),
                                             focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _focusedBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
                                             enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _focusedBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
                                             errorBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                              borderSide: BorderSide(
+                                                color: _errorBorderColor,
+                                                width: 2.0,
+                                              ),
                                             ),
-                                            focusedErrorBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
-                                            ),
+                                            focusedErrorBorder:
+                                                OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        30.0,
+                                                      ),
+                                                  borderSide: BorderSide(
+                                                    color: _errorBorderColor,
+                                                    width: 2.0,
+                                                  ),
+                                                ),
                                           ),
                                         ),
                                         SizedBox(height: 30),
@@ -366,14 +553,21 @@ class _SignupPageState extends State<SignupScreen> {
                                         GestureDetector(
                                           onTap: _validateAndCreateAccount,
                                           child: Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 120, vertical: 14),
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 120,
+                                              vertical: 14,
+                                            ),
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
-                                                colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
+                                                colors: [
+                                                  Color(0xFFB23F1A),
+                                                  Color(0xFFE94C19),
+                                                ],
                                                 begin: Alignment.centerLeft,
                                                 end: Alignment.centerRight,
                                               ),
-                                              borderRadius: BorderRadius.circular(32),
+                                              borderRadius:
+                                                  BorderRadius.circular(32),
                                             ),
                                             child: Center(
                                               child: Text(

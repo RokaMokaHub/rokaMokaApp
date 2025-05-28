@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
+import 'package:roka_moka_app/constants/routes.dart';
 
 // ignore: use_key_in_widget_constructors
 class ProfileScreen extends StatefulWidget {
@@ -78,7 +78,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            BottomNavBar(currentIndex: currentIndex, onTap: onTap),
           ],
         ),
       ),
@@ -186,7 +185,7 @@ Widget _buildButton(String descrButton, BuildContext context) {
     child: ElevatedButton(
       onPressed: () {
         if (descrButton == 'Editar perfil') {
-          Navigator.pushNamed(context, '/editar_perfil');
+          Navigator.pushNamed(context, editProfileRoute);
         }
       },
       style: ElevatedButton.styleFrom(

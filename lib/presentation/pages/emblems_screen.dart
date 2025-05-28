@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
 
 class EmblemsScreen extends StatefulWidget {
   const EmblemsScreen({Key? key}) : super(key: key);
@@ -110,7 +109,6 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
               ),
             ),
           ),
-          BottomNavBar(currentIndex: currentIndex, onTap: onTap),
         ],
       ),
     );

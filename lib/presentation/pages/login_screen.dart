@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roka_moka_app/constants/routes.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -100,7 +101,7 @@ class LoginScreen extends StatelessWidget {
                       // Botão "Cadastre-se"
                       OutlinedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/signup');
+                          Navigator.pushNamed(context, signupRoute);
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Color(0xFFE94C19),
