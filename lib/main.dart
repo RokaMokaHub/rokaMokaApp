@@ -11,6 +11,7 @@ import 'package:roka_moka_app/presentation/pages/connect_page_screen.dart';
 import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/login_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
+import 'package:roka_moka_app/presentation/pages/request_permission_screen.dart';
 import 'package:roka_moka_app/presentation/pages/signup_screen.dart';
 
 void main() async {
