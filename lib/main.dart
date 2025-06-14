@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
       routes: {
         loginRoute: (context) => LoginScreen(),
         connectRoute: (context) => ConnectScreen(),
-        signupRoute: (context) => QRCodeScreen(),
+        signupRoute: (context) => SignupScreen(),
         profileRoute: (context) => ProfileScreen(),
         emblemsRoute: (context) => EmblemsScreen(),
         collectionsRoute: (context) => CollectionsScreen(),
