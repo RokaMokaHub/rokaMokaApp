@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
 
 class EmblemsScreen extends StatefulWidget {
   const EmblemsScreen({Key? key}) : super(key: key);
@@ -22,8 +21,8 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
         'nome': index == 0 ? 'Edward Hopper' : 'Nome da emblema $index',
         'imagem':
             index == 0
-                ? 'lib/presentation/assets/images/yudana_tempestade.jpeg'
-                : 'lib/presentation/assets/images/yudana_tempestade.jpeg',
+                ? 'lib/presentation/assets/images/edward_hopper.png'
+                : 'lib/presentation/assets/images/user_icon.png',
       },
     );
   }
@@ -110,7 +109,6 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
               ),
             ),
           ),
-          BottomNavBar(currentIndex: currentIndex, onTap: onTap),
         ],
       ),
     );

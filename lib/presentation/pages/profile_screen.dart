@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
+import 'package:roka_moka_app/constants/routes.dart';
 
 // ignore: use_key_in_widget_constructors
 class ProfileScreen extends StatefulWidget {
@@ -26,43 +26,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
         bottom: false,
         child: Column(
           children: [
-            Container(
-              padding: EdgeInsets.only(top: 80, bottom: 20),
-              decoration: BoxDecoration(color: Color(0xFFB23F1A)),
-              child: Center(
+            Expanded(
+              child: SingleChildScrollView(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 10,
                   children: [
                     Container(
-                      width: 148,
-                      height: 148,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFFD9D9D9),
-                        border: Border.all(color: Colors.white, width: 2),
-                        image: DecorationImage(
-                          image: AssetImage('lib/presentation/assets/images/user_icon.png'),
-                          fit: BoxFit.none,
+                      padding: EdgeInsets.only(top: 80, bottom: 20),
+                      decoration: BoxDecoration(color: Color(0xFFB23F1A)),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 148,
+                              height: 148,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFFD9D9D9),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    'lib/presentation/assets/images/user_icon.png',
+                                  ),
+                                  fit: BoxFit.none,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Usuário Teste',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    Text(
-                      'XingLing Sakuma',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    _buildStack(),
+                    _buildListButtons(context),
+                    Container(
+                      height: 20,
+                      color: Colors.white,
+                    ), // Spacer if needed
                   ],
                 ),
               ),
             ),
-            _buildStack(),
-            _buildListButtons(context),
-            Expanded(child: Container(color: Colors.white)),
-            BottomNavBar(currentIndex: currentIndex, onTap: onTap),
           ],
         ),
       ),
@@ -170,7 +185,7 @@ Widget _buildButton(String descrButton, BuildContext context) {
     child: ElevatedButton(
       onPressed: () {
         if (descrButton == 'Editar perfil') {
-          Navigator.pushNamed(context, '/editar_perfil');
+          Navigator.pushNamed(context, editProfileRoute);
         }
       },
       style: ElevatedButton.styleFrom(

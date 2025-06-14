@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
+import 'package:roka_moka_app/constants/routes.dart';
 
 class CollectionsScreen extends StatefulWidget {
   const CollectionsScreen({Key? key}) : super(key: key);
@@ -169,7 +169,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                               onTap: () async {
                                 final novoProgresso = await Navigator.pushNamed(
                                   context,
-                                  '/collection/:id',
+                                  collectionInfoRoute,
                                   arguments:
                                       '1', // você pode trocar esse valor pelo real id da coleção
                                 );
@@ -234,7 +234,6 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
               },
             ),
           ),
-          BottomNavBar(currentIndex: currentIndex, onTap: onTap),
         ],
       ),
     );

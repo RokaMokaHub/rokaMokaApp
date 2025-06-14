@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-import 'package:roka_moka_app/constants/webservice.dart';
-import 'package:roka_moka_app/constants/colors.dart';
+import 'package:provider/provider.dart';
+import 'package:roka_moka_app/domain/providers/user_provider.dart';
+import 'package:roka_moka_app/domain/services/loginService.dart';
+import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
 
 class ConnectScreen extends StatefulWidget {
   @override
@@ -29,6 +28,9 @@ class _ConnectPageState extends State<ConnectScreen> {
 
   // Variável para indicar se o formulário foi submetido (Para começar a exibir os erros)
   bool _submitted = false;
+
+  // Instância do LoginService
+  final LoginService _loginService = LoginService();
 
   @override
   void dispose() {
@@ -64,9 +66,9 @@ class _ConnectPageState extends State<ConnectScreen> {
     if (_submitted) {
       setState(() {
         _passwordErrorText =
-        _passwordController.text.isEmpty
-            ? 'A senha deve estar preenchida.'
-            : null;
+            _passwordController.text.isEmpty
+                ? 'A senha deve estar preenchida.'
+                : null;
         _isPasswordValid = _passwordController.text.isNotEmpty;
       });
     } else {
@@ -77,52 +79,38 @@ class _ConnectPageState extends State<ConnectScreen> {
     }
   }
 
-  //Função de Login com Username
+  // Função de Login utilizando o LoginService
   Future<void> _login() async {
     if (_isUsernameValid && _isPasswordValid) {
       try {
-        final Uri url = Uri.parse(loginEndpoint);
-        final String credentials =
-            '${_usernameController.text}:${_passwordController.text}';
-        final String base64Credentials = base64Encode(utf8.encode(credentials));
-
-        final response = await http.get(
-          url,
-          headers: {'Authorization': 'Basic $base64Credentials'},
+        await _loginService.login(
+          _usernameController.text,
+          _passwordController.text,
         );
-
-        if (response.statusCode == 200) {
-          // Login bem-sucedido
-          final responseData = jsonDecode(response.body);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login realizado com sucesso!')),
-          );
-          Navigator.pushNamed(
-            context,
-            '/profile',
-          ); // Navegar para a próxima tela
-        } else {
-          // Falha no login
-          String errorMessage = 'Erro ao fazer login';
-          if (response.body.isNotEmpty) {
-            try {
-              final errorData = jsonDecode(response.body);
-              errorMessage = errorData['error'] ?? errorMessage;
-            } catch (e) {
-              print('Erro ao decodificar resposta de erro: $e');
-            }
-          }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Falha no login: $errorMessage')),
-          );
-        }
-      } catch (error) {
-        print('Erro de conexão: $error');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao conectar com o servidor')),
+          const SnackBar(content: Text('Login realizado com sucesso!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeController()),
+        );
+        context.read<UserProvider>().setRole(UserRole.administrador);
+      } catch (error) {
+        print(error.toString());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_verificaRetornoLoginInvalido(error.toString())),
+          ),
         );
       }
     }
+  }
+
+  String _verificaRetornoLoginInvalido(String retorno) {
+    if (retorno == 'Exception: Unauthorized') {
+      return 'Credenciais inválidas, login não realizado!';
+    }
+    return 'Erro desconhecido';
   }
 
   // Função para validar ambos os campos e tentar o login
@@ -190,7 +178,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                 // Espaçamento superior
                                 SizedBox(
                                   height:
-                                  MediaQuery.of(context).size.height * 0.15,
+                                      MediaQuery.of(context).size.height * 0.15,
                                 ),
                                 // Container branco com bordas arredondadas para o formulário
                                 Expanded(
@@ -206,7 +194,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         SizedBox(height: 10),
                                         // Título "Login"
@@ -256,82 +244,15 @@ class _ConnectPageState extends State<ConnectScreen> {
                                               child: Icon(
                                                 Icons.person_outline,
                                                 color:
-                                                _usernameErrorText == null
-                                                    ? Color(
-                                                  focusedBorderColor,
-                                                )
-                                                    : Color(
-                                                  errorBorderColor,
-                                                ),
-                                              ),
-                                            ),
-                                            contentPadding: EdgeInsets.only(
-                                              top: 10.0,
-                                              bottom: 10.0,
-                                              left: 26.0,
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color:
-                                                _usernameErrorText == null
-                                                    ? Color(
-                                                  focusedBorderColor,
-                                                )
-                                                    : Color(
-                                                  errorBorderColor,
-                                                ),
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color:
-                                                _usernameErrorText == null
-                                                    ? Color(
-                                                  focusedBorderColor,
-                                                )
-                                                    : Color(
-                                                  errorBorderColor,
-                                                ),
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: Color(errorBorderColor),
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            focusedErrorBorder:
-                                            OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(
-                                                30.0,
-                                              ),
-                                              borderSide: BorderSide(
-                                                color: Color(
-                                                  errorBorderColor,
-                                                ),
-                                                width: 2.0,
+                                                    _usernameErrorText == null
+                                                        ? Color(0xFFE94C19)
+                                                        : Color(0xFF960000),
                                               ),
                                             ),
                                             errorText:
-                                            _submitted
-                                                ? _usernameErrorText
-                                                : null,
+                                                _submitted
+                                                    ? _usernameErrorText
+                                                    : null,
                                           ),
                                         ),
                                         SizedBox(height: 20),
@@ -364,131 +285,21 @@ class _ConnectPageState extends State<ConnectScreen> {
                                               child: Icon(
                                                 Icons.lock_rounded,
                                                 color:
-                                                _passwordErrorText == null
-                                                    ? Color(
-                                                  focusedBorderColor,
-                                                )
-                                                    : Color(
-                                                  errorBorderColor,
-                                                ),
-                                              ),
-                                            ),
-                                            contentPadding: EdgeInsets.only(
-                                              top: 10.0,
-                                              bottom: 10.0,
-                                              left: 26.0,
-                                            ),
-                                            suffixIcon: IconButton(
-                                              icon: Icon(
-                                                _obscureText
-                                                    ? Icons.visibility_outlined
-                                                    : Icons
-                                                    .visibility_off_outlined,
-                                                color: Color(borderColor),
-                                                size: 25,
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  _obscureText = !_obscureText;
-                                                });
-                                              },
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color:
-                                                _passwordErrorText == null
-                                                    ? Color(
-                                                  focusedBorderColor,
-                                                )
-                                                    : Color(
-                                                  errorBorderColor,
-                                                ),
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color:
-                                                _passwordErrorText == null
-                                                    ? Color(
-                                                  focusedBorderColor,
-                                                )
-                                                    : Color(
-                                                  errorBorderColor,
-                                                ),
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: Color(errorBorderColor),
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            focusedErrorBorder:
-                                            OutlineInputBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(
-                                                30.0,
-                                              ),
-                                              borderSide: BorderSide(
-                                                color: Color(
-                                                  errorBorderColor,
-                                                ),
-                                                width: 2.0,
+                                                    _passwordErrorText == null
+                                                        ? Color(0xFFE94C19)
+                                                        : Color(0xFF960000),
                                               ),
                                             ),
                                             errorText:
-                                            _submitted
-                                                ? _passwordErrorText
-                                                : null,
-                                          ),
-                                        ),
-                                        SizedBox(height: 8),
-                                        // Botão "Esqueceu a senha?" alinhado à direita
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: TextButton(
-                                            onPressed: () {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    '     Fale com o administrador (53) 9xxxx - xxxx',
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            child: Text(
-                                              'Esqueceu a senha?',
-                                              style: GoogleFonts.poppins(
-                                                color: Color(borderColor),
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w300,
-                                              ),
-                                            ),
+                                                _submitted
+                                                    ? _passwordErrorText
+                                                    : null,
                                           ),
                                         ),
                                         SizedBox(height: 20),
-                                        // Botão "Entrar" com gradiente
+                                        // Botão "Entrar"
                                         GestureDetector(
-                                          onTap: () {
-                                            _validateFields();
-                                          },
+                                          onTap: _validateFields,
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
                                               horizontal: 120,
@@ -500,11 +311,9 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                   Color(primaryColorGradient),
                                                   Color(secondaryColorGradient),
                                                 ],
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
                                               ),
                                               borderRadius:
-                                              BorderRadius.circular(32),
+                                                  BorderRadius.circular(32),
                                             ),
                                             child: Center(
                                               child: Text(
@@ -515,49 +324,6 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(height: 24),
-                                        // Separador "OU"
-                                        Center(
-                                          child: Text(
-                                            'OU',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w400,
-                                              color: Color(0xFF8A8A8A),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(height: 16),
-                                        // Botão "Entrar de forma anônima"
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  'Entrar de forma anônima',
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Color(greyButton),
-                                            foregroundColor: Colors.black,
-                                            minimumSize: Size(
-                                              double.infinity,
-                                              50,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            'Entrar de forma anônima',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
                                             ),
                                           ),
                                         ),

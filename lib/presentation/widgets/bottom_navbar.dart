@@ -1,89 +1,155 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roka_moka_app/domain/providers/user_provider.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final VoidCallback onShowPermissions;
+  final VoidCallback onShowCreateExposure;
 
-  // ignore: use_super_parameters
-  BottomNavBar({Key? key, required this.currentIndex, required this.onTap})
-    : super(key: key);
+  const BottomNavBar({
+    Key? key,
+    required this.currentIndex,
+    required this.onTap,
+    required this.onShowPermissions,
+    required this.onShowCreateExposure,
+  }) : super(key: key);
 
-  final List<Map<String, dynamic>> items = [
-    {'icon': Icons.person_outline_rounded, 'label': 'Perfil'},
-    {'icon': Icons.gps_fixed_sharp, 'label': 'Explorar'},
-    {'icon': Icons.qr_code_scanner, 'label': 'Capturar'},
-    {'icon': FontAwesomeIcons.box, 'label': 'Coleções'},
-    {'icon': FontAwesomeIcons.medal, 'label': 'Emblemas'},
-  ];
+  List<Map<String, dynamic>> getNavItems(UserRole role) {
+    final items = [
+      {'icon': Icons.person_outline_rounded, 'label': 'Perfil'},
+      {'icon': Icons.gps_fixed_sharp, 'label': 'Explorar'},
+      {'icon': Icons.qr_code_scanner, 'label': 'Capturar'},
+      {'icon': FontAwesomeIcons.box, 'label': 'Coleções'},
+      {'icon': FontAwesomeIcons.medal, 'label': 'Emblemas'},
+    ];
 
-  void _handleNavigation(int index, BuildContext context) {
+    if (role == UserRole.comum) {
+      items.add({'icon': FontAwesomeIcons.bell, 'label': 'Solicitar\nCargo'});
+    } else {
+      items.add({'icon': Icons.more_horiz, 'label': 'Mais'});
+    }
+
+    return items;
+  }
+
+  void _handleNavigation(int index, BuildContext context, UserRole role) {
     onTap(index);
 
-    // Verificação para impedir que navegue para a página que o usuário já tá
-    if (index == currentIndex) {
-      debugPrint("Já estamos na página $index, não precisa navegar.");
-      return;
+    if (index == 5) {
+      switch (role) {
+        case UserRole.administrador:
+          _showAdminModal(context);
+          break;
+        case UserRole.curador:
+          _showOnlyPermission(context);
+          break;
+        case UserRole.pesquisador:
+          _showOnlyExposure(context);
+          break;
+        case UserRole.comum:
+          Navigator.pushNamed(context, '/solicitar_cargo');
+          break;
+      }
     }
+  }
 
-    switch (index) {
-      case 0:
-        // Navegar para a página de Perfil
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/connect',
-          (route) => false,
-        ); // Alterar para rota perfil
-        break;
-      case 1:
-        // Navegar para a página de explorar
-        break;
-      case 2:
-        // Navegar para a pagina de capturar
-        break;
-      case 3:
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/collections',
-          (route) => false,
-        ); // Navegar para a página de Coleções
-        break;
-      case 4:
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/emblems',
-          (route) => false,
-        ); // Navegar para a pagina de Emblemas
-        break;
-      default:
-        break;
-    }
+  void _showAdminModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (modalContext) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.notifications_none),
+              title: const Text('Permissões'),
+              onTap: () {
+                Navigator.pop(modalContext);
+                onShowPermissions();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Inserir Exposição'),
+              onTap: () {
+                Navigator.pop(modalContext);
+                onShowCreateExposure();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showOnlyPermission(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (modalContext) => ListTile(
+            leading: const Icon(Icons.notifications_none),
+            title: const Text('Permissões'),
+            onTap: () {
+              Navigator.pop(modalContext);
+              onShowPermissions();
+            },
+          ),
+    );
+  }
+
+  void _showOnlyExposure(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (modalContext) => ListTile(
+            leading: const Icon(Icons.image_outlined),
+            title: const Text('Inserir Exposição'),
+            onTap: () {
+              Navigator.pop(modalContext);
+              onShowCreateExposure();
+            },
+          ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final role = context.watch<UserProvider>().role;
+    final items = getNavItems(role);
+
     return BottomNavigationBar(
+      iconSize: 20,
       currentIndex: currentIndex,
       backgroundColor: Colors.white,
-      onTap: (index) => _handleNavigation(index, context),
-      selectedItemColor: Color(0xFFE94C19),
-      unselectedItemColor: Color(0xFF555555),
-      selectedLabelStyle: TextStyle(
+      onTap: (index) => _handleNavigation(index, context, role),
+      selectedItemColor: const Color(0xFFE94C19),
+      unselectedItemColor: const Color(0xFF555555),
+      selectedLabelStyle: const TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w500,
-        color: Color(0xFFE94C19),
       ),
-      unselectedLabelStyle: TextStyle(
+      unselectedLabelStyle: const TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w500,
-        color: Color(0xFF555555),
       ),
       type: BottomNavigationBarType.fixed,
       items:
-          items.map<BottomNavigationBarItem>((item) {
+          items.map((item) {
             return BottomNavigationBarItem(
-              icon: Icon(item['icon']),
-              label: item['label'],
+              icon: Icon(item['icon'] as IconData?),
+              label: item['label'] as String?,
             );
           }).toList(),
     );
