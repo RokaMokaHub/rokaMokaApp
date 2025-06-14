@@ -21,8 +21,8 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
         'nome': index == 0 ? 'Edward Hopper' : 'Nome da emblema $index',
         'imagem':
             index == 0
-                ? 'lib/presentation/assets/images/yudana_tempestade.jpeg'
-                : 'lib/presentation/assets/images/yudana_tempestade.jpeg',
+                ? 'lib/presentation/assets/images/edward_hopper.png'
+                : 'lib/presentation/assets/images/user_icon.png',
       },
     );
   }
