@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roka_moka_app/domain/services/signupService.dart';
+import 'package:roka_moka_app/constants/routes.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -101,7 +103,7 @@ class _SignupPageState extends State<SignupScreen> {
   }
 
   // Valida todos os campos e simula a criação da conta se todos forem válidos
-  void _validateAndCreateAccount() {
+  Future<void> _validateAndCreateAccount() async {
     setState(() {
       _submitted = true;
       _nameError = _validateName(_nameController.text);
@@ -119,9 +121,36 @@ class _SignupPageState extends State<SignupScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Conta criada com sucesso (simulação)')),
+    _signUp();
+  }
+
+  Future<void> _signUp() async {
+    Map<String, dynamic> response = await SignupService().signUp(
+      name: _nameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
     );
+
+    if (!mounted) return; // Para evitar problemas com o context após await
+    try {
+      final String? jwt =
+          response['body'] != null ? response['body']['jwt'] : null;
+      final String? errorMessage = response['exceptionMessage'];
+
+      if (jwt != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Conta criada com sucesso!')),
+        );
+        Navigator.pushNamed(context, profileRoute);
+      } else {
+        throw Exception(errorMessage ?? 'Erro desconhecido ao criar conta.');
+      }
+    } catch (error) {
+      print('Erro ao criar conta: $error');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
+    }
   }
 
   @override
