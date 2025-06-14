@@ -6,3 +6,4 @@ const int titleColor = 0xFFE94C19;
 const int errorBorderColor = 0xFF960000;
 const int focusedBorderColor = 0xFFE94C19;
 const int greySubtitleColor = 0xFF555555;
+const int greyButton = 0xFF999999;

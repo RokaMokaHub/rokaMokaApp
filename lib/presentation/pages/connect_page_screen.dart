@@ -203,14 +203,14 @@ class _ConnectPageState extends State<ConnectScreen> {
                                           style: GoogleFonts.poppins(
                                             fontSize: 32,
                                             fontWeight: FontWeight.w600,
-                                            color: Color(0xFFE94C19),
+                                            color: Color(titleColor),
                                           ),
                                         ),
                                         // Subtítulo "Conecte-se na sua conta"
                                         Text(
                                           'Conecte-se na sua conta',
                                           style: GoogleFonts.poppins(
-                                            color: Color(0xFF555555),
+                                            color: Color(greySubtitleColor),
                                             fontWeight: FontWeight.w500,
                                             fontSize: 20,
                                           ),
@@ -233,7 +233,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             labelStyle: GoogleFonts.poppins(
                                               fontSize: 15,
                                               fontWeight: FontWeight.w500,
-                                              color: Color(0xFFABABAB),
+                                              color: Color(borderColor),
                                             ),
                                             prefixIcon: Padding(
                                               padding: EdgeInsets.only(
@@ -274,7 +274,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             labelStyle: GoogleFonts.poppins(
                                               fontSize: 15,
                                               fontWeight: FontWeight.w500,
-                                              color: Color(0xFFABABAB),
+                                              color: Color(borderColor),
                                             ),
                                             prefixIcon: Padding(
                                               padding: EdgeInsets.only(
@@ -308,8 +308,8 @@ class _ConnectPageState extends State<ConnectScreen> {
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
                                                 colors: [
-                                                  Color(0xFFB23F1A),
-                                                  Color(0xFFE94C19),
+                                                  Color(primaryColorGradient),
+                                                  Color(secondaryColorGradient),
                                                 ],
                                               ),
                                               borderRadius:
