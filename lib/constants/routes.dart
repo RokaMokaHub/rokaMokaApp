@@ -6,3 +6,5 @@ const String profileRoute = '/profile';
 const String emblemsRoute = '/emblems';
 const String collectionsRoute = '/collections';
 const String collectionInfoRoute = '/collection/:id';
+const String createExposureRoute = '/createExposure';
+const String editProfileRoute = '/editProfile';

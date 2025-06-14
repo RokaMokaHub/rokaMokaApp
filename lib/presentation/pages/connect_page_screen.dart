@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:roka_moka_app/domain/services/loginService.dart'; // Import do LoginService
+import 'package:provider/provider.dart';
+import 'package:roka_moka_app/domain/providers/user_provider.dart';
+import 'package:roka_moka_app/domain/services/loginService.dart';
+import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
 
 class ConnectScreen extends StatefulWidget {
   @override
@@ -87,13 +90,16 @@ class _ConnectPageState extends State<ConnectScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login realizado com sucesso!')),
         );
-        Navigator.pushNamed(context, '/profile');
-      } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_verificaRetornoLoginInvalido(error.toString())),
-          ),
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeController()),
         );
+        context.read<UserProvider>().setRole(UserRole.administrador);
+      } catch (error) {
+        print(error.toString());
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.toString())));
       }
     }
   }

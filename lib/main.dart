@@ -2,12 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:roka_moka_app/constants/routes.dart';
+import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'dart:io';
 
 import 'package:roka_moka_app/presentation/pages/connect_page_screen.dart';
+import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
+import 'package:roka_moka_app/presentation/pages/edit_profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/login_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
@@ -43,7 +47,9 @@ void main() async {
     }
   }
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (_) => UserProvider(), child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -53,13 +59,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Roká Móka',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: LoginScreen(),
       routes: {
         loginRoute: (context) => LoginScreen(),
+        editProfileRoute: (context) => EditProfileScreen(),
         connectRoute: (context) => ConnectScreen(),
         signupRoute: (context) => SignupScreen(),
         profileRoute: (context) => ProfileScreen(),
@@ -69,6 +76,12 @@ class MyApp extends StatelessWidget {
           final args = ModalRoute.of(context)!.settings.arguments;
           return CollectionInfoScreen(id: args);
         },
+        createExposureRoute:
+            (context) => CreateExposureScreen(
+              onBack: () {
+                Navigator.of(context).pop();
+              },
+            ),
       },
     );
   }
