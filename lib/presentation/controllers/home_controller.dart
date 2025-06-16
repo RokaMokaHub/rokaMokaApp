@@ -46,9 +46,6 @@ class _HomeControllerState extends State<HomeController> {
     _createExposureScreenInstance = CreateExposureScreen(
       onBack: _goBackFromModalPage,
     );
-    _permissionsScreenInstance = PermissionsScreen(
-      onBack: _goBackFromModalPage,
-    );
   }
 
   void _onTapNavItem(int index) {
