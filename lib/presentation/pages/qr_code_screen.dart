@@ -67,10 +67,6 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
     }
   }
 
-  void _handleBackButton() {
-    Navigator.pop(context);
-  }
-
   @override
   void dispose() {
     _stopScanTimeout();
@@ -86,7 +82,9 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
         Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('lib/presentation/assets/images/backgroundQRScreen.png'),
+              image: AssetImage(
+                'lib/presentation/assets/images/backgroundQRScreen.png',
+              ),
               fit: BoxFit.cover,
             ),
           ),
@@ -101,21 +99,9 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                 // Botão de voltar
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      onPressed: _handleBackButton,
-                    ),
-                  ),
+                  child: Align(alignment: Alignment.topLeft),
                 ),
-
                 const SizedBox(height: 20),
-
                 Expanded(
                   child: Center(
                     child: Column(
@@ -126,7 +112,10 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                             height: 320,
                             width: 320,
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.orange, width: 3),
+                              border: Border.all(
+                                color: Colors.orange,
+                                width: 3,
+                              ),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: ClipRRect(
@@ -135,7 +124,8 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                                 controller: cameraController,
                                 onDetect: (capture) {
                                   if (!isScanned) {
-                                    final String? code = capture.barcodes.first.rawValue;
+                                    final String? code =
+                                        capture.barcodes.first.rawValue;
                                     if (code != null) {
                                       setState(() {
                                         scannedValue = code;
@@ -156,7 +146,10 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                         if (scannedValue != null && !showCamera)
                           Text(
                             'QR Code lido:\n$scannedValue',
-                            style: const TextStyle(color: Colors.white, fontSize: 16),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                       ],
@@ -170,7 +163,10 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepOrange,
-                        padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 120,
+                          vertical: 10,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),

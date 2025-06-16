@@ -73,6 +73,7 @@ class MyApp extends StatelessWidget {
         profileRoute: (context) => ProfileScreen(),
         emblemsRoute: (context) => EmblemsScreen(),
         collectionsRoute: (context) => CollectionsScreen(),
+        qrCodeRoute: (context) => QRCodeScreen(),
         collectionInfoRoute: (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
           return CollectionInfoScreen(id: args);

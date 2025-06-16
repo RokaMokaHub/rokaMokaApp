@@ -8,3 +8,4 @@ const String collectionsRoute = '/collections';
 const String collectionInfoRoute = '/collection/:id';
 const String createExposureRoute = '/createExposure';
 const String editProfileRoute = '/editProfile';
+const String qrCodeRoute = '/qrCode';

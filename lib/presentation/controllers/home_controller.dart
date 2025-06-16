@@ -5,6 +5,7 @@ import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
+import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
 
 class HomeController extends StatefulWidget {
@@ -20,17 +21,19 @@ class _HomeControllerState extends State<HomeController> {
   Widget? _modalPageContent;
   final ProfileScreen _profileScreen = ProfileScreen();
   final ProfileScreen _explorarScreen = ProfileScreen();
-  final ProfileScreen _capturarScreen = ProfileScreen();
   final CollectionsScreen _collectionsScreen = CollectionsScreen();
   final EmblemsScreen _emblemsScreen = EmblemsScreen();
   late final List<Widget> _contentPages;
 
   late final CreateExposureScreen _createExposureScreenInstance;
   late final PermissionsScreen _permissionsScreenInstance;
+  late final QRCodeScreen _capturarScreen;
 
   @override
   void initState() {
     super.initState();
+
+    _capturarScreen = QRCodeScreen();
 
     _contentPages = [
       _profileScreen,
