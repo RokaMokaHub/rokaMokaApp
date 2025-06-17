@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
+import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
+import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
 class PermissionRequest {
   final String name;
@@ -73,20 +75,18 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     setState(() {
       requests[index].accepted = true;
     });
-    _showSnackBar("Permissão aceita com sucesso.");
+    final snackBar = SnackBarAceita(nome: "Pedro Rosa").buildSnackBar(context);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _rejectRequest(int index) {
     setState(() {
       requests[index].accepted = false;
     });
-    _showSnackBar("Permissão rejeitada com sucesso.");
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: Duration(seconds: 2)),
-    );
+    final snackBar = SnackBarRejeitada(
+      nome: requests[index].name,
+    ).buildSnackBar(context);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -161,7 +161,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
           ),
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
               itemCount: requests.length,
               itemBuilder: (context, index) {
                 final req = requests[index];

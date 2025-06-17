@@ -7,6 +7,7 @@ import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
+import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
 import 'dart:io';
 
 import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
@@ -84,6 +85,18 @@ class MyApp extends StatelessWidget {
                 Navigator.of(context).pop();
               },
             ),
+        permissionsRoute: (context) {
+          final userProvider = Provider.of<UserProvider>(
+            context,
+            listen: false,
+          );
+          return PermissionsScreen(
+            onBack: () {
+              Navigator.of(context).pop();
+            },
+            currentUserRole: userProvider.role,
+          );
+        },
       },
     );
   }
