@@ -27,10 +27,10 @@ class PermissionsScreen extends StatefulWidget {
   final VoidCallback onBack;
 
   const PermissionsScreen({
-    Key? key,
+    super.key,
     required this.currentUserRole,
     required this.onBack,
-  }) : super(key: key);
+  });
 
   @override
   State<PermissionsScreen> createState() => _PermissionsScreenState();
@@ -75,7 +75,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     setState(() {
       requests[index].accepted = true;
     });
-    final snackBar = SnackBarAceita(nome: "Pedro Rosa").buildSnackBar(context);
+    final snackBar = SnackBarAceita(
+      nome: requests[index].name,
+    ).buildSnackBar(context);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
