@@ -5,6 +5,8 @@ import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
+enum FilterOption { todas, aceitadas, rejeitadas, naoRespondidas }
+
 class PermissionRequest {
   final String name;
   final String email;
@@ -37,7 +39,7 @@ class PermissionsScreen extends StatefulWidget {
 }
 
 class _PermissionsScreenState extends State<PermissionsScreen> {
-  List<PermissionRequest> requests = [
+  final List<PermissionRequest> _allRequests = [
     PermissionRequest(
       name: "Yuji Sakuma",
       email: "yujisakuma@ufpel.com",
@@ -69,24 +71,64 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
       date: "12/03/2025",
       accepted: true,
     ),
+    PermissionRequest(
+      name: "Carlos Andrade",
+      email: "carlosandrade@ufpel.com",
+      role: "Pesquisador",
+      date: "10/03/2025",
+      accepted: false,
+    ),
   ];
 
-  void _acceptRequest(int index) {
+  late List<PermissionRequest> _filteredRequests;
+  FilterOption _selectedFilter = FilterOption.todas;
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredRequests = List.from(_allRequests);
+  }
+
+  void _applyFilter(FilterOption option) {
     setState(() {
-      requests[index].accepted = true;
+      _selectedFilter = option;
+      switch (option) {
+        case FilterOption.aceitadas:
+          _filteredRequests =
+              _allRequests.where((req) => req.accepted == true).toList();
+          break;
+        case FilterOption.rejeitadas:
+          _filteredRequests =
+              _allRequests.where((req) => req.accepted == false).toList();
+          break;
+        case FilterOption.naoRespondidas:
+          _filteredRequests =
+              _allRequests.where((req) => req.accepted == null).toList();
+          break;
+        case FilterOption.todas:
+        default:
+          _filteredRequests = List.from(_allRequests);
+          break;
+      }
     });
-    final snackBar = SnackBarAceita(
-      nome: requests[index].name,
-    ).buildSnackBar(context);
+  }
+
+  void _acceptRequest(PermissionRequest request) {
+    setState(() {
+      request.accepted = true;
+      _applyFilter(_selectedFilter);
+    });
+    final snackBar = SnackBarAceita(nome: request.name).buildSnackBar(context);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _rejectRequest(int index) {
+  void _rejectRequest(PermissionRequest request) {
     setState(() {
-      requests[index].accepted = false;
+      request.accepted = false;
+      _applyFilter(_selectedFilter);
     });
     final snackBar = SnackBarRejeitada(
-      nome: requests[index].name,
+      nome: request.name,
     ).buildSnackBar(context);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -95,7 +137,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
   Widget build(BuildContext context) {
     if (widget.currentUserRole != UserRole.administrador &&
         widget.currentUserRole != UserRole.curador) {
-      return Center(
+      return const Center(
         child: Text(
           "Acesso negado. Apenas administradores e curadores têm permissão.",
         ),
@@ -141,9 +183,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                GestureDetector(
-                  onTap: widget.onBack,
-                  child: Row(
+                PopupMenuButton<FilterOption>(
+                  onSelected: _applyFilter,
+                  child: const Row(
                     children: [
                       Icon(
                         FontAwesomeIcons.filter,
@@ -157,41 +199,58 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                       ),
                     ],
                   ),
+                  itemBuilder:
+                      (BuildContext context) => <PopupMenuEntry<FilterOption>>[
+                        const PopupMenuItem<FilterOption>(
+                          value: FilterOption.todas,
+                          child: Text('Todas'),
+                        ),
+                        const PopupMenuItem<FilterOption>(
+                          value: FilterOption.aceitadas,
+                          child: Text('Aceitadas'),
+                        ),
+                        const PopupMenuItem<FilterOption>(
+                          value: FilterOption.rejeitadas,
+                          child: Text('Rejeitadas'),
+                        ),
+                        const PopupMenuItem<FilterOption>(
+                          value: FilterOption.naoRespondidas,
+                          child: Text('Não respondidas'),
+                        ),
+                      ],
                 ),
               ],
             ),
           ),
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-              itemCount: requests.length,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              itemCount: _filteredRequests.length,
               itemBuilder: (context, index) {
-                final req = requests[index];
+                final req = _filteredRequests[index];
                 return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
                   shape: RoundedRectangleBorder(
                     side: BorderSide(color: Colors.grey[400]!, width: 1),
-
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
                       children: [
-                        CircleAvatar(
+                        const CircleAvatar(
                           radius: 24,
-                          backgroundColor: Colors.grey[350],
+                          backgroundColor: Color(0xFFE0E0E0),
                           child: Icon(Icons.person, color: Colors.black45),
                         ),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 2,
                             children: [
                               Text(
                                 req.role,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.deepOrange,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -199,21 +258,21 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                               ),
                               Text(
                                 req.name,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               Text(
                                 req.email,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.black54,
                                   fontSize: 14,
                                 ),
                               ),
                               Text(
                                 req.date,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.black45,
                                   fontSize: 12,
                                 ),
@@ -223,19 +282,19 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                   padding: const EdgeInsets.only(top: 4.0),
                                   child: Text(
                                     "Motivo: ${req.rejectionReason}",
-                                    style: TextStyle(color: Colors.red),
+                                    style: const TextStyle(color: Colors.red),
                                   ),
                                 ),
                             ],
                           ),
                         ),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             if (req.accepted == null) ...[
                               ElevatedButton(
-                                onPressed: () => _acceptRequest(index),
+                                onPressed: () => _acceptRequest(req),
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   shape: RoundedRectangleBorder(
@@ -246,7 +305,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                 ),
                                 child: Ink(
                                   decoration: BoxDecoration(
-                                    gradient: LinearGradient(
+                                    gradient: const LinearGradient(
                                       colors: [
                                         Color(0xFF34A34C),
                                         Color(0xFF55C26C),
@@ -257,12 +316,12 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                       horizontal: 22,
                                       vertical: 6,
                                     ),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       "Aceitar",
                                       style: TextStyle(
                                         color: Colors.white,
@@ -272,9 +331,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               ElevatedButton(
-                                onPressed: () => _rejectRequest(index),
+                                onPressed: () => _rejectRequest(req),
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   shape: RoundedRectangleBorder(
@@ -285,7 +344,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                 ),
                                 child: Ink(
                                   decoration: BoxDecoration(
-                                    gradient: LinearGradient(
+                                    gradient: const LinearGradient(
                                       colors: [
                                         Color(0xFFB21A1A),
                                         Color(0xFFE91919),
@@ -296,12 +355,12 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                       horizontal: 20,
                                       vertical: 6,
                                     ),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       "Rejeitar",
                                       style: TextStyle(
                                         color: Colors.white,
@@ -312,24 +371,23 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                 ),
                               ),
                             ] else ...[
-                              Chip(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 6,
+                              Container(
+                                width: 90,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 7,
                                 ),
-                                shape: RoundedRectangleBorder(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                label: Text(
-                                  req.accepted == true
-                                      ? "Aceitada"
-                                      : "Rejeitada",
-                                  style: TextStyle(color: Colors.white),
+                                child: Text(
+                                  req.accepted == true ? "Aceita" : "Rejeitada",
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                  ),
                                 ),
-                                backgroundColor:
-                                    req.accepted == true
-                                        ? Colors.grey
-                                        : Colors.grey,
                               ),
                             ],
                           ],
