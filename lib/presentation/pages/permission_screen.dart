@@ -159,7 +159,10 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
+              colors: [
+                Color(primaryColorGradient),
+                Color(secondaryColorGradient),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
