@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 class SnackBarAceita extends StatelessWidget {
-  final String nome;
+  final String? nome;
+  final String titulo;
+  final String subtitulo;
 
-  const SnackBarAceita({Key? key, required this.nome}) : super(key: key);
+  const SnackBarAceita({Key? key, this.nome, required this.titulo, required this.subtitulo}) : super(key: key);
 
   SnackBar buildSnackBar(BuildContext context) {
     return SnackBar(
@@ -27,7 +29,7 @@ class SnackBarAceita extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Permissão aceita!',
+                    titulo,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -35,7 +37,7 @@ class SnackBarAceita extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Permissão de $nome foi aceita.',
+                    subtitulo,
                     style: TextStyle(color: Colors.black87, fontSize: 14),
                   ),
                 ],

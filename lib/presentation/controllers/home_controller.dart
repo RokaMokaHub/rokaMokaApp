@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
+import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
@@ -28,6 +29,7 @@ class _HomeControllerState extends State<HomeController> {
 
   late final CreateExposureScreen _createExposureScreenInstance;
   late final PermissionsScreen _permissionsScreenInstance;
+  late final SolicitarPermissaoScreen _requestPermissionsScreenInstance;
   late final QRCodeScreen _capturarScreen;
 
   @override
@@ -50,7 +52,10 @@ class _HomeControllerState extends State<HomeController> {
 
     _permissionsScreenInstance = PermissionsScreen(
       onBack: _goBackFromModalPage,
-      currentUserRole: Provider.of<UserProvider>(context, listen: false).role,
+    );
+
+    _requestPermissionsScreenInstance = SolicitarPermissaoScreen(
+      onBack: _goBackFromModalPage,
     );
   }
 

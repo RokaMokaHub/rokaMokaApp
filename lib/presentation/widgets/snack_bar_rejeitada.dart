@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 class SnackBarRejeitada extends StatelessWidget {
-  final String nome;
+  final String? nome;
+  final String titulo;
+  final String subtitulo;
 
-  const SnackBarRejeitada({Key? key, required this.nome}) : super(key: key);
+  const SnackBarRejeitada({Key? key, this.nome, required this.titulo, required this.subtitulo}) : super(key: key);
 
   SnackBar buildSnackBar(BuildContext context) {
     return SnackBar(
@@ -27,7 +29,7 @@ class SnackBarRejeitada extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Permissão rejeitada!',
+                    titulo,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -35,7 +37,7 @@ class SnackBarRejeitada extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Permissão de $nome foi rejeitada.',
+                    subtitulo,
                     style: TextStyle(color: Colors.black87, fontSize: 14),
                   ),
                 ],

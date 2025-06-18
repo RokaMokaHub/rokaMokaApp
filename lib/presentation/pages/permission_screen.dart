@@ -25,14 +25,9 @@ class PermissionRequest {
 }
 
 class PermissionsScreen extends StatefulWidget {
-  final UserRole currentUserRole;
   final VoidCallback onBack;
 
-  const PermissionsScreen({
-    super.key,
-    required this.currentUserRole,
-    required this.onBack,
-  });
+  const PermissionsScreen({super.key, required this.onBack});
 
   @override
   State<PermissionsScreen> createState() => _PermissionsScreenState();
@@ -118,7 +113,11 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
       request.accepted = true;
       _applyFilter(_selectedFilter);
     });
-    final snackBar = SnackBarAceita(nome: request.name).buildSnackBar(context);
+    final snackBar = SnackBarAceita(
+      nome: request.name,
+      titulo: "Permissão aceita!",
+      subtitulo: "Permissao de ${request.name} foi aceita.",
+    ).buildSnackBar(context);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -129,21 +128,14 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     });
     final snackBar = SnackBarRejeitada(
       nome: request.name,
+      titulo: "Permissão rejeitada!",
+      subtitulo: "Permissao de ${request.name} foi rejeitada.",
     ).buildSnackBar(context);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.currentUserRole != UserRole.administrador &&
-        widget.currentUserRole != UserRole.curador) {
-      return const Center(
-        child: Text(
-          "Acesso negado. Apenas administradores e curadores têm permissão.",
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 90,

@@ -10,3 +10,4 @@ const String createExposureRoute = '/createExposure';
 const String editProfileRoute = '/editProfile';
 const String qrCodeRoute = '/qrCode';
 const String permissionsRoute = '/permissions';
+const String permissionRequestRoute = '/permissionRequest';
