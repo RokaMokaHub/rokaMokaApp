@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
 
+import '../../constants/routes.dart';
+
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -50,7 +52,7 @@ class BottomNavBar extends StatelessWidget {
           _showOnlyExposure(context);
           break;
         case UserRole.comum:
-          Navigator.pushNamed(context, '/solicitar_cargo');
+          Navigator.pushNamed(context, permissionRequestRoute);
           break;
       }
     }

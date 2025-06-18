@@ -7,6 +7,9 @@ import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
+import 'package:roka_moka_app/presentation/pages/explorer_screen.dart';
+import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
+import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
 import 'dart:io';
 
 import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
@@ -74,6 +77,14 @@ class MyApp extends StatelessWidget {
         emblemsRoute: (context) => EmblemsScreen(),
         collectionsRoute: (context) => CollectionsScreen(),
         qrCodeRoute: (context) => QRCodeScreen(),
+        explorerRoute : (context) => ExplorerScreen(),
+        permissionRequestRoute: (context) {
+          return SolicitarPermissaoScreen(
+            onBack: () {
+              Navigator.of(context).pop();
+            },
+          );
+        },
         collectionInfoRoute: (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
           return CollectionInfoScreen(id: args);
@@ -84,6 +95,13 @@ class MyApp extends StatelessWidget {
                 Navigator.of(context).pop();
               },
             ),
+        permissionsRoute: (context) {
+          return PermissionsScreen(
+            onBack: () {
+              Navigator.of(context).pop();
+            },
+          );
+        },
       },
     );
   }
