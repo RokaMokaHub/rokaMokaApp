@@ -7,6 +7,7 @@ import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
+import 'package:roka_moka_app/presentation/pages/explorer_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
 import 'dart:io';
@@ -76,6 +77,7 @@ class MyApp extends StatelessWidget {
         emblemsRoute: (context) => EmblemsScreen(),
         collectionsRoute: (context) => CollectionsScreen(),
         qrCodeRoute: (context) => QRCodeScreen(),
+        explorerRoute : (context) => ExplorerScreen(),
         permissionRequestRoute: (context) {
           return SolicitarPermissaoScreen(
             onBack: () {

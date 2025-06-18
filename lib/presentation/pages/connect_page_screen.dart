@@ -95,7 +95,7 @@ class _ConnectPageState extends State<ConnectScreen> {
           context,
           MaterialPageRoute(builder: (_) => const HomeController()),
         );
-        context.read<UserProvider>().setRole(UserRole.comum);
+        context.read<UserProvider>().setRole(UserRole.administrador);
       } catch (error) {
         print(error.toString());
         ScaffoldMessenger.of(context).showSnackBar(
