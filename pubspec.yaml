@@ -56,9 +56,14 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
 
 flutter_launcher_icons:
-  android: true
+  android: "launcher_icon"
+  min_sdk_android: 21
   ios: true
   image_path: "lib/presentation/assets/icons/roka_moka_logo.png"
+  adaptive_icon_foreground: "lib/presentation/assets/icons/roka_moka_logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  image_path_ios: "lib/presentation/assets/icons/roka_moka_logo.png"
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

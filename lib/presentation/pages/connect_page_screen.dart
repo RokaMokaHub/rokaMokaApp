@@ -91,7 +91,7 @@ class _ConnectPageState extends State<ConnectScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login realizado com sucesso!')),
         );
-        context.read<UserProvider>().setRole(UserRole.pesquisador);
+        context.read<UserProvider>().setRole(UserRole.curador);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeController()),
