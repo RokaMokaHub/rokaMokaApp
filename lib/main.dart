@@ -28,6 +28,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final authService = AuthService();
   final loggedIn = await authService.isLoggedIn();
+  final userProvider = UserProvider();
+  await userProvider.loadRole();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -57,8 +59,8 @@ void main() async {
   }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => UserProvider(),
+    ChangeNotifierProvider.value(
+      value: userProvider,
       child: MyApp(loggedIn: loggedIn),
     ),
   );
