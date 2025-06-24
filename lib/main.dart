@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
+import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
 import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'package:roka_moka_app/presentation/pages/explorer_screen.dart';
@@ -21,8 +22,14 @@ import 'package:roka_moka_app/presentation/pages/login_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/signup_screen.dart';
 
+import 'domain/services/auth_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final authService = AuthService();
+  final loggedIn = await authService.isLoggedIn();
+  final userProvider = UserProvider();
+  await userProvider.loadRole();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -52,12 +59,17 @@ void main() async {
   }
 
   runApp(
-    ChangeNotifierProvider(create: (_) => UserProvider(), child: const MyApp()),
+    ChangeNotifierProvider.value(
+      value: userProvider,
+      child: MyApp(loggedIn: loggedIn),
+    ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool loggedIn;
+
+  const MyApp({super.key, required this.loggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +79,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: LoginScreen(),
+      home: loggedIn ? HomeController() : LoginScreen(),
       routes: {
         loginRoute: (context) => LoginScreen(),
         editProfileRoute: (context) => EditProfileScreen(),
@@ -77,7 +89,7 @@ class MyApp extends StatelessWidget {
         emblemsRoute: (context) => EmblemsScreen(),
         collectionsRoute: (context) => CollectionsScreen(),
         qrCodeRoute: (context) => QRCodeScreen(),
-        explorerRoute : (context) => ExplorerScreen(),
+        explorerRoute: (context) => ExplorerScreen(),
         permissionRequestRoute: (context) {
           return SolicitarPermissaoScreen(
             onBack: () {

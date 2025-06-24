@@ -63,7 +63,7 @@ class LoginScreen extends StatelessWidget {
                       GestureDetector(
                         // Envolve o Container inteiro
                         onTap: () {
-                          Navigator.pushNamed(context, '/connect');
+                          Navigator.pushNamed(context, connectRoute);
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(
