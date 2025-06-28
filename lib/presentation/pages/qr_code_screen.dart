@@ -18,6 +18,10 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
   final MobileScannerController cameraController = MobileScannerController();
   Timer? _scanTimeoutTimer;
 
+  int _retryCount = 0;
+  final int _maxRetries = 3;
+  final Duration _retryDelay = const Duration(seconds: 5);
+
   @override
   void dispose() {
     _stopScanTimeout();
@@ -49,19 +53,49 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
     if (cameraBusy) return;
     cameraBusy = true;
     try {
-      await cameraController.stop(); // Sempre para antes de iniciar
+      await cameraController.stop();
       await Future.delayed(const Duration(milliseconds: 300));
       await cameraController.start();
       _startScanTimeout();
+      _retryCount = 0;
     } catch (e) {
       print('Erro ao iniciar a câmera: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao iniciar a câmera: ${e.toString()}')),
-        );
-        setState(() {
-          showCamera = false;
-        });
+
+      final String errorMessage = e.toString();
+
+      if (errorMessage.contains('controllerInitializing') || errorMessage.contains('The MobileScannerController is still initializing')) {
+        if (_retryCount < _maxRetries) {
+          _retryCount++;
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Câmera indisponível, aguarde ${_retryDelay.inSeconds}s e tente novamente. Tentativa $_retryCount de $_maxRetries.'),
+              ),
+            );
+          }
+          await Future.delayed(_retryDelay);
+          if (mounted) {
+            await _startCamera();
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Não foi possível iniciar a câmera após várias tentativas. Por favor, tente novamente mais tarde.')),
+            );
+            setState(() {
+              showCamera = false;
+            });
+          }
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao iniciar a câmera: $errorMessage')),
+          );
+          setState(() {
+            showCamera = false;
+          });
+        }
       }
     } finally {
       cameraBusy = false;
