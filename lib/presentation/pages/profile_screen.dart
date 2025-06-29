@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:roka_moka_app/constants/routes.dart';
+import 'package:roka_moka_app/domain/services/auth_service.dart';
 
 // ignore: use_key_in_widget_constructors
 class ProfileScreen extends StatefulWidget {
@@ -11,10 +12,24 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   // Presumi que a Perfil é a página inicial após o login, então currentIndex = 0;
   int currentIndex = 0;
-
+  final authService = AuthService();
+  String? _name;
   void onTap(int index) {
     setState(() {
       currentIndex = index;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadName();
+  }
+
+  Future<void> _loadName() async {
+    final fetchedName = await authService.getName();
+    setState(() {
+      _name = fetchedName;
     });
   }
 
@@ -57,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             SizedBox(height: 10),
                             Text(
-                              'teste',
+                              _name ?? "Carregando...",
                               style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w600,

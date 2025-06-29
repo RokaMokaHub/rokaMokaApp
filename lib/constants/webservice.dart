@@ -5,3 +5,8 @@ const String devServer = 'http://10.0.2.2:8080';
 const String loginEndpoint = '$devServer/user/login';
 // RESET PASSWORD
 const String resetPasswordEndpoint = '$devServer/user/reset-password';
+// CREATE NORMAL USER
+const String createUserEndpoint = '$devServer/user/create';
+// CREATE ANON USER
+const String createAnonUserEndpoint = '$devServer/user/anonymous/create';
+
