@@ -1,5 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roka_moka_app/constants/routes.dart';
+
+import '../../domain/services/user_service.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -18,6 +22,7 @@ class _SignupPageState extends State<SignupScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final UserService _userService = UserService();
 
   // Variáveis para armazenar mensagens de erro dos campos
   String? _passwordError;
@@ -101,7 +106,7 @@ class _SignupPageState extends State<SignupScreen> {
   }
 
   // Valida todos os campos e simula a criação da conta se todos forem válidos
-  void _validateAndCreateAccount() {
+  void _validateAndCreateAccount() async {
     setState(() {
       _submitted = true;
       _nameError = _validateName(_nameController.text);
@@ -119,9 +124,26 @@ class _SignupPageState extends State<SignupScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Conta criada com sucesso (simulação)')),
-    );
+    try {
+      String deviceId = "123456"; // substituir pelo device id
+
+      final result = await _userService.createUser(
+        _emailController.text,
+        _passwordController.text,
+        _nameController.text,
+        deviceId,
+      );
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Usuário criado com sucesso!')));
+
+      Navigator.pushReplacementNamed(context, profileRoute);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
   }
 
   @override

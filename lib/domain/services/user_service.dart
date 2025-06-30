@@ -14,15 +14,11 @@ class UserService {
     String deviceId,
   ) async {
     final url = Uri.parse(createUserEndpoint);
-    final token = _authService.getToken();
-    final credentials = base64Encode(utf8.encode(token as String));
-
     try {
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Basic $credentials',
         },
         body: jsonEncode({
           'email': email,

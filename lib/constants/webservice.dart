@@ -6,7 +6,7 @@ const String loginEndpoint = '$devServer/user/login';
 // RESET PASSWORD
 const String resetPasswordEndpoint = '$devServer/user/reset-password';
 // CREATE NORMAL USER
-const String createUserEndpoint = '$devServer/user/create';
+const String createUserEndpoint = '$devServer/user/normal/create';
 // CREATE ANON USER
 const String createAnonUserEndpoint = '$devServer/user/anonymous/create';
 
