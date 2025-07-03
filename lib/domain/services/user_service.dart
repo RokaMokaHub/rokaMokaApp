@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'auth_service.dart';
@@ -6,107 +8,118 @@ import 'package:roka_moka_app/constants/webservice.dart';
 class UserService {
   final _authService = AuthService();
 
-  //Criando user
+  // Criando user
   Future<Map<String, dynamic>> createUser(
-    String email,
-    String password,
-    String name,
-    String deviceId,
-  ) async {
+      String email,
+      String password,
+      String name,
+      ) async {
+    final deviceId = await getDeviceId(); // chama aqui dentro
     final url = Uri.parse(createUserEndpoint);
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'deviceId': deviceId,
-        }),
-      );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        final responseData = jsonDecode(response.body);
-        final errorMessage = responseData['error'] ?? 'Erro ao criar usuário.';
-        throw Exception(errorMessage);
-      }
-    } catch (e) {
-      throw Exception('Falha na requisição: $e');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'name': name,
+        'deviceId': deviceId,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      final token = data['body']['jwt'];
+      await _authService.saveAuthData(
+        token: token,
+        email: email,
+        name: name,
+        deviceId: deviceId,
+      );
+      return data;
+    } else {
+      final errorMessage =
+          data['exceptionMessage'] ?? 'Erro desconhecido ao criar o usuário.';
+      throw errorMessage;
     }
   }
 
-  //Resetando senha
+  // Resetando senha
   Future<Map<String, dynamic>> resetPassword(
-    String email,
-    String password,
-    String name,
-    String deviceId,
-  ) async {
+      String email,
+      String password,
+      String name,
+      ) async {
+    final deviceId = await getDeviceId();
     final url = Uri.parse(resetPasswordEndpoint);
-    final token = _authService.getToken();
+    final token = await _authService.getToken();
     final credentials = base64Encode(utf8.encode(token as String));
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic $credentials',
-        },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'deviceId': deviceId,
-        }),
-      );
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $credentials',
+      },
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'name': name,
+        'deviceId': deviceId,
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        final responseData = jsonDecode(response.body);
-        final errorMessage = responseData['error'] ?? 'Erro ao resetar senha.';
-        throw Exception(errorMessage);
-      }
-    } catch (e) {
-      throw Exception('Falha na requisição: $e');
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      final errorMessage = data['error'] ?? 'Erro ao resetar senha.';
+      throw errorMessage;
     }
   }
 
-  //CRIANDO USER ANONIMO
-  Future<Map<String, dynamic>> createAnonymousUser(
-    String userName,
-    String deviceId,
-  ) async {
+  // Criando usuário anônimo
+  Future<Map<String, dynamic>> createAnonymousUser(String userName) async {
+    final deviceId = await getDeviceId();
     final url = Uri.parse(createAnonUserEndpoint);
-    final token = _authService.getToken();
+    final token = await _authService.getToken();
     final credentials = base64Encode(utf8.encode(token as String));
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic $credentials',
-        },
-        body: jsonEncode({'userName': userName, 'deviceId': deviceId}),
-      );
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $credentials',
+      },
+      body: jsonEncode({'userName': userName, 'deviceId': deviceId}),
+    );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        final responseData = jsonDecode(response.body);
-        final errorMessage =
-            responseData['error'] ?? 'Erro ao criar usuário anônimo.';
-        throw Exception(errorMessage);
-      }
-    } catch (e) {
-      throw Exception('Falha na requisição: $e');
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      final errorMessage =
+          data['error'] ?? 'Erro ao criar usuário anônimo.';
+      throw errorMessage;
     }
+  }
+
+  // Obter ID do dispositivo
+  Future<String> getDeviceId() async {
+    final deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.id ?? 'android-unknown';
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor ?? 'ios-unknown';
+    }
+
+    return 'unsupported-platform';
   }
 }

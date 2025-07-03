@@ -2,8 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roka_moka_app/constants/routes.dart';
+import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
 import '../../domain/services/user_service.dart';
+import '../controllers/home_controller.dart';
+import '../widgets/snack_bar_aceita.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -49,8 +52,13 @@ class _SignupPageState extends State<SignupScreen> {
 
   // Valida o campo de nome de usuário
   String? _validateName(String name) {
+    final validPattern = RegExp(r'^[a-zA-Z0-9_-]+$');
+
     if (_submitted && name.isEmpty) {
       return 'O nome de usuário é obrigatório.';
+    }
+    if (_submitted && !validPattern.hasMatch(name)) {
+      return 'Nome de usuário inválido - apenas letras, números, hífen e underline são permitidos';
     }
     return null;
   }
@@ -125,23 +133,29 @@ class _SignupPageState extends State<SignupScreen> {
     }
 
     try {
-      String deviceId = "123456"; // substituir pelo device id
-
       final result = await _userService.createUser(
         _emailController.text,
         _passwordController.text,
         _nameController.text,
-        deviceId,
       );
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Usuário criado com sucesso!')));
+      final snackBar = SnackBarAceita(
+        titulo: "Seja bem vindo!",
+        subtitulo: "Usuário criado com sucesso.",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      Navigator.pushReplacementNamed(context, profileRoute);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeController()),
+      );
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        final snackBar = SnackBarRejeitada(
+          titulo: e.toString(),
+          subtitulo: "Tente novamente!",
+        ).buildSnackBar(context);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     }
   }
@@ -235,66 +249,69 @@ class _SignupPageState extends State<SignupScreen> {
                                         ),
                                         SizedBox(height: 30),
                                         // Campo de texto para o nome de usuário
-                                        TextField(
-                                          controller: _nameController,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _nameError = _validateName(value);
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            labelText: 'Usuário',
-                                            errorText:
-                                                _submitted ? _nameError : null,
-                                            labelStyle: TextStyle(
-                                              color: Color(0xFFABABAB),
-                                            ),
-                                            prefixIcon: Padding(
-                                              padding: EdgeInsets.only(
-                                                left: 20.0,
-                                                top: 11.5,
-                                                bottom: 11.5,
-                                              ),
-                                              child: Icon(
-                                                Icons.person_outline_sharp,
-                                                color:
-                                                    _nameError == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
-                                              ),
-                                            ),
-                                            contentPadding: EdgeInsets.only(
-                                              left: 26.0,
-                                              top: 10.0,
-                                              bottom: 10.0,
-                                              right: 4.0,
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _focusedBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _focusedBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _errorBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            focusedErrorBorder:
-                                                OutlineInputBorder(
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            TextField(
+                                              controller: _nameController,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  _nameError = _validateName(
+                                                    value,
+                                                  );
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                labelText: 'Usuário',
+                                                labelStyle: TextStyle(
+                                                  color: Color(0xFFABABAB),
+                                                ),
+                                                prefixIcon: Padding(
+                                                  padding: EdgeInsets.only(
+                                                    left: 20.0,
+                                                    top: 11.5,
+                                                    bottom: 11.5,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.person_outline_sharp,
+                                                    color:
+                                                        _nameError == null
+                                                            ? _focusedBorderColor
+                                                            : _errorBorderColor,
+                                                  ),
+                                                ),
+                                                contentPadding: EdgeInsets.only(
+                                                  left: 26.0,
+                                                  top: 10.0,
+                                                  bottom: 10.0,
+                                                  right: 4.0,
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            30.0,
+                                                          ),
+                                                      borderSide: BorderSide(
+                                                        color:
+                                                            _focusedBorderColor,
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            30.0,
+                                                          ),
+                                                      borderSide: BorderSide(
+                                                        color:
+                                                            _focusedBorderColor,
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                errorBorder: OutlineInputBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                         30.0,
@@ -304,7 +321,37 @@ class _SignupPageState extends State<SignupScreen> {
                                                     width: 2.0,
                                                   ),
                                                 ),
-                                          ),
+                                                focusedErrorBorder:
+                                                    OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            30.0,
+                                                          ),
+                                                      borderSide: BorderSide(
+                                                        color:
+                                                            _errorBorderColor,
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                              ),
+                                            ),
+                                            if (_submitted &&
+                                                _nameError != null)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 16.0,
+                                                  top: 6.0,
+                                                ),
+                                                child: Text(
+                                                  _nameError!,
+                                                  style: TextStyle(
+                                                    color: _errorBorderColor,
+                                                    fontSize: 12,
+                                                    height: 1.3,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
                                         ),
                                         SizedBox(height: 16),
                                         // Campo de texto para o email

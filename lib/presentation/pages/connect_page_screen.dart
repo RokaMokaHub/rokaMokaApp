@@ -6,6 +6,8 @@ import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/domain/services/login_service.dart';
 import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
 
+import '../widgets/snack_bar_rejeitada.dart';
+
 class ConnectScreen extends StatefulWidget {
   @override
   _ConnectPageState createState() => _ConnectPageState();
@@ -97,11 +99,11 @@ class _ConnectPageState extends State<ConnectScreen> {
           MaterialPageRoute(builder: (_) => const HomeController()),
         );
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_verificaRetornoLoginInvalido(error.toString())),
-          ),
-        );
+        final snackBar = SnackBarRejeitada(
+          titulo: _verificaRetornoLoginInvalido(error.toString()),
+          subtitulo: "Tente novamente!",
+        ).buildSnackBar(context);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     }
   }
