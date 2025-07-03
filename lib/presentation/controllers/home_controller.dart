@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:roka_moka_app/domain/providers/user_provider.dart';
+import 'package:roka_moka_app/presentation/pages/explorer_screen.dart';
+import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
+import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
 
 class HomeController extends StatefulWidget {
@@ -19,18 +23,21 @@ class _HomeControllerState extends State<HomeController> {
   int _lastActiveMainIndex = 0;
   Widget? _modalPageContent;
   final ProfileScreen _profileScreen = ProfileScreen();
-  final ProfileScreen _explorarScreen = ProfileScreen();
-  final ProfileScreen _capturarScreen = ProfileScreen();
+  final ExplorerScreen _explorarScreen = ExplorerScreen();
   final CollectionsScreen _collectionsScreen = CollectionsScreen();
   final EmblemsScreen _emblemsScreen = EmblemsScreen();
   late final List<Widget> _contentPages;
 
   late final CreateExposureScreen _createExposureScreenInstance;
   late final PermissionsScreen _permissionsScreenInstance;
+  late final SolicitarPermissaoScreen _requestPermissionsScreenInstance;
+  late final QRCodeScreen _capturarScreen;
 
   @override
   void initState() {
     super.initState();
+
+    _capturarScreen = QRCodeScreen();
 
     _contentPages = [
       _profileScreen,
@@ -43,7 +50,12 @@ class _HomeControllerState extends State<HomeController> {
     _createExposureScreenInstance = CreateExposureScreen(
       onBack: _goBackFromModalPage,
     );
+
     _permissionsScreenInstance = PermissionsScreen(
+      onBack: _goBackFromModalPage,
+    );
+
+    _requestPermissionsScreenInstance = SolicitarPermissaoScreen(
       onBack: _goBackFromModalPage,
     );
   }

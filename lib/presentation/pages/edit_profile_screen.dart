@@ -18,8 +18,8 @@ class _EditProfileState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
 
-    _userNameController = TextEditingController(text: 'XingLing Sakuma');
-    _emailController = TextEditingController(text: 'xingling@email.com');
+    _userNameController = TextEditingController(text: 'teste');
+    _emailController = TextEditingController(text: 'test@test.com');
     _passwordController = TextEditingController(text: '123456');
   }
 
@@ -29,7 +29,7 @@ class _EditProfileState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-    Widget _buttonSave() {
+  Widget _buttonSave() {
     return Container(
       width: double.infinity,
       height: 48,
@@ -50,7 +50,9 @@ class _EditProfileState extends State<EditProfileScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
           padding: EdgeInsets.zero,
         ),
         child: const Text(

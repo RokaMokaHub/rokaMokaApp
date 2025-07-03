@@ -144,7 +144,9 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
         Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('lib/presentation/assets/images/backgroundQRScreen.png'),
+              image: AssetImage(
+                'lib/presentation/assets/images/backgroundQRScreen.png',
+              ),
               fit: BoxFit.cover,
             ),
           ),
@@ -176,7 +178,10 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                             height: 320,
                             width: 320,
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.orange, width: 3),
+                              border: Border.all(
+                                color: Colors.orange,
+                                width: 3,
+                              ),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: ClipRRect(
@@ -185,7 +190,8 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                                 controller: cameraController,
                                 onDetect: (capture) async {
                                   if (!isScanned) {
-                                    final String? code = capture.barcodes.first.rawValue;
+                                    final String? code =
+                                        capture.barcodes.first.rawValue;
                                     if (code != null) {
                                       setState(() {
                                         scannedValue = code;
@@ -227,7 +233,10 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepOrange,
-                        padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 120,
+                          vertical: 10,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),

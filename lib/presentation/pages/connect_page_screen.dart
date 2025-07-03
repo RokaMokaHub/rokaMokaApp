@@ -91,13 +91,12 @@ class _ConnectPageState extends State<ConnectScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login realizado com sucesso!')),
         );
+        context.read<UserProvider>().setRole(UserRole.administrador);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeController()),
         );
-        context.read<UserProvider>().setRole(UserRole.administrador);
       } catch (error) {
-        print(error.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_verificaRetornoLoginInvalido(error.toString())),
@@ -108,7 +107,7 @@ class _ConnectPageState extends State<ConnectScreen> {
   }
 
   String _verificaRetornoLoginInvalido(String retorno) {
-    if (retorno == 'Exception: Unauthorized') {
+    if (retorno == 'Unauthorized') {
       return 'Credenciais inválidas, login não realizado!';
     }
     return 'Erro desconhecido';

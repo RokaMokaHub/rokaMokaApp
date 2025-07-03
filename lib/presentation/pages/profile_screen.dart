@@ -57,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             SizedBox(height: 10),
                             Text(
-                              'Usuário Teste',
+                              'teste',
                               style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w600,
