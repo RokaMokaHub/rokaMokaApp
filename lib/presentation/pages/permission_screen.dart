@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roka_moka_app/constants/colors.dart';
-import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
+
+import '../widgets/show_tela_rejeicao.dart';
 
 enum FilterOption { todas, aceitadas, rejeitadas, naoRespondidas }
 
@@ -121,15 +122,16 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _rejectRequest(PermissionRequest request) {
+  void _rejectRequest(PermissionRequest request, String motivo) {
     setState(() {
       request.accepted = false;
+      request.rejectionReason = motivo;
       _applyFilter(_selectedFilter);
     });
     final snackBar = SnackBarRejeitada(
       nome: request.name,
       titulo: "Permissão rejeitada!",
-      subtitulo: "Permissao de ${request.name} foi rejeitada.",
+      subtitulo: "Permissão de ${request.name} foi rejeitada.",
     ).buildSnackBar(context);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -328,7 +330,13 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                               ),
                               const SizedBox(height: 8),
                               ElevatedButton(
-                                onPressed: () => _rejectRequest(req),
+                                onPressed: () {
+                                  showTelaRejeicao(
+                                    context: context,
+                                    onSalvar:
+                                        (motivo) => _rejectRequest(req, motivo),
+                                  );
+                                },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   shape: RoundedRectangleBorder(
