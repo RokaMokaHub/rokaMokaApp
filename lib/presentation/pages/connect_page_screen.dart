@@ -3,8 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
-import 'package:roka_moka_app/domain/services/loginService.dart';
+import 'package:roka_moka_app/domain/services/login_service.dart';
 import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
+
+import '../widgets/snack_bar_rejeitada.dart';
 
 class ConnectScreen extends StatefulWidget {
   @override
@@ -97,11 +99,11 @@ class _ConnectPageState extends State<ConnectScreen> {
           MaterialPageRoute(builder: (_) => const HomeController()),
         );
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_verificaRetornoLoginInvalido(error.toString())),
-          ),
-        );
+        final snackBar = SnackBarRejeitada(
+          titulo: _verificaRetornoLoginInvalido(error.toString()),
+          subtitulo: "Tente novamente!",
+        ).buildSnackBar(context);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     }
   }
