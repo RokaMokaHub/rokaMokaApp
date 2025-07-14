@@ -14,7 +14,7 @@ class UserService {
       String password,
       String name,
       ) async {
-    final deviceId = await getDeviceId(); // chama aqui dentro
+    final deviceId = await getDeviceId();
     final url = Uri.parse(createUserEndpoint);
 
     final response = await http.post(
@@ -85,21 +85,25 @@ class UserService {
   Future<Map<String, dynamic>> createAnonymousUser(String userName) async {
     final deviceId = await getDeviceId();
     final url = Uri.parse(createAnonUserEndpoint);
-    final token = await _authService.getToken();
-    final credentials = base64Encode(utf8.encode(token as String));
 
     final response = await http.post(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
-      },
-      body: jsonEncode({'userName': userName, 'deviceId': deviceId}),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'userName': userName,
+        'deviceId': deviceId,
+      }),
     );
 
     final data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
+      final token = data['body']['jwt'];
+      await _authService.saveAuthDataAnon(
+        token: token,
+        name: userName,
+        deviceId: deviceId,
+      );
       return data;
     } else {
       final errorMessage =
