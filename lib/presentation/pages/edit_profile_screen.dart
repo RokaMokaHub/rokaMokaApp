@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:roka_moka_app/presentation/widgets/password_text_field.dart';
 
+import '../../domain/services/auth_service.dart';
+
 // ignore: use_key_in_widget_constructors
 class EditProfileScreen extends StatefulWidget {
   @override
@@ -13,14 +15,22 @@ class _EditProfileState extends State<EditProfileScreen> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
   bool _submitted = false;
+  final authService = AuthService();
 
   @override
   void initState() {
     super.initState();
+    _loadName();
+  }
 
-    _userNameController = TextEditingController(text: 'teste');
-    _emailController = TextEditingController(text: 'test@test.com');
-    _passwordController = TextEditingController(text: '123456');
+  Future<void> _loadName() async {
+    final fetchedName = await authService.getName();
+    final fetchedEmail = await authService.getEmail();
+    setState(() {
+      _userNameController = TextEditingController(text: fetchedName);
+      _emailController = TextEditingController(text: fetchedEmail);
+      _passwordController = TextEditingController();
+    });
   }
 
   @override

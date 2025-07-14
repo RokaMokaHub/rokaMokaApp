@@ -332,22 +332,22 @@ class _ConnectPageState extends State<ConnectScreen> {
                                         ),
                                         SizedBox(height: 10),
                                         //Esqueceu a senha?
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text(
-                                              'Esqueceu a senha?',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 14,
-                                                color: Color(greyButton),
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                        // Align(
+                                        //   alignment: Alignment.centerRight,
+                                        //   child: GestureDetector(
+                                        //     onTap: () {
+                                        //       Navigator.pop(context);
+                                        //     },
+                                        //     child: Text(
+                                        //       'Esqueceu a senha?',
+                                        //       style: GoogleFonts.poppins(
+                                        //         fontSize: 14,
+                                        //         color: Color(greyButton),
+                                        //         fontWeight: FontWeight.w500,
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
                                         SizedBox(height: 24),
                                         // Botão "Entrar"
                                         GestureDetector(
