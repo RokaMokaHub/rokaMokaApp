@@ -204,13 +204,13 @@ Widget _buildButton(String descrButton, BuildContext context) {
         if (descrButton == 'Editar perfil') {
           Navigator.pushNamed(context, editProfileRoute);
         }else if(descrButton == 'Ajuda') {
-          Navigator.pushNamed(context, connectRoute);
+          //colocar tela de ajuda
         } else if (descrButton == 'Sair') {
           final shouldLogout = await showDialog<bool>(
             context: context,
             builder: (context) => const UrgentAlertDialog(
               title: 'Tem certeza que deseja sair?',
-              content: 'Se esta for uma conta anonima, você perderá o acesso a conta.',
+              content: 'Se esta for uma conta anonima, você perderá o acesso permanentemente.',
             ),
           );
 

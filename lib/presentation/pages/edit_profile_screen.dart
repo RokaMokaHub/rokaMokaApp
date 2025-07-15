@@ -16,6 +16,7 @@ class _EditProfileState extends State<EditProfileScreen> {
   late TextEditingController _passwordController;
   bool _submitted = false;
   final authService = AuthService();
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -26,18 +27,24 @@ class _EditProfileState extends State<EditProfileScreen> {
   Future<void> _loadName() async {
     final fetchedName = await authService.getName();
     final fetchedEmail = await authService.getEmail();
+
+    _userNameController = TextEditingController(text: fetchedName);
+    _emailController = TextEditingController(text: fetchedEmail);
+    _passwordController = TextEditingController();
+
     setState(() {
-      _userNameController = TextEditingController(text: fetchedName);
-      _emailController = TextEditingController(text: fetchedEmail);
-      _passwordController = TextEditingController();
+      _isLoading = false;
     });
   }
 
   @override
   void dispose() {
     _userNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
+
 
   Widget _buttonSave() {
     return Container(
@@ -79,6 +86,9 @@ class _EditProfileState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       body: SafeArea(
         top: false,
