@@ -107,7 +107,7 @@ class UserService {
       return data;
     } else {
       final errorMessage =
-          data['error'] ?? 'Erro ao criar usuário anônimo.';
+          data['exceptionMessage'] ?? 'Erro ao criar usuário anônimo.';
       throw errorMessage;
     }
   }

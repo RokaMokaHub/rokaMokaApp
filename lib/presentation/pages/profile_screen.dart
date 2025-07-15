@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 
+import '../widgets/urgent_alert_dialog.dart';
+
 // ignore: use_key_in_widget_constructors
 class ProfileScreen extends StatefulWidget {
   @override
@@ -198,10 +200,27 @@ Widget _buildButton(String descrButton, BuildContext context) {
       borderRadius: BorderRadius.circular(25), // Bordas arredondadas
     ),
     child: ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         if (descrButton == 'Editar perfil') {
           Navigator.pushNamed(context, editProfileRoute);
+        }else if(descrButton == 'Ajuda') {
+          Navigator.pushNamed(context, connectRoute);
+        } else if (descrButton == 'Sair') {
+          final shouldLogout = await showDialog<bool>(
+            context: context,
+            builder: (context) => const UrgentAlertDialog(
+              title: 'Tem certeza que deseja sair?',
+              content: 'Se esta for uma conta anonima, você perderá o acesso a conta.',
+            ),
+          );
+
+          if (shouldLogout == true) {
+            final authService = AuthService();
+            authService.clearAuthData();
+            Navigator.pushNamedAndRemoveUntil(context, loginRoute, (route) => false);
+          }
         }
+
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,

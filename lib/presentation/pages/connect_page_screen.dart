@@ -10,6 +10,7 @@ import '../../constants/routes.dart';
 import '../../domain/services/user_service.dart';
 import '../widgets/snack_bar_aceita.dart';
 import '../widgets/snack_bar_rejeitada.dart';
+import '../widgets/urgent_alert_dialog.dart';
 
 class ConnectScreen extends StatefulWidget {
   @override
@@ -94,9 +95,11 @@ class _ConnectPageState extends State<ConnectScreen> {
           _usernameController.text,
           _passwordController.text,
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login realizado com sucesso!')),
-        );
+        final snackBar = SnackBarAceita(
+          titulo: _verificaRetornoLoginInvalido("Login realizado com sucesso!"),
+          subtitulo: "Bem-vindo(a) ao Roka Moka!",
+        ).buildSnackBar(context);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeController()),
@@ -113,7 +116,7 @@ class _ConnectPageState extends State<ConnectScreen> {
 
   //Metodo para login anonimo
   Future<void> _loginAnonimo() async {
-    if( _usernameController.text.isEmpty) {
+    if (_usernameController.text.isEmpty) {
       final snackBar = SnackBarRejeitada(
         titulo: "Login Recusado",
         subtitulo: "O nome de usuário deve estar preenchido.",
@@ -121,11 +124,28 @@ class _ConnectPageState extends State<ConnectScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
+
+    // Mostra o alerta de confirmação
+    final shouldProceed = await showDialog<bool>(
+      context: context,
+      builder: (context) => const UrgentAlertDialog(
+        title: 'Aviso',
+        content:
+        'Se você entrar de forma anônima e desinstalar ou limpar os dados do app, '
+            'sua conta será perdida permanentemente. Deseja continuar?',
+      ),
+    );
+
+    if (shouldProceed != true) return; // Se não confirmou, cancela o login
+
     try {
       await _userService.createAnonymousUser(_usernameController.text);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login anônimo realizado com sucesso!')),
-      );
+      final snackBar = SnackBarAceita(
+        titulo: "Login realizado com sucesso!",
+        subtitulo: "Bem-vindo(a) ao Roka Moka!",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
       context.read<UserProvider>().setRole(UserRole.comum);
       Navigator.pushReplacement(
         context,
@@ -133,7 +153,7 @@ class _ConnectPageState extends State<ConnectScreen> {
       );
     } catch (error) {
       final snackBar = SnackBarRejeitada(
-        titulo: 'Erro ao realizar login anônimo',
+        titulo: _verificaRetornoLoginInvalido(error.toString()),
         subtitulo: "Tente novamente!",
       ).buildSnackBar(context);
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -143,6 +163,9 @@ class _ConnectPageState extends State<ConnectScreen> {
   String _verificaRetornoLoginInvalido(String retorno) {
     if (retorno == 'Unauthorized') {
       return 'Credenciais inválidas, login não realizado!';
+    }
+    if(retorno == "O nome do usuário já está sendo utilizado") {
+      return 'O nome do usuário já está sendo utilizado!';
     }
     return 'Erro desconhecido';
   }
