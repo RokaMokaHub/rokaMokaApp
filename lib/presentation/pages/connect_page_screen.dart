@@ -96,7 +96,7 @@ class _ConnectPageState extends State<ConnectScreen> {
           _passwordController.text,
         );
         final snackBar = SnackBarAceita(
-          titulo: _verificaRetornoLoginInvalido("Login realizado com sucesso!"),
+          titulo: "Login realizado com sucesso!",
           subtitulo: "Bem-vindo(a) ao Roka Moka!",
         ).buildSnackBar(context);
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
