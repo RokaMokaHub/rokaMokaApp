@@ -9,4 +9,6 @@ const String resetPasswordEndpoint = '$devServer/user/reset-password';
 const String createUserEndpoint = '$devServer/user/normal/create';
 // CREATE ANON USER
 const String createAnonUserEndpoint = '$devServer/user/anonymous/create';
+// RECUPERA INFORMAÇÕES DO USUÁRIO
+const String getUserInfoEndpoint = '$devServer/user/me';
 

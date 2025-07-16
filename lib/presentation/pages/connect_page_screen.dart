@@ -6,7 +6,11 @@ import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/domain/services/login_service.dart';
 import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
 
+import '../../constants/routes.dart';
+import '../../domain/services/user_service.dart';
+import '../widgets/snack_bar_aceita.dart';
 import '../widgets/snack_bar_rejeitada.dart';
+import '../widgets/urgent_alert_dialog.dart';
 
 class ConnectScreen extends StatefulWidget {
   @override
@@ -34,6 +38,7 @@ class _ConnectPageState extends State<ConnectScreen> {
 
   // Instância do LoginService
   final LoginService _loginService = LoginService();
+  final UserService _userService = UserService();
 
   @override
   void dispose() {
@@ -90,10 +95,11 @@ class _ConnectPageState extends State<ConnectScreen> {
           _usernameController.text,
           _passwordController.text,
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login realizado com sucesso!')),
-        );
-        context.read<UserProvider>().setRole(UserRole.administrador);
+        final snackBar = SnackBarAceita(
+          titulo: "Login realizado com sucesso!",
+          subtitulo: "Bem-vindo(a) ao Roka Moka!",
+        ).buildSnackBar(context);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeController()),
@@ -108,9 +114,58 @@ class _ConnectPageState extends State<ConnectScreen> {
     }
   }
 
+  //Metodo para login anonimo
+  Future<void> _loginAnonimo() async {
+    if (_usernameController.text.isEmpty) {
+      final snackBar = SnackBarRejeitada(
+        titulo: "Login Recusado",
+        subtitulo: "O nome de usuário deve estar preenchido.",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
+
+    // Mostra o alerta de confirmação
+    final shouldProceed = await showDialog<bool>(
+      context: context,
+      builder: (context) => const UrgentAlertDialog(
+        title: 'Aviso',
+        content:
+        'Se você entrar de forma anônima e desinstalar ou limpar os dados do app, '
+            'sua conta será perdida permanentemente. Deseja continuar?',
+      ),
+    );
+
+    if (shouldProceed != true) return; // Se não confirmou, cancela o login
+
+    try {
+      await _userService.createAnonymousUser(_usernameController.text);
+      final snackBar = SnackBarAceita(
+        titulo: "Login realizado com sucesso!",
+        subtitulo: "Bem-vindo(a) ao Roka Moka!",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      context.read<UserProvider>().setRole(UserRole.comum);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeController()),
+      );
+    } catch (error) {
+      final snackBar = SnackBarRejeitada(
+        titulo: _verificaRetornoLoginInvalido(error.toString()),
+        subtitulo: "Tente novamente!",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
   String _verificaRetornoLoginInvalido(String retorno) {
     if (retorno == 'Unauthorized') {
       return 'Credenciais inválidas, login não realizado!';
+    }
+    if(retorno == "O nome do usuário já está sendo utilizado") {
+      return 'O nome do usuário já está sendo utilizado!';
     }
     return 'Erro desconhecido';
   }
@@ -298,7 +353,25 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                     : null,
                                           ),
                                         ),
-                                        SizedBox(height: 20),
+                                        SizedBox(height: 10),
+                                        //Esqueceu a senha?
+                                        // Align(
+                                        //   alignment: Alignment.centerRight,
+                                        //   child: GestureDetector(
+                                        //     onTap: () {
+                                        //       Navigator.pop(context);
+                                        //     },
+                                        //     child: Text(
+                                        //       'Esqueceu a senha?',
+                                        //       style: GoogleFonts.poppins(
+                                        //         fontSize: 14,
+                                        //         color: Color(greyButton),
+                                        //         fontWeight: FontWeight.w500,
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                        SizedBox(height: 24),
                                         // Botão "Entrar"
                                         GestureDetector(
                                           onTap: _validateFields,
@@ -324,6 +397,75 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                   fontSize: 15,
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 24),
+                                        Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: SafeArea(
+                                            child: SingleChildScrollView(
+                                              child: Container(
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      'Ou',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Color(
+                                                              greySubtitleColor,
+                                                            ),
+                                                          ),
+                                                    ),
+                                                    SizedBox(height: 20),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        _loginAnonimo();
+                                                      },
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              horizontal: 60,
+                                                              vertical: 16,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.grey,
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                32,
+                                                              ),
+                                                        ),
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Entrar de forma anônima',
+                                                            style:
+                                                                GoogleFonts.poppins(
+                                                                  fontSize: 15,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ),
