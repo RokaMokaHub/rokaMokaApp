@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
-
 // SERVERS
 const String devServer = 'http://192.168.1.111:8080';
 
@@ -13,13 +9,10 @@ const String resetPasswordEndpoint = '$devServer/user/reset-password';
 const String createUserEndpoint = '$devServer/user/normal/create';
 // CREATE ANON USER
 const String createAnonUserEndpoint = '$devServer/user/anonymous/create';
-
 // GET ARTWORK BY ID
 String getArtworkByIdEndpoint(String artworkId) => '$devServer/artwork/$artworkId';
-
 // CREATE ARTWORK
 String createArtworkEndpoint(String exhibitionId) => '$devServer/artwork/$exhibitionId';
-
 // CREATE EXHIBITION
 const String createExhibitionEndpoint = '$devServer/exhibition';
 

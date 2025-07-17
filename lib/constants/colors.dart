@@ -1,3 +1,4 @@
+// COLORS
 const int primaryColorGradient = 0xFFB23F1A;
 const int secondaryColorGradient = 0xFFE94C19;
 const int primaryColor = 0xFFD1572A;
