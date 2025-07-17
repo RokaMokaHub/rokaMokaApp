@@ -1,20 +1,23 @@
 // SERVERS
+import 'package:flutter/foundation.dart';
+
 const String devServer = 'http://10.0.2.2:8080';
+const String servidorRokaMoka = 'http://rokamoka.inf.ufpel.edu.br';
+const String activeserver = servidorRokaMoka;
 
 // LOGIN
-const String loginEndpoint = '$devServer/user/login';
+const String loginEndpoint = '$activeserver/user/login';
 // RESET PASSWORD
-const String resetPasswordEndpoint = '$devServer/user/reset-password';
+const String resetPasswordEndpoint = '$activeserver/user/reset-password';
 // CREATE NORMAL USER
-const String createUserEndpoint = '$devServer/user/normal/create';
+const String createUserEndpoint = '$activeserver/user/normal/create';
 // CREATE ANON USER
-const String createAnonUserEndpoint = '$devServer/user/anonymous/create';
+const String createAnonUserEndpoint = '$activeserver/user/anonymous/create';
 // RECUPERA INFORMAÇÕES DO USUÁRIO
-const String getUserInfoEndpoint = '$devServer/user/me';
+const String getUserInfoEndpoint = '$activeserver/user/me';
 // GET ARTWORK BY ID
-String getArtworkByIdEndpoint(String artworkId) => '$devServer/artwork/$artworkId';
+String getArtworkByIdEndpoint(String artworkId) => '$activeserver/artwork/$artworkId';
 // CREATE ARTWORK
-String createArtworkEndpoint(String exhibitionId) => '$devServer/artwork/$exhibitionId';
+String createArtworkEndpoint(String exhibitionId) => '$activeserver/artwork/$exhibitionId';
 // CREATE EXHIBITION
-const String createExhibitionEndpoint = '$devServer/exhibition';
-
+const String createExhibitionEndpoint = '$activeserver/exhibition';
