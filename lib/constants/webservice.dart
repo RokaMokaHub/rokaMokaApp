@@ -11,4 +11,10 @@ const String createUserEndpoint = '$devServer/user/normal/create';
 const String createAnonUserEndpoint = '$devServer/user/anonymous/create';
 // RECUPERA INFORMAÇÕES DO USUÁRIO
 const String getUserInfoEndpoint = '$devServer/user/me';
+// GET ARTWORK BY ID
+String getArtworkByIdEndpoint(String artworkId) => '$devServer/artwork/$artworkId';
+// CREATE ARTWORK
+String createArtworkEndpoint(String exhibitionId) => '$devServer/artwork/$exhibitionId';
+// CREATE EXHIBITION
+const String createExhibitionEndpoint = '$devServer/exhibition';
 
