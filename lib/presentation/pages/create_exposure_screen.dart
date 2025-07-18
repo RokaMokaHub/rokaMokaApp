@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:roka_moka_app/constants/webservice.dart';
-import 'package:roka_moka_app/domain/services/auth_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roka_moka_app/constants/colors.dart';
+import 'package:roka_moka_app/domain/services/exposure_service.dart';
+import 'package:roka_moka_app/domain/services/artwork_service.dart';
 
 // Classe principal da tela de criação de exposição
 class CreateExposureScreen extends StatefulWidget {
@@ -16,27 +13,23 @@ class CreateExposureScreen extends StatefulWidget {
   const CreateExposureScreen({Key? key, required this.onBack}) : super(key: key);
 
   @override
-  _CreateExposureScreenState createState() => _CreateExposureScreenState();
+  State<CreateExposureScreen> createState() => _CreateExposureScreenState();
 }
 
 class _CreateExposureScreenState extends State<CreateExposureScreen> {
-  // Chave do formulário para validação
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores de texto para nome e descrição da exposição
   final TextEditingController _nomeExposicaoController = TextEditingController();
   final TextEditingController _descricaoExposicaoController = TextEditingController();
 
-  // Variável para armazenar o museu selecionado no dropdown
   String? _museuSelecionado;
 
-  // Lista de obras, inicializada com uma obra vazia
   final List<Obra> _obras = [Obra()];
 
-  // Serviço de autenticação para obter o token
-  final AuthService _authService = AuthService();
+  // Instâncias dos serviços: ExposureService e ArtworkService
+  final ExposureService _exposureService = ExposureService();
+  final ArtworkService _artworkService = ArtworkService();
 
-  // Mapa de museus e seus respectivos endereços DTO
   final Map<String, Map<String, String>> _museuEnderecoDTO = {
     'Museu da Baronesa': {
       'rua': 'Rua Baronesa',
@@ -78,19 +71,14 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-            // Campo de texto para o nome da exposição
             _buildTextField(_nomeExposicaoController, 'Nome da exposição', true),
             const SizedBox(height: 16),
-            // Dropdown para seleção do museu
             _buildDropdownMuseus(),
             const SizedBox(height: 16),
-            // Campo de texto para a descrição da exposição
             _buildTextField(_descricaoExposicaoController, 'Descrição da exposição', false, maxLines: 4),
             const SizedBox(height: 24),
-            // Seção para adicionar e gerenciar obras
             _buildObras(),
             const SizedBox(height: 32),
-            // Botão para salvar a exposição
             _buildSalvarButton(),
             const SizedBox(height: 32),
           ]),
@@ -99,9 +87,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
-  // --- Widgets da Página ---
-
-  // Constrói a AppBar personalizada
   AppBar _buildAppBar() {
     return AppBar(
       toolbarHeight: 90,
@@ -127,7 +112,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
-  // Constrói um campo de texto reutilizável
   Widget _buildTextField(TextEditingController controller, String label, bool required, {int maxLines = 1}) {
     final double borderRadiusValue = 30.0;
 
@@ -157,7 +141,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
-  // Constrói o dropdown para seleção de museus
   Widget _buildDropdownMuseus() {
     final double borderRadiusValue = 30.0;
     final OutlineInputBorder roundedInputBorder = OutlineInputBorder(
@@ -185,7 +168,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
-  // Constrói a seção de obras, permitindo adicionar múltiplas obras
   Widget _buildObras() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +201,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
-  // Constrói o formulário para uma única obra
   Widget _buildObraForm(List<Obra> obras, int index) {
     final obra = obras[index];
     return Padding(
@@ -346,7 +327,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
-  // Constrói o botão de salvar exposição
   Widget _buildSalvarButton() {
     return GestureDetector(
       onTap: _salvarExposicao,
@@ -377,92 +357,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
-  // --- Requisições de API ---
-
-  // Função para criar uma nova exposição
-  Future<int?> createExhibition({
-    required String name,
-    required String description,
-    required Map<String, String> enderecoDTO,
-  }) async {
-    try {
-      final token = await _authService.getToken();
-      if (token == null) return null;
-
-      final response = await http.post(
-        Uri.parse(createExhibitionEndpoint),
-        headers: {
-          'Content-Type': 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $token',
-        },
-        body: jsonEncode({
-          'name': name,
-          'description': description,
-          'enderecoDTO': enderecoDTO,
-        }),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        return data['body']['id'];
-      }
-    } catch (e) {
-      print('Erro ao criar exposição: $e');
-    }
-    return null;
-  }
-
-  // Função para criar uma obra com envio de arquivos (multipart)
-  Future<bool> createArtworkMultipart({
-    required int exhibitionId,
-    required String nome,
-    required String descricao,
-    required String nomeArtista,
-    String? link,
-    XFile? imagem,
-    XFile? qrCode,
-  }) async {
-    try {
-      final token = await _authService.getToken();
-      if (token == null) return false;
-
-      final uri = Uri.parse(createArtworkEndpoint(exhibitionId.toString()));
-      final request = http.MultipartRequest('POST', uri);
-      request.headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
-
-      request.fields['nome'] = nome;
-      request.fields['descricao'] = descricao;
-      request.fields['nomeArtista'] = nomeArtista;
-      request.fields['link'] = link ?? '';
-
-      if (imagem != null) {
-        final fileBytes = await imagem.readAsBytes();
-        final multipartFile = http.MultipartFile.fromBytes(
-          'image',
-          fileBytes,
-          filename: imagem.name,
-          contentType: MediaType('image', 'jpeg'),
-        );
-        request.files.add(multipartFile);
-      }
-
-      if (qrCode != null) {
-        final qrBytes = await qrCode.readAsBytes();
-        final qrBase64 = base64Encode(qrBytes);
-        request.fields['qrCode'] = qrBase64;
-      }
-
-      final response = await request.send();
-      return response.statusCode == 200 || response.statusCode == 201;
-    } catch (e) {
-      print('Erro ao salvar obra: $e');
-      return false;
-    }
-  }
-
-  // --- Lógica de Negócio ---
-
-  // Função para salvar a exposição e suas obras
   Future<void> _salvarExposicao() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -472,30 +366,43 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     }
 
     final enderecoDTO = _museuEnderecoDTO[_museuSelecionado!]!;
-    final id = await createExhibition(
-      name: _nomeExposicaoController.text,
-      description: _descricaoExposicaoController.text,
-      enderecoDTO: enderecoDTO,
-    );
+    int? exhibitionId;
 
-    if (id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro ao criar exposição')));
+    try {
+      exhibitionId = await _exposureService.createExhibition(
+        name: _nomeExposicaoController.text,
+        description: _descricaoExposicaoController.text,
+        enderecoDTO: enderecoDTO,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao criar exposição: ${e.toString()}')));
+      return;
+    }
+
+    if (exhibitionId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro ao criar exposição: ID não retornado.')));
       return;
     }
 
     for (var obra in _obras) {
-      final success = await createArtworkMultipart(
-        exhibitionId: id,
-        nome: obra.tituloController.text,
-        descricao: obra.descricaoController.text,
-        nomeArtista: obra.artistaController.text,
-        link: obra.linkController.text,
-        imagem: obra.imagem,
-        qrCode: obra.qrCode,
-      );
+      bool success;
+      try {
+        success = await _artworkService.createArtworkMultipart( // Chamando a função do serviço unificado
+          exhibitionId: exhibitionId,
+          nome: obra.tituloController.text,
+          descricao: obra.descricaoController.text,
+          nomeArtista: obra.artistaController.text,
+          link: obra.linkController.text,
+          imagem: obra.imagem,
+          qrCode: obra.qrCode,
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao salvar uma das obras: ${e.toString()}')));
+        return;
+      }
 
       if (!success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro ao salvar uma das obras')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro desconhecido ao salvar uma das obras.')));
         return;
       }
     }
@@ -503,9 +410,18 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Exposição salva com sucesso!')));
     widget.onBack();
   }
+
+  @override
+  void dispose() {
+    _nomeExposicaoController.dispose();
+    _descricaoExposicaoController.dispose();
+    for (var obra in _obras) {
+      obra.dispose();
+    }
+    super.dispose();
+  }
 }
 
-// Classe que representa uma Obra com seus controladores de texto e arquivos
 class Obra {
   final TextEditingController artistaController = TextEditingController();
   final TextEditingController tituloController = TextEditingController();
@@ -513,4 +429,11 @@ class Obra {
   final TextEditingController linkController = TextEditingController();
   XFile? imagem;
   XFile? qrCode;
+
+  void dispose() {
+    artistaController.dispose();
+    tituloController.dispose();
+    descricaoController.dispose();
+    linkController.dispose();
+  }
 }
