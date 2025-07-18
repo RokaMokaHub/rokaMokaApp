@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 const String devServer = 'http://10.0.2.2:8080';
 const String servidorRokaMoka = 'http://rokamoka.inf.ufpel.edu.br';
-const String activeserver = servidorRokaMoka;
+const String activeserver = kReleaseMode ? servidorRokaMoka : devServer;
 
 // LOGIN
 const String loginEndpoint = '$activeserver/user/login';
