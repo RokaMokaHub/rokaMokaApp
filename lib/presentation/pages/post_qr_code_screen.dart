@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:roka_moka_app/constants/colors.dart';
-import 'package:roka_moka_app/constants/webservice.dart';
-import 'package:roka_moka_app/domain/services/auth_service.dart';
+import 'package:roka_moka_app/domain/services/artwork_service.dart'; // Importe o ArtworkService unificado
 
 /// Tela que exibe os detalhes de uma obra após leitura do QRCode
 class PostQRCodeScreen extends StatefulWidget {
@@ -16,7 +14,8 @@ class PostQRCodeScreen extends StatefulWidget {
 }
 
 class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
-  final AuthService _authService = AuthService();
+  // Instância do ArtworkService unificado
+  final ArtworkService _artworkService = ArtworkService();
 
   Map<String, dynamic>? artworkData;
   bool isLoading = true;
@@ -28,58 +27,30 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
     _fetchArtworkDetails();
   }
 
-  /// Busca os detalhes da obra pelo ID utilizando token JWT
-  Future<Map<String, dynamic>?> fetchArtworkById(String artworkId) async {
-    final token = await _authService.getToken();
-
-    if (token == null) {
-      print('Usuário não autenticado. Token JWT ausente.');
-      return null;
-    }
-
-    final url = Uri.parse(getArtworkByIdEndpoint(artworkId));
-
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        print('Erro ${response.statusCode}: ${response.body}');
-        return null;
-      }
-    } catch (e, stack) {
-      print('Erro ao buscar obra: $e');
-      print(stack);
-      return null;
-    }
-  }
-
+  /// Busca os detalhes da obra utilizando o ArtworkService
   Future<void> _fetchArtworkDetails() async {
-    final response = await fetchArtworkById(widget.artworkId);
-
-    if (response != null && response.containsKey('body')) {
-      final Map<String, dynamic> bodyData = response['body'];
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+    try {
+      final responseBody = await _artworkService.fetchArtworkById(widget.artworkId); // Chamando a função do serviço unificado
 
       setState(() {
         artworkData = {
-          'title': bodyData['nome'] ?? 'Sem título',
-          'author': bodyData['nomeArtista'] ?? 'Desconhecido',
-          'description': bodyData['descricao'] ?? '',
-          'imageUrl': bodyData['image'] ?? '',
-          'relatedLinks': [], // Deve ser atualizado quando os links forem incluidos no JSON
+          'title': responseBody['nome'] ?? 'Sem título',
+          'author': responseBody['nomeArtista'] ?? 'Desconhecido',
+          'description': responseBody['descricao'] ?? '',
+          'imageUrl': responseBody['image'] ?? '',
+          'relatedLinks': responseBody['links'] != null && responseBody['links'] is List
+              ? List<String>.from(responseBody['links'])
+              : [],
         };
         isLoading = false;
       });
-    } else {
+    } catch (e) {
       setState(() {
-        errorMessage = 'Erro ao buscar obra ou dados inválidos.';
+        errorMessage = 'Erro ao carregar os detalhes da obra: ${e.toString()}';
         isLoading = false;
       });
     }
@@ -161,7 +132,6 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
   }
 }
 
-//Header com botão de voltar e gradiente laranja
 class _OrangeHeader extends StatelessWidget {
   final VoidCallback onBackButtonPressed;
 
@@ -171,7 +141,7 @@ class _OrangeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 160,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             Color(primaryColorGradient),
@@ -196,7 +166,6 @@ class _OrangeHeader extends StatelessWidget {
   }
 }
 
-//Card com imagem, título e autor da obra
 class _ArtworkDetailsCard extends StatelessWidget {
   final String imageUrl;
   final String title;
@@ -265,7 +234,7 @@ class _ArtworkDetailsCard extends StatelessWidget {
         Text(
           author,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontStyle: FontStyle.italic,
             color: Color(greySubtitleColor),
@@ -276,7 +245,6 @@ class _ArtworkDetailsCard extends StatelessWidget {
   }
 }
 
-//Seção de links relacionados
 class _RelatedLinksSection extends StatelessWidget {
   final List<String> links;
 
@@ -316,7 +284,6 @@ class _RelatedLinksSection extends StatelessWidget {
   }
 }
 
-//Botão para coletar estrela
 class _CollectStarButton extends StatelessWidget {
   final VoidCallback onPressed;
 
