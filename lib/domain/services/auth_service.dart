@@ -21,6 +21,18 @@ class AuthService {
     await _storage.write(key: _keyDeviceId, value: deviceId);
   }
 
+  // Salva os dados do usuário anonimo
+  Future<void> saveAuthDataAnon({
+    required String token,
+    required String name,
+    required String deviceId
+  }) async {
+    await _storage.write(key: _keyToken, value: token);
+    await _storage.write(key: _keyName, value: name);
+    await _storage.write(key: _keyDeviceId, value: deviceId);
+  }
+
+
   // Recupera os dados
   Future<String?> getToken() async => await _storage.read(key: _keyToken);
   Future<String?> getEmail() async => await _storage.read(key: _keyEmail);

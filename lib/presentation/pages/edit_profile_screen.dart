@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:roka_moka_app/presentation/widgets/password_text_field.dart';
 
+import '../../domain/services/auth_service.dart';
+import '../../domain/services/user_service.dart';
+
 // ignore: use_key_in_widget_constructors
 class EditProfileScreen extends StatefulWidget {
   @override
@@ -13,21 +16,38 @@ class _EditProfileState extends State<EditProfileScreen> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
   bool _submitted = false;
+  final authService = AuthService();
+  final userService = UserService();
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _loadName();
+  }
 
-    _userNameController = TextEditingController(text: 'teste');
-    _emailController = TextEditingController(text: 'test@test.com');
-    _passwordController = TextEditingController(text: '123456');
+  Future<void> _loadName() async {
+    final fetchedName = await authService.getName();
+    final fetchedEmail = await userService.getUserInfo();
+    final email = fetchedEmail['body']?['email'] ?? 'Email não disponível';
+
+    _userNameController = TextEditingController(text: fetchedName);
+    _emailController = TextEditingController(text: email);
+    _passwordController = TextEditingController();
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   void dispose() {
     _userNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
+
 
   Widget _buttonSave() {
     return Container(
@@ -69,6 +89,9 @@ class _EditProfileState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       body: SafeArea(
         top: false,

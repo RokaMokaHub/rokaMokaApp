@@ -14,7 +14,7 @@ class UserService {
       String password,
       String name,
       ) async {
-    final deviceId = await getDeviceId(); // chama aqui dentro
+    final deviceId = await getDeviceId();
     final url = Uri.parse(createUserEndpoint);
 
     final response = await http.post(
@@ -85,16 +85,44 @@ class UserService {
   Future<Map<String, dynamic>> createAnonymousUser(String userName) async {
     final deviceId = await getDeviceId();
     final url = Uri.parse(createAnonUserEndpoint);
-    final token = await _authService.getToken();
-    final credentials = base64Encode(utf8.encode(token as String));
 
     final response = await http.post(
       url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'userName': userName,
+        'deviceId': deviceId,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      final token = data['body']['jwt'];
+      await _authService.saveAuthDataAnon(
+        token: token,
+        name: userName,
+        deviceId: deviceId,
+      );
+      return data;
+    } else {
+      final errorMessage =
+          data['exceptionMessage'] ?? 'Erro ao criar usuário anônimo.';
+      throw errorMessage;
+    }
+  }
+
+  //recupera informacoes do usuario
+  Future<Map<String, dynamic>> getUserInfo() async {
+    final token = await _authService.getToken();
+    final url = Uri.parse(getUserInfoEndpoint);
+
+    final response = await http.get(
+      url,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
+        'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({'userName': userName, 'deviceId': deviceId}),
     );
 
     final data = jsonDecode(response.body);
@@ -102,11 +130,11 @@ class UserService {
     if (response.statusCode == 200) {
       return data;
     } else {
-      final errorMessage =
-          data['error'] ?? 'Erro ao criar usuário anônimo.';
+      final errorMessage = data['error'] ?? 'Erro ao obter informações do usuário.';
       throw errorMessage;
     }
   }
+
 
   // Obter ID do dispositivo
   Future<String> getDeviceId() async {

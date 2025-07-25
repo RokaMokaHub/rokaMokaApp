@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:roka_moka_app/constants/colors.dart';
+import 'package:roka_moka_app/domain/services/artwork_service.dart'; // Importe o ArtworkService unificado
 
+/// Tela que exibe os detalhes de uma obra após leitura do QRCode
 class PostQRCodeScreen extends StatefulWidget {
   final String artworkId;
 
@@ -11,24 +14,12 @@ class PostQRCodeScreen extends StatefulWidget {
 }
 
 class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
+  // Instância do ArtworkService unificado
+  final ArtworkService _artworkService = ArtworkService();
+
   Map<String, dynamic>? artworkData;
   bool isLoading = true;
   String? errorMessage;
-
-  final Map<String, Map<String, dynamic>> _mockDatabase = {
-    'vangogh-girassois': {
-      'title': 'Os Girassóis',
-      'author': 'Van Gogh',
-      'description':
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis a nisl pretium, fringilla sapien sit amet, finibus sapien. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec ac magna placerat, lobortis erat id, viverra leo. Aliquam leo est, mattis consectetur iaculis a, condimentum ut libero. Integer blandit nisi non diam fringilla ultrices. Fusce ut.',
-      'imageUrl':
-      'https://guiadoestudante.abril.com.br/wp-content/uploads/sites/4/2023/04/os-girassois-van-gogh.jpg?quality=70&strip=info&w=1280&h=720&crop=1',
-      'relatedLinks': [
-        'www.loremipsum.com.br',
-        'www.loremipsum.com.br',
-      ],
-    },
-  };
 
   @override
   void initState() {
@@ -36,16 +27,30 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
     _fetchArtworkDetails();
   }
 
+  /// Busca os detalhes da obra utilizando o ArtworkService
   Future<void> _fetchArtworkDetails() async {
-    await Future.delayed(const Duration(seconds: 1)); // Simula um atraso de rede
-    if (_mockDatabase.containsKey(widget.artworkId)) {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+    try {
+      final responseBody = await _artworkService.fetchArtworkById(widget.artworkId); // Chamando a função do serviço unificado
+
       setState(() {
-        artworkData = _mockDatabase[widget.artworkId];
+        artworkData = {
+          'title': responseBody['nome'] ?? 'Sem título',
+          'author': responseBody['nomeArtista'] ?? 'Desconhecido',
+          'description': responseBody['descricao'] ?? '',
+          'imageUrl': responseBody['image'] ?? '',
+          'relatedLinks': responseBody['links'] != null && responseBody['links'] is List
+              ? List<String>.from(responseBody['links'])
+              : [],
+        };
         isLoading = false;
       });
-    } else {
+    } catch (e) {
       setState(() {
-        errorMessage = 'Obra não encontrada.';
+        errorMessage = 'Erro ao carregar os detalhes da obra: ${e.toString()}';
         isLoading = false;
       });
     }
@@ -62,8 +67,6 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const double artworkDetailsCardHeight = 300 + 4 + 24 + 4 + 16; // Aproximadamente 344
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: isLoading
@@ -73,18 +76,15 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
           : SafeArea(
         child: Column(
           children: [
-            // O Stack para a sobreposição do header e do card da obra
             Stack(
-              clipBehavior: Clip.none, // Permite que o card da obra saia dos limites do Stack
+              clipBehavior: Clip.none,
               children: [
-                // O cabeçalho laranja (fundo)
                 _OrangeHeader(
                   onBackButtonPressed: () => Navigator.pop(context),
                 ),
-                // O ArtworkDetailsCard posicionado sobre o cabeçalho
                 Positioned(
-                  top: 60, // Ajuste para subir ou descer o card completo
-                  left: (MediaQuery.of(context).size.width - 220) / 2, // Centraliza
+                  top: 60,
+                  left: (MediaQuery.of(context).size.width - 220) / 2,
                   child: _ArtworkDetailsCard(
                     imageUrl: artworkData!['imageUrl'],
                     title: artworkData!['title'],
@@ -93,18 +93,17 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
                 ),
               ],
             ),
-
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 244), // Ajuste este valor finamente
+                    const SizedBox(height: 244),
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.2, // 25% da altura da tela
+                        maxHeight: MediaQuery.of(context).size.height * 0.2,
                       ),
                       child: SingleChildScrollView(
                         child: Text(
@@ -114,11 +113,11 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24), // Espaçamento entre a descrição e os links
+                    const SizedBox(height: 24),
                     _RelatedLinksSection(
-                      links: List<String>.from(artworkData!['relatedLinks'] ?? []),
+                      links: List<String>.from(artworkData!['relatedLinks']),
                     ),
-                    const SizedBox(height: 24), // Espaço antes do botão
+                    const SizedBox(height: 24),
                     _CollectStarButton(
                       onPressed: _onCollectStar,
                     ),
@@ -133,16 +132,16 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
   }
 }
 
-
 class _OrangeHeader extends StatelessWidget {
   final VoidCallback onBackButtonPressed;
+
   const _OrangeHeader({Key? key, required this.onBackButtonPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 160,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             Color(primaryColorGradient),
@@ -171,10 +170,25 @@ class _ArtworkDetailsCard extends StatelessWidget {
   final String imageUrl;
   final String title;
   final String author;
-  const _ArtworkDetailsCard({Key? key, required this.imageUrl, required this.title, required this.author}) : super(key: key);
+
+  const _ArtworkDetailsCard({
+    Key? key,
+    required this.imageUrl,
+    required this.title,
+    required this.author,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    ImageProvider imageProvider;
+    try {
+      final decodedBytes = base64Decode(imageUrl);
+      imageProvider = MemoryImage(decodedBytes);
+    } catch (e) {
+      print('Erro ao decodificar imagem: $e');
+      imageProvider = const AssetImage('assets/placeholder_image.png');
+    }
+
     return Column(
       children: [
         Container(
@@ -183,32 +197,47 @@ class _ArtworkDetailsCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           padding: const EdgeInsets.all(4),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.fill,
+            child: Image(
+              image: imageProvider,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Center(
+                  child: Icon(Icons.broken_image, size: 80, color: Color(greySubtitleColor)),
+                );
+              },
             ),
           ),
         ),
         const SizedBox(height: 4),
         Text(
           title,
+          textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Color(primaryColor),
+            color: Color(titleColor),
           ),
         ),
         const SizedBox(height: 4),
         Text(
           author,
-          style: const TextStyle(
+          textAlign: TextAlign.center,
+          style: TextStyle(
             fontSize: 16,
             fontStyle: FontStyle.italic,
-            color: Colors.grey,
+            color: Color(greySubtitleColor),
           ),
         ),
       ],
@@ -218,35 +247,38 @@ class _ArtworkDetailsCard extends StatelessWidget {
 
 class _RelatedLinksSection extends StatelessWidget {
   final List<String> links;
+
   const _RelatedLinksSection({Key? key, required this.links}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (links.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    if (links.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Links relacionados',
+          'Links Relacionados:',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
+            color: Color(primaryColor),
           ),
         ),
         const SizedBox(height: 8),
-        ...links.map<Widget>((link) => Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
-          child: Text(
-            link,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.blue,
-              decoration: TextDecoration.underline,
+        ...links.map(
+              (link) => Padding(
+            padding: const EdgeInsets.only(bottom: 4.0),
+            child: Text(
+              link,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.blue,
+                decoration: TextDecoration.underline,
+              ),
             ),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -254,35 +286,26 @@ class _RelatedLinksSection extends StatelessWidget {
 
 class _CollectStarButton extends StatelessWidget {
   final VoidCallback onPressed;
+
   const _CollectStarButton({Key? key, required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24.0),
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 110, vertical: 9),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color(primaryColorGradient),
-                Color(secondaryColorGradient),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: const Text(
-            'Coletar Estrela',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-            maxLines: 1, 
-
-          ),
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(primaryColor),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      child: const Text(
+        'Coletar Estrela',
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
