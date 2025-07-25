@@ -118,7 +118,7 @@ Widget _buildStack() {
               ),
             ),
           ),
-          Container(color: Colors.white, height: 60),
+          Container(color: Colors.white, height: 100),
         ],
       ),
       Row(
@@ -136,39 +136,42 @@ Widget _buildStack() {
 Widget _buildCards(int quantity, List<String> texts) {
   return Container(
     width: 158,
-    height: 80,
+    height: 90,
     decoration: BoxDecoration(
       color: Color(0xFFD9D9D9),
       borderRadius: BorderRadius.all(Radius.circular(15)),
     ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          quantity.toString(),
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF555555),
+    child: Padding(
+      padding: EdgeInsets.all(0.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            quantity.toString(),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF555555),
+            ),
           ),
-        ),
-        Text(
-          texts.first,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF555555),
+          Text(
+            texts.first,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF555555),
+            ),
           ),
-        ),
-        Text(
-          texts.last,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF555555),
+          Text(
+            texts.last,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF555555),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
@@ -203,24 +206,29 @@ Widget _buildButton(String descrButton, BuildContext context) {
       onPressed: () async {
         if (descrButton == 'Editar perfil') {
           Navigator.pushNamed(context, editProfileRoute);
-        }else if(descrButton == 'Ajuda') {
+        } else if (descrButton == 'Ajuda') {
           //colocar tela de ajuda
         } else if (descrButton == 'Sair') {
           final shouldLogout = await showDialog<bool>(
             context: context,
-            builder: (context) => const UrgentAlertDialog(
-              title: 'Tem certeza que deseja sair?',
-              content: 'Se esta for uma conta anonima, você perderá o acesso permanentemente.',
-            ),
+            builder:
+                (context) => const UrgentAlertDialog(
+                  title: 'Tem certeza que deseja sair?',
+                  content:
+                      'Se esta for uma conta anonima, você perderá o acesso permanentemente.',
+                ),
           );
 
           if (shouldLogout == true) {
             final authService = AuthService();
             authService.clearAuthData();
-            Navigator.pushNamedAndRemoveUntil(context, loginRoute, (route) => false);
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              loginRoute,
+              (route) => false,
+            );
           }
         }
-
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,

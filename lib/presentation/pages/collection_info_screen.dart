@@ -52,7 +52,7 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
             ),
           ),
           Positioned(
-            top: 24,
+            top: 0,
             left: 0,
             right: 0,
             child: DecoratedBox(
@@ -64,17 +64,21 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
                 ),
               ),
               child: Container(
-                alignment: Alignment.centerLeft,
+                height: 80, // Altura maior para dar espaço
                 width: double.infinity,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context, collectedStars),
+                alignment: Alignment.topLeft, // Para garantir que Padding funcione de cima
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20.0, left: 8.0), // Ajuste o top conforme necessário
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context, collectedStars),
+                  ),
                 ),
               ),
             ),
           ),
           Positioned(
-            top: 230,
+            top: 270,
             left: 0,
             right: 0,
             bottom: 0,
@@ -189,6 +193,7 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
                   const Spacer(),
                   Center(
                     child: Container(
+                      margin: EdgeInsetsGeometry.symmetric(vertical: 18),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],

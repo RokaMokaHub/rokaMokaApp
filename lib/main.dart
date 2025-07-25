@@ -27,6 +27,12 @@ import 'domain/services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.immersiveSticky,
+    overlays: [SystemUiOverlay.top],
+  );
+
   final authService = AuthService();
   final loggedIn = await authService.isLoggedIn();
   final userProvider = UserProvider();
