@@ -42,7 +42,7 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: 24,
+            top: 50,
             left: 0,
             right: 0,
             child: Image.asset(
@@ -64,11 +64,11 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
                 ),
               ),
               child: Container(
-                height: 80, // Altura maior para dar espaço
+                height: 70,
                 width: double.infinity,
-                alignment: Alignment.topLeft, // Para garantir que Padding funcione de cima
+                alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 20.0, left: 8.0), // Ajuste o top conforme necessário
+                  padding: const EdgeInsets.only(top: 20.0, left: 8.0),
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () => Navigator.pop(context, collectedStars),
@@ -78,7 +78,7 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
             ),
           ),
           Positioned(
-            top: 270,
+            top: 260,
             left: 0,
             right: 0,
             bottom: 0,
@@ -171,11 +171,11 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 30),
                   Center(
                     child: Container(
-                      width: 150,
-                      height: 150,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
                         color:
                             emblemUnlocked
