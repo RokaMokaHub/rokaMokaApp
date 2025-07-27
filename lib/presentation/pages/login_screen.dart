@@ -106,7 +106,7 @@ class LoginScreen extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Color(0xFFE94C19),
                           padding: EdgeInsets.symmetric(
-                            horizontal: 120,
+                            horizontal: 110,
                             vertical: 14,
                           ),
                           shape: RoundedRectangleBorder(
