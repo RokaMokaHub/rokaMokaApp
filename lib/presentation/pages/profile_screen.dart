@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../widgets/urgent_alert_dialog.dart';
 
@@ -15,6 +16,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Presumi que a Perfil é a página inicial após o login, então currentIndex = 0;
   int currentIndex = 0;
   final authService = AuthService();
+  String _appVersion = '';
   String? _name;
   void onTap(int index) {
     setState(() {
@@ -26,6 +28,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadName();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = 'Versão ${info.version}';
+    });
   }
 
   Future<void> _loadName() async {
@@ -38,67 +48,82 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        top: false,
-        bottom: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.only(top: 80, bottom: 20),
-                      decoration: BoxDecoration(color: Color(0xFFB23F1A)),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 148,
-                              height: 148,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xFFD9D9D9),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2,
-                                ),
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                    'lib/presentation/assets/images/user_icon.png',
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          SafeArea(
+            top: false,
+            bottom: false,
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(top: 80, bottom: 20),
+                          decoration: BoxDecoration(color: Color(0xFFB23F1A)),
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 148,
+                                  height: 148,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xFFD9D9D9),
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'lib/presentation/assets/images/user_icon.png',
+                                      ),
+                                      fit: BoxFit.none,
+                                    ),
                                   ),
-                                  fit: BoxFit.none,
                                 ),
-                              ),
+                                SizedBox(height: 10),
+                                Text(
+                                  _name ?? "Carregando...",
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            Text(
-                              _name ?? "Carregando...",
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        _buildStack(),
+                        _buildListButtons(context),
+                        SizedBox(height: 60),
+                      ],
                     ),
-                    _buildStack(),
-                    _buildListButtons(context),
-                    Container(
-                      height: 20,
-                      color: Colors.white,
-                    ), // Spacer if needed
-                  ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                _appVersion,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.black45,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      backgroundColor: Colors.white,
     );
   }
 }
@@ -118,7 +143,7 @@ Widget _buildStack() {
               ),
             ),
           ),
-          Container(color: Colors.white, height: 60),
+          Container(color: Colors.white, height: 100),
         ],
       ),
       Row(
@@ -136,39 +161,42 @@ Widget _buildStack() {
 Widget _buildCards(int quantity, List<String> texts) {
   return Container(
     width: 158,
-    height: 80,
+    height: 90,
     decoration: BoxDecoration(
       color: Color(0xFFD9D9D9),
       borderRadius: BorderRadius.all(Radius.circular(15)),
     ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          quantity.toString(),
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF555555),
+    child: Padding(
+      padding: EdgeInsets.all(0.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            quantity.toString(),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF555555),
+            ),
           ),
-        ),
-        Text(
-          texts.first,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF555555),
+          Text(
+            texts.first,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF555555),
+            ),
           ),
-        ),
-        Text(
-          texts.last,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF555555),
+          Text(
+            texts.last,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF555555),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
@@ -203,24 +231,29 @@ Widget _buildButton(String descrButton, BuildContext context) {
       onPressed: () async {
         if (descrButton == 'Editar perfil') {
           Navigator.pushNamed(context, editProfileRoute);
-        }else if(descrButton == 'Ajuda') {
+        } else if (descrButton == 'Ajuda') {
           //colocar tela de ajuda
         } else if (descrButton == 'Sair') {
           final shouldLogout = await showDialog<bool>(
             context: context,
-            builder: (context) => const UrgentAlertDialog(
-              title: 'Tem certeza que deseja sair?',
-              content: 'Se esta for uma conta anonima, você perderá o acesso permanentemente.',
-            ),
+            builder:
+                (context) => const UrgentAlertDialog(
+                  title: 'Tem certeza que deseja sair?',
+                  content:
+                      'Se esta for uma conta anonima, você perderá o acesso permanentemente.',
+                ),
           );
 
           if (shouldLogout == true) {
             final authService = AuthService();
             authService.clearAuthData();
-            Navigator.pushNamedAndRemoveUntil(context, loginRoute, (route) => false);
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              loginRoute,
+              (route) => false,
+            );
           }
         }
-
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
