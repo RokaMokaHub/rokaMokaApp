@@ -74,9 +74,9 @@ class _ConnectPageState extends State<ConnectScreen> {
     if (_submitted) {
       setState(() {
         _passwordErrorText =
-            _passwordController.text.isEmpty
-                ? 'A senha deve estar preenchida.'
-                : null;
+        _passwordController.text.isEmpty
+            ? 'A senha deve estar preenchida.'
+            : null;
         _isPasswordValid = _passwordController.text.isNotEmpty;
       });
     } else {
@@ -95,11 +95,21 @@ class _ConnectPageState extends State<ConnectScreen> {
           _usernameController.text,
           _passwordController.text,
         );
+
+        // Buscar a role real do usuário após login
+        final userInfo = await _userService.getUserInfo();
+        final roleFromAPI = userInfo['body']['role'];
+        final roleEnum = _convertRoleStringToEnum(roleFromAPI);
+
+        // Atualizar no provider
+        context.read<UserProvider>().setRole(roleEnum);
+
         final snackBar = SnackBarAceita(
           titulo: "Login realizado com sucesso!",
           subtitulo: "Bem-vindo(a) ao Roka Moka!",
         ).buildSnackBar(context);
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeController()),
@@ -128,7 +138,8 @@ class _ConnectPageState extends State<ConnectScreen> {
     // Mostra o alerta de confirmação
     final shouldProceed = await showDialog<bool>(
       context: context,
-      builder: (context) => const UrgentAlertDialog(
+      builder: (context) =>
+      const UrgentAlertDialog(
         title: 'Aviso',
         content:
         'Se você entrar de forma anônima e desinstalar ou limpar os dados do app, '
@@ -160,11 +171,27 @@ class _ConnectPageState extends State<ConnectScreen> {
     }
   }
 
+  UserRole _convertRoleStringToEnum(String? role) {
+    switch (role?.toLowerCase()) {
+      case 'admin':
+        return UserRole.administrador;
+      case 'comum':
+        return UserRole.comum;
+      case 'curador':
+        return UserRole.curador;
+      case 'pesquisador':
+        return UserRole.pesquisador;
+      default:
+        return UserRole.comum; // fallback seguro
+    }
+  }
+
+
   String _verificaRetornoLoginInvalido(String retorno) {
     if (retorno == 'Unauthorized') {
       return 'Credenciais inválidas, login não realizado!';
     }
-    if(retorno == "O nome do usuário já está sendo utilizado") {
+    if (retorno == "O nome do usuário já está sendo utilizado") {
       return 'O nome do usuário já está sendo utilizado!';
     }
     return 'Erro desconhecido';
@@ -197,7 +224,10 @@ class _ConnectPageState extends State<ConnectScreen> {
             child: Image.asset(
               'lib/presentation/assets/images/backgroundConnect.png',
               fit: BoxFit.cover,
-              height: MediaQuery.of(context).size.height * 0.4,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.4,
             ),
           ),
           // Conteúdo principal dentro de um SafeArea para evitar sobreposição com a barra de status
@@ -235,7 +265,10 @@ class _ConnectPageState extends State<ConnectScreen> {
                                 // Espaçamento superior
                                 SizedBox(
                                   height:
-                                      MediaQuery.of(context).size.height * 0.15,
+                                  MediaQuery
+                                      .of(context)
+                                      .size
+                                      .height * 0.15,
                                 ),
                                 // Container branco com bordas arredondadas para o formulário
                                 Expanded(
@@ -251,7 +284,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         SizedBox(height: 10),
                                         // Título "Login"
@@ -301,15 +334,15 @@ class _ConnectPageState extends State<ConnectScreen> {
                                               child: Icon(
                                                 Icons.person_outline,
                                                 color:
-                                                    _usernameErrorText == null
-                                                        ? Color(0xFFE94C19)
-                                                        : Color(0xFF960000),
+                                                _usernameErrorText == null
+                                                    ? Color(0xFFE94C19)
+                                                    : Color(0xFF960000),
                                               ),
                                             ),
                                             errorText:
-                                                _submitted
-                                                    ? _usernameErrorText
-                                                    : null,
+                                            _submitted
+                                                ? _usernameErrorText
+                                                : null,
                                           ),
                                         ),
                                         SizedBox(height: 20),
@@ -342,15 +375,15 @@ class _ConnectPageState extends State<ConnectScreen> {
                                               child: Icon(
                                                 Icons.lock_rounded,
                                                 color:
-                                                    _passwordErrorText == null
-                                                        ? Color(0xFFE94C19)
-                                                        : Color(0xFF960000),
+                                                _passwordErrorText == null
+                                                    ? Color(0xFFE94C19)
+                                                    : Color(0xFF960000),
                                               ),
                                             ),
                                             errorText:
-                                                _submitted
-                                                    ? _passwordErrorText
-                                                    : null,
+                                            _submitted
+                                                ? _passwordErrorText
+                                                : null,
                                           ),
                                         ),
                                         SizedBox(height: 10),
@@ -388,7 +421,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                 ],
                                               ),
                                               borderRadius:
-                                                  BorderRadius.circular(32),
+                                              BorderRadius.circular(32),
                                             ),
                                             child: Center(
                                               child: Text(
@@ -412,23 +445,23 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius:
-                                                      BorderRadius.circular(16),
+                                                  BorderRadius.circular(16),
                                                 ),
                                                 child: Column(
                                                   mainAxisSize:
-                                                      MainAxisSize.min,
+                                                  MainAxisSize.min,
                                                   children: [
                                                     Text(
                                                       'Ou',
                                                       style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 20,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                            color: Color(
-                                                              greySubtitleColor,
-                                                            ),
-                                                          ),
+                                                      GoogleFonts.poppins(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                        FontWeight.w400,
+                                                        color: Color(
+                                                          greySubtitleColor,
+                                                        ),
+                                                      ),
                                                     ),
                                                     SizedBox(height: 20),
                                                     GestureDetector(
@@ -437,30 +470,30 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                       },
                                                       child: Container(
                                                         padding:
-                                                            EdgeInsets.symmetric(
-                                                              horizontal: 60,
-                                                              vertical: 16,
-                                                            ),
+                                                        EdgeInsets.symmetric(
+                                                          horizontal: 60,
+                                                          vertical: 16,
+                                                        ),
                                                         decoration: BoxDecoration(
                                                           color: Colors.grey,
                                                           borderRadius:
-                                                              BorderRadius.circular(
-                                                                32,
-                                                              ),
+                                                          BorderRadius.circular(
+                                                            32,
+                                                          ),
                                                         ),
                                                         child: Center(
                                                           child: Text(
                                                             'Entrar de forma anônima',
                                                             style:
-                                                                GoogleFonts.poppins(
-                                                                  fontSize: 15,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                ),
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 15,
+                                                              color:
+                                                              Colors
+                                                                  .white,
+                                                              fontWeight:
+                                                              FontWeight
+                                                                  .w600,
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
