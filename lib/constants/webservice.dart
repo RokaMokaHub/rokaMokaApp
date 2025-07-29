@@ -21,3 +21,9 @@ String getArtworkByIdEndpoint(String artworkId) => '$activeserver/artwork/$artwo
 String createArtworkEndpoint(String exhibitionId) => '$activeserver/artwork/$exhibitionId';
 // CREATE EXHIBITION
 const String createExhibitionEndpoint = '$activeserver/exhibition';
+// requests access as a researcher
+const String requestAccessResearcherEndpoint = '$activeserver/request/permission/researcher';
+// requests access as a curator
+const String requestAccessCuratorEndpoint = '$activeserver/request/permission/curator';
+// status request access
+String statusRequestAccessEndpoint(int permissionId) => '$activeserver/request/permission/status/$permissionId';

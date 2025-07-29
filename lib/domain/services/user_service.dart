@@ -37,6 +37,7 @@ class UserService {
         email: email,
         name: name,
         deviceId: deviceId,
+        password: password,
       );
       return data;
     } else {
