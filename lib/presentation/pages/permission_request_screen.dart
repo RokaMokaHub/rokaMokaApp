@@ -34,7 +34,7 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
       if (permissionId != null) {
         final data = await _accessService.checkPermissionStatus(permissionId);
         setState(() {
-          selectedCargo = data['body']['targetRole'];
+          selectedCargo = _verificaRoleBanco(data['body']['targetRole']);
           solicitacaoFeita = true;
         });
       }
@@ -83,6 +83,17 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
         subtitulo: e.toString(),
       ).buildSnackBar(context);
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  String _verificaRoleBanco(String role) {
+    switch (role) {
+      case 'CURATOR':
+        return 'Curador';
+      case 'RESEARCHER':
+        return 'Pesquisador';
+      default:
+        return '';
     }
   }
 
