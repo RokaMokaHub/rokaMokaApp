@@ -27,3 +27,5 @@ const String requestAccessResearcherEndpoint = '$activeserver/request/permission
 const String requestAccessCuratorEndpoint = '$activeserver/request/permission/curator';
 // status request access
 String statusRequestAccessEndpoint(int permissionId) => '$activeserver/request/permission/status/$permissionId';
+// lista de permissao para o admin
+const listPermissionsEndPoint = '$activeserver/evaluation/permission/list';
