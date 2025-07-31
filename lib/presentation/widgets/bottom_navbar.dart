@@ -10,6 +10,7 @@ class BottomNavBar extends StatelessWidget {
   final Function(int) onTap;
   final VoidCallback onShowPermissions;
   final VoidCallback onShowCreateExposure;
+  final VoidCallback onShowEditExposure; // Depois comentar
 
   const BottomNavBar({
     Key? key,
@@ -17,6 +18,7 @@ class BottomNavBar extends StatelessWidget {
     required this.onTap,
     required this.onShowPermissions,
     required this.onShowCreateExposure,
+    required this.onShowEditExposure, // Depois comentar
   }) : super(key: key);
 
   List<Map<String, dynamic>> getNavItems(UserRole role) {
@@ -64,27 +66,37 @@ class BottomNavBar extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (modalContext) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.notifications_none),
-            title: const Text('Permissões'),
-            onTap: () {
-              Navigator.pop(modalContext);
-              onShowPermissions();
-            },
+      builder:
+          (modalContext) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.notifications_none),
+                title: const Text('Permissões'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  onShowPermissions();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.image_outlined),
+                title: const Text('Inserir Exposição'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  onShowCreateExposure();
+                },
+              ),
+              ListTile(
+                // Depois comentar
+                leading: const Icon(Icons.image_outlined),
+                title: const Text('Editar Exposição'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  onShowEditExposure();
+                },
+              ),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.image_outlined),
-            title: const Text('Inserir Exposição'),
-            onTap: () {
-              Navigator.pop(modalContext);
-              onShowCreateExposure();
-            },
-          ),
-        ],
-      ),
     );
   }
 
@@ -94,14 +106,15 @@ class BottomNavBar extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (modalContext) => ListTile(
-        leading: const Icon(Icons.notifications_none),
-        title: const Text('Permissões'),
-        onTap: () {
-          Navigator.pop(modalContext);
-          onShowPermissions();
-        },
-      ),
+      builder:
+          (modalContext) => ListTile(
+            leading: const Icon(Icons.notifications_none),
+            title: const Text('Permissões'),
+            onTap: () {
+              Navigator.pop(modalContext);
+              onShowPermissions();
+            },
+          ),
     );
   }
 
@@ -111,14 +124,15 @@ class BottomNavBar extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (modalContext) => ListTile(
-        leading: const Icon(Icons.image_outlined),
-        title: const Text('Inserir Exposição'),
-        onTap: () {
-          Navigator.pop(modalContext);
-          onShowCreateExposure();
-        },
-      ),
+      builder:
+          (modalContext) => ListTile(
+            leading: const Icon(Icons.image_outlined),
+            title: const Text('Inserir Exposição'),
+            onTap: () {
+              Navigator.pop(modalContext);
+              onShowCreateExposure();
+            },
+          ),
     );
   }
 
@@ -143,12 +157,13 @@ class BottomNavBar extends StatelessWidget {
         fontWeight: FontWeight.w500,
       ),
       type: BottomNavigationBarType.fixed,
-      items: items.map((item) {
-        return BottomNavigationBarItem(
-          icon: Icon(item['icon'] as IconData),
-          label: item['label'] as String,
-        );
-      }).toList(),
+      items:
+          items.map((item) {
+            return BottomNavigationBarItem(
+              icon: Icon(item['icon'] as IconData),
+              label: item['label'] as String,
+            );
+          }).toList(),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
+import 'package:roka_moka_app/presentation/pages/edit_exposure_screen.dart';
 import 'package:roka_moka_app/presentation/pages/explorer_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
@@ -81,6 +83,7 @@ class _HomeControllerState extends State<HomeController> {
   void _goBackFromModalPage() {
     setState(() {
       _modalPageContent = null;
+      _currentIndex = _lastActiveMainIndex;
     });
   }
 
@@ -104,6 +107,17 @@ class _HomeControllerState extends State<HomeController> {
         onShowCreateExposure:
             () => _showPageFromModal(_createExposureScreenInstance),
         onShowPermissions: () => _showPageFromModal(_permissionsScreenInstance),
+        onShowEditExposure: () {
+          // Para fins de teste, mantemos ID fixo.
+          const String exhibitionId = '1';
+
+          final editScreen = EditExposureScreen(
+            exposureId: exhibitionId,
+            onBack:
+                _goBackFromModalPage,
+          );
+          _showPageFromModal(editScreen);
+        },
       ),
     );
   }

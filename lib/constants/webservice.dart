@@ -17,6 +17,8 @@ const String createAnonUserEndpoint = '$activeserver/user/anonymous/create';
 const String getUserInfoEndpoint = '$activeserver/user/me';
 // GET ARTWORK BY ID
 String getArtworkByIdEndpoint(String artworkId) => '$activeserver/artwork/$artworkId';
+// GET EXHIBITION BY ID
+String getExhibitionByIdEndpoint(String exhibitionId) => '$activeserver/exhibition/$exhibitionId';
 // CREATE ARTWORK
 String createArtworkEndpoint(String exhibitionId) => '$activeserver/artwork/$exhibitionId';
 // CREATE EXHIBITION

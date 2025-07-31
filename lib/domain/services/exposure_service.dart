@@ -38,11 +38,51 @@ class ExposureService {
         return data['body']['id'];
       } else {
         final errorData = jsonDecode(response.body);
-        throw Exception('Falha ao criar exposição: ${errorData['error'] ?? response.statusCode}');
+        throw Exception(
+          'Falha ao criar exposição: ${errorData['error'] ?? response.statusCode}',
+        );
       }
     } catch (e) {
       print('Erro ao criar exposição: $e');
       rethrow;
+    }
+  }
+
+  /// Busca os detalhes de uma exposição pelo ID utilizando o token JWT para autenticação.
+  /// Retorna um [Map<String, dynamic>] contendo os dados da exposição se bem-sucedido.
+  Future<Map<String, dynamic>> getExhibitionById(String exhibitionId) async {
+    final token = await _authService.getToken();
+
+    if (token == null) {
+      throw Exception('Usuário não autenticado. Token JWT ausente.');
+    }
+
+    final url = Uri.parse(getExhibitionByIdEndpoint(exhibitionId));
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data.containsKey('body')) {
+          return data['body'];
+        } else {
+          throw Exception('Resposta da API não contém a chave "body".');
+        }
+      } else {
+        final errorBody = jsonDecode(response.body);
+        throw Exception(
+          'Erro ${response.statusCode}: ${errorBody['error'] ?? response.body}',
+        );
+      }
+    } catch (e) {
+      print('Erro ao buscar exposição: $e');
+      rethrow; // Relança a exceção para ser tratada pela UI
     }
   }
 }

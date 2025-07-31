@@ -8,6 +8,7 @@ import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
 import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
+import 'package:roka_moka_app/presentation/pages/edit_exposure_screen.dart';
 import 'package:roka_moka_app/presentation/pages/explorer_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
@@ -88,6 +89,15 @@ class MyApp extends StatelessWidget {
       ),
       home: loggedIn ? HomeController() : LoginScreen(),
       routes: {
+        editExposureRoute: (context) { // Depois comentar
+          final String exposureId = ModalRoute.of(context)!.settings.arguments as String;
+          return EditExposureScreen(
+            exposureId: exposureId,
+            onBack: () {
+              Navigator.of(context).pop();
+            },
+          );
+        },
         loginRoute: (context) => LoginScreen(),
         editProfileRoute: (context) => EditProfileScreen(),
         connectRoute: (context) => ConnectScreen(),

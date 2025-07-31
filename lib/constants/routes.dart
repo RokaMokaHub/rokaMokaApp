@@ -7,6 +7,7 @@ const String emblemsRoute = '/emblems';
 const String collectionsRoute = '/collections';
 const String collectionInfoRoute = '/collection/:id';
 const String createExposureRoute = '/createExposure';
+const String editExposureRoute = '/editExposure';
 const String editProfileRoute = '/editProfile';
 const String qrCodeRoute = '/qrCode';
 const String permissionsRoute = '/permissions';
