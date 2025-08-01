@@ -35,7 +35,6 @@ class PermissionRequest {
       targetRole: formatRole(json['targetRole']),
     );
   }
-
 }
 
 class PermissionsScreen extends StatefulWidget {
@@ -127,19 +126,39 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _rejectRequest(PermissionRequest request, String motivo) {
-    setState(() {
-      request.accepted = false;
-      request.rejectionReason = motivo;
-      _applyFilter(_selectedFilter);
-    });
+  Future<void> _rejectRequest(PermissionRequest request, String motivo) async {
+    try {
+      await _manageAccessService.denyPermission(
+        request.requestId,
+        motivo,
+        request.userName,
+      );
 
-    final snackBar = SnackBarRejeitada(
-      nome: request.userName,
-      titulo: "Permissão rejeitada!",
-      subtitulo: "Permissão de ${request.userName} foi rejeitada.",
-    ).buildSnackBar(context);
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      setState(() {
+        request.accepted = false;
+        request.rejectionReason = motivo;
+        _applyFilter(_selectedFilter);
+      });
+
+      final snackBar = SnackBarRejeitada(
+        nome: request.userName,
+        titulo: "Permissão rejeitada!",
+        subtitulo: "Permissão de ${request.userName} foi rejeitada.",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      final snackBar = SnackBarRejeitada(
+        nome: request.userName,
+        titulo: "Erro inesperado!",
+        subtitulo: "Houve um erro ao rejeitar a permissão.",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      ;
+    }
   }
 
   @override

@@ -29,3 +29,7 @@ const String requestAccessCuratorEndpoint = '$activeserver/request/permission/cu
 String statusRequestAccessEndpoint(int permissionId) => '$activeserver/request/permission/status/$permissionId';
 // lista de permissao para o admin
 const listPermissionsEndPoint = '$activeserver/evaluation/permission/list';
+// rejeitar permissao
+String denyPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/deny/$permissionId';
+// aceitar permissao
+String acceptPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/accept/$permissionId';

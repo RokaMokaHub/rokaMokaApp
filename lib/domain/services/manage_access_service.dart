@@ -31,4 +31,35 @@ class ManageAccessService {
       throw errorMessage;
     }
   }
+
+  /// rejeitar permissao
+  Future<void> denyPermission(int permissionId, String justificativaDenyPermission, String userName) async {
+    final name = await _authService.getName();
+    final password = await _authService.getPassword();
+    final credentials = base64Encode(utf8.encode('$name:$password'));
+    final urlDenyPermission = Uri.parse(denyPermissionEndpoint(permissionId));
+
+    final response = await http.post(
+      urlDenyPermission,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $credentials',
+      },
+      body: jsonEncode({
+        'id': permissionId,
+        'justificativa': justificativaDenyPermission,
+        'userName': userName,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      final errorMessage =
+          data['exceptionMessage'] ?? 'Erro ao rejeitar permissão';
+      throw errorMessage;
+    }
+  }
 }
