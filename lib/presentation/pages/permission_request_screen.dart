@@ -3,6 +3,7 @@ import 'package:roka_moka_app/domain/services/access_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 import '../../constants/colors.dart';
+import '../../domain/services/auth_service.dart';
 import '../widgets/snack_bar_aceita.dart';
 
 class SolicitarPermissaoScreen extends StatefulWidget {
@@ -65,8 +66,9 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
       }
 
       final permissionId = data['body']['id'];
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('permissionId', permissionId);
+
+      final auth = AuthService();
+      await auth.savePermissionId(permissionId);
 
       setState(() {
         solicitacaoFeita = true;
@@ -85,6 +87,7 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
+
 
   String _verificaRoleBanco(String role) {
     switch (role) {
