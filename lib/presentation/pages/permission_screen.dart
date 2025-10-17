@@ -11,6 +11,7 @@ enum FilterOption { todas, aceitadas, rejeitadas, naoRespondidas }
 class PermissionRequest {
   final int requestId;
   final String userName;
+  final String email;
   final String targetRole;
   bool? accepted;
   String? rejectionReason;
@@ -18,6 +19,7 @@ class PermissionRequest {
   PermissionRequest({
     required this.requestId,
     required this.userName,
+    required this.email,
     required this.targetRole,
     this.accepted,
     this.rejectionReason,
@@ -32,6 +34,7 @@ class PermissionRequest {
     return PermissionRequest(
       requestId: json['requestId'],
       userName: json['userName'],
+      email: json['email'],
       targetRole: formatRole(json['targetRole']),
     );
   }
@@ -324,7 +327,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        "req.email",
+                                        req.email,
                                         style: const TextStyle(
                                           color: Colors.black54,
                                           fontSize: 14,
