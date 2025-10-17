@@ -22,7 +22,7 @@ class BottomNavBar extends StatelessWidget {
   List<Map<String, dynamic>> getNavItems(UserRole role) {
     final items = [
       {'icon': Icons.person_outline_rounded, 'label': 'Perfil'},
-      {'icon': Icons.gps_fixed_sharp, 'label': 'Explorar'},
+      // {'icon': Icons.gps_fixed_sharp, 'label': 'Explorar'}, //retirado no mvp
       {'icon': Icons.qr_code_scanner, 'label': 'Capturar'},
       {'icon': FontAwesomeIcons.box, 'label': 'Coleções'},
       {'icon': FontAwesomeIcons.medal, 'label': 'Emblemas'},
@@ -38,7 +38,8 @@ class BottomNavBar extends StatelessWidget {
   }
 
   void _handleNavigation(int index, BuildContext context, UserRole role) {
-    if (index == 5) {
+    // Último item (índice 4) é o "Mais" ou "Solicitar Cargo"
+    if (index == 4) {
       switch (role) {
         case UserRole.administrador:
           _showAdminModal(context);
