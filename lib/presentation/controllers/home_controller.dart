@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:roka_moka_app/domain/providers/user_provider.dart';
-import 'package:roka_moka_app/presentation/pages/explorer_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
@@ -23,7 +20,7 @@ class _HomeControllerState extends State<HomeController> {
   int _lastActiveMainIndex = 0;
   Widget? _modalPageContent;
   final ProfileScreen _profileScreen = ProfileScreen();
-  final ExplorerScreen _explorarScreen = ExplorerScreen();
+  // final ExplorerScreen _explorarScreen = ExplorerScreen();
   final CollectionsScreen _collectionsScreen = CollectionsScreen();
   final EmblemsScreen _emblemsScreen = EmblemsScreen();
   late final List<Widget> _contentPages;
@@ -41,7 +38,7 @@ class _HomeControllerState extends State<HomeController> {
 
     _contentPages = [
       _profileScreen,
-      _explorarScreen,
+      // _explorarScreen,
       _capturarScreen,
       _collectionsScreen,
       _emblemsScreen,
@@ -64,7 +61,8 @@ class _HomeControllerState extends State<HomeController> {
     setState(() {
       _currentIndex = index;
 
-      if (index < 5) {
+      if (index < 4) {
+        // apenas as 4 telas principais
         _modalPageContent = null;
         _lastActiveMainIndex = index;
       }
@@ -73,7 +71,7 @@ class _HomeControllerState extends State<HomeController> {
 
   void _showPageFromModal(Widget page) {
     setState(() {
-      _currentIndex = 5;
+      _currentIndex = 4; // corresponde ao botão "Mais"
       _modalPageContent = page;
     });
   }
@@ -88,9 +86,9 @@ class _HomeControllerState extends State<HomeController> {
   Widget build(BuildContext context) {
     Widget currentPage;
 
-    if (_currentIndex == 5 && _modalPageContent != null) {
+    if (_currentIndex == 4 && _modalPageContent != null) {
       currentPage = _modalPageContent!;
-    } else if (_currentIndex == 5 && _modalPageContent == null) {
+    } else if (_currentIndex == 4 && _modalPageContent == null) {
       currentPage = _contentPages[_lastActiveMainIndex];
     } else {
       currentPage = _contentPages[_currentIndex];
