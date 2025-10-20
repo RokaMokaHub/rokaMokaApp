@@ -13,6 +13,8 @@ class UserService {
       String email,
       String password,
       String name,
+      String firstName,
+      String lastName
       ) async {
     final deviceId = await getDeviceId();
     final url = Uri.parse(createUserEndpoint);
@@ -25,6 +27,8 @@ class UserService {
         'password': password,
         'name': name,
         'deviceId': deviceId,
+        'firstName': firstName,
+        'lastName': lastName
       }),
     );
 
@@ -37,6 +41,8 @@ class UserService {
         email: email,
         name: name,
         deviceId: deviceId,
+        firstName: firstName,
+        lastName: lastName
       );
       return data;
     } else {
@@ -49,10 +55,10 @@ class UserService {
   // Resetando senha
   Future<Map<String, dynamic>> resetPassword(
       String email,
-      String password,
+      String oldPassword,
+      String newPassword,
       String name,
       ) async {
-    final deviceId = await getDeviceId();
     final url = Uri.parse(resetPasswordEndpoint);
     final token = await _authService.getToken();
     final credentials = base64Encode(utf8.encode(token as String));
@@ -65,9 +71,9 @@ class UserService {
       },
       body: jsonEncode({
         'email': email,
-        'password': password,
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
         'name': name,
-        'deviceId': deviceId,
       }),
     );
 

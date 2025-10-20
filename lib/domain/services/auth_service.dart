@@ -7,18 +7,25 @@ class AuthService {
   static const _keyEmail = 'auth_email';
   static const _keyName = 'auth_name';
   static const _keyDeviceId = 'auth_deviceId';
+  static const _keyFirstName = 'auth_firstName';
+  static const _keyLastName = 'auth_lastName';
+
 
   // Salva os dados do usuário
   Future<void> saveAuthData({
     required String token,
     required String email,
     required String name,
-    required String deviceId
+    required String deviceId,
+    required String firstName,
+    required String lastName,
   }) async {
     await _storage.write(key: _keyToken, value: token);
     await _storage.write(key: _keyEmail, value: email);
     await _storage.write(key: _keyName, value: name);
     await _storage.write(key: _keyDeviceId, value: deviceId);
+    await _storage.write(key: _keyFirstName, value: firstName);
+    await _storage.write(key: _keyLastName, value: lastName);
   }
 
   // Salva os dados do usuário anonimo
@@ -38,6 +45,8 @@ class AuthService {
   Future<String?> getEmail() async => await _storage.read(key: _keyEmail);
   Future<String?> getName() async => await _storage.read(key: _keyName);
   Future<String?> getDeviceId() async => await _storage.read(key: _keyDeviceId);
+  Future<String?> getFirstName() async => await _storage.read(key: _keyFirstName);
+  Future<String?> getLastName() async => await _storage.read(key: _keyLastName);
 
   // Verifica se está logado
   Future<bool> isLoggedIn() async {

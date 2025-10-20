@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:roka_moka_app/domain/services/user_service.dart';
 import 'dart:convert';
 import 'auth_service.dart';
 import 'package:roka_moka_app/constants/webservice.dart';
@@ -26,12 +27,29 @@ class LoginService {
     if (response.statusCode == 200 && data['body']?['jwt'] != null) {
       final token = data['body']['jwt'];
 
-      // Armazena dados no AuthService
       await _authService.saveAuthData(
         token: token,
-        email: nome,
+        email: '',
         name: nome,
         deviceId: deviceId,
+        firstName: '',
+        lastName: '',
+      );
+
+      final userInfo = await UserService().getUserInfo();
+      final firstName = userInfo['body']?['firstName'] ?? userInfo['firstName'] ?? nome;
+      final lastName = userInfo['body']?['lastName'] ?? userInfo['lastName'] ?? '';
+      final email = userInfo['body']?['email'] ?? userInfo['email'] ?? nome;
+
+
+      // 🔹 Atualiza os dados salvos com os nomes corretos
+      await _authService.saveAuthData(
+        token: token,
+        email: email,
+        name: firstName,
+        deviceId: deviceId,
+        firstName: firstName,
+        lastName: lastName,
       );
     } else {
       final errorMessage = data['error'] ?? 'Erro ao fazer login.';

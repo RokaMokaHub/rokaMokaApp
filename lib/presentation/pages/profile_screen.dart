@@ -17,7 +17,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int currentIndex = 0;
   final authService = AuthService();
   String _appVersion = '';
-  String? _name;
+  String? _firstName;
+  String? _lastName;
+
   void onTap(int index) {
     setState(() {
       currentIndex = index;
@@ -39,9 +41,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadName() async {
-    final fetchedName = await authService.getName();
+    final fetchedFirstName = await authService.getFirstName();
+    final fetchedLastName = await authService.getLastName();
     setState(() {
-      _name = fetchedName;
+      _firstName = fetchedFirstName;
+      _lastName = fetchedLastName;
     });
   }
 
@@ -86,13 +90,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                                 SizedBox(height: 10),
-                                Text(
-                                  _name ?? "Carregando...",
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      _firstName ?? "Carregando...",
+                                      style: TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      _lastName ?? "Carregando...",
+                                      style: TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -115,10 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Center(
               child: Text(
                 _appVersion,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.black45,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.black45),
               ),
             ),
           ),
@@ -208,7 +223,7 @@ Widget _buildListButtons(BuildContext context) {
       spacing: 25,
       children: [
         _buildButton('Editar perfil', context),
-        _buildButton('Ajuda', context),
+        _buildButton('Trocar senha', context),
         _buildButton('Sair', context),
       ],
     ),
@@ -231,8 +246,8 @@ Widget _buildButton(String descrButton, BuildContext context) {
       onPressed: () async {
         if (descrButton == 'Editar perfil') {
           Navigator.pushNamed(context, editProfileRoute);
-        } else if (descrButton == 'Ajuda') {
-          //colocar tela de ajuda
+        } else if (descrButton == 'Trocar senha') {
+          Navigator.pushNamed(context, switchPasswordRoute);
         } else if (descrButton == 'Sair') {
           final shouldLogout = await showDialog<bool>(
             context: context,

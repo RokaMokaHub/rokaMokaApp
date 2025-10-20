@@ -22,6 +22,7 @@ import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/login_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/signup_screen.dart';
+import 'package:roka_moka_app/presentation/pages/switch_password_screen.dart';
 
 import 'domain/services/auth_service.dart';
 
@@ -97,6 +98,7 @@ class MyApp extends StatelessWidget {
         collectionsRoute: (context) => CollectionsScreen(),
         qrCodeRoute: (context) => QRCodeScreen(),
         explorerRoute: (context) => ExplorerScreen(),
+        switchPasswordRoute: (context) => SwitchPasswordScreen(),
         permissionRequestRoute: (context) {
           return SolicitarPermissaoScreen(
             onBack: () {

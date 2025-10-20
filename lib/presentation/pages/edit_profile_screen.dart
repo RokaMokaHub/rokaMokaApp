@@ -27,7 +27,7 @@ class _EditProfileState extends State<EditProfileScreen> {
   }
 
   Future<void> _loadName() async {
-    final fetchedName = await authService.getName();
+    final fetchedName = await authService.getFirstName();
     final fetchedEmail = await userService.getUserInfo();
     final email = fetchedEmail['body']?['email'] ?? 'Email não disponível';
 
