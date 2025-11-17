@@ -3,26 +3,41 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
-
+import '../../domain/services/manage_access_service.dart';
 import '../widgets/show_tela_rejeicao.dart';
 
 enum FilterOption { todas, aceitadas, rejeitadas, naoRespondidas }
 
 class PermissionRequest {
-  final String name;
+  final int requestId;
+  final String userName;
   final String email;
-  final String role;
-  final String date;
+  final String targetRole;
   bool? accepted;
   String? rejectionReason;
 
   PermissionRequest({
-    required this.name,
+    required this.requestId,
+    required this.userName,
     required this.email,
-    required this.role,
-    required this.date,
+    required this.targetRole,
     this.accepted,
+    this.rejectionReason,
   });
+
+  factory PermissionRequest.fromJson(Map<String, dynamic> json) {
+    String formatRole(String role) {
+      if (role.isEmpty) return role;
+      return role[0].toUpperCase() + role.substring(1).toLowerCase();
+    }
+
+    return PermissionRequest(
+      requestId: json['requestId'],
+      userName: json['userName'],
+      email: json['email'],
+      targetRole: formatRole(json['targetRole']),
+    );
+  }
 }
 
 class PermissionsScreen extends StatefulWidget {
@@ -35,54 +50,45 @@ class PermissionsScreen extends StatefulWidget {
 }
 
 class _PermissionsScreenState extends State<PermissionsScreen> {
-  final List<PermissionRequest> _allRequests = [
-    PermissionRequest(
-      name: "Yuji Sakuma",
-      email: "yujisakuma@ufpel.com",
-      role: "Pesquisador",
-      date: "26/04/2025",
-    ),
-    PermissionRequest(
-      name: "Pedro Rosa",
-      email: "pedrorosa@ufpel.com",
-      role: "Curador",
-      date: "01/04/2025",
-    ),
-    PermissionRequest(
-      name: "Bernardo Ferrão",
-      email: "bernardferrao@ufpel.com",
-      role: "Pesquisador",
-      date: "20/03/2025",
-    ),
-    PermissionRequest(
-      name: "Arthur Teles",
-      email: "arthurteles@ufpel.com",
-      role: "Pesquisador",
-      date: "14/03/2025",
-    ),
-    PermissionRequest(
-      name: "Aline Silva",
-      email: "alinesilva@ufpel.com",
-      role: "Curador",
-      date: "12/03/2025",
-      accepted: true,
-    ),
-    PermissionRequest(
-      name: "Carlos Andrade",
-      email: "carlosandrade@ufpel.com",
-      role: "Pesquisador",
-      date: "10/03/2025",
-      accepted: false,
-    ),
-  ];
+  final ManageAccessService _manageAccessService = ManageAccessService();
+  final List<PermissionRequest> _allRequests = [];
+  List<PermissionRequest> _filteredRequests = [];
 
-  late List<PermissionRequest> _filteredRequests;
+  bool _isLoading = true;
   FilterOption _selectedFilter = FilterOption.todas;
 
   @override
   void initState() {
     super.initState();
-    _filteredRequests = List.from(_allRequests);
+    _loadPermissions();
+  }
+
+  Future<void> _loadPermissions() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final data = await _manageAccessService.listRequestpermissions();
+      final List<dynamic> rawList = data['body'] ?? [];
+      final List<PermissionRequest> loadedRequests =
+          rawList.map((json) => PermissionRequest.fromJson(json)).toList();
+
+      setState(() {
+        _allRequests.clear();
+        _allRequests.addAll(loadedRequests);
+        _applyFilter(_selectedFilter);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar permissões: $e')),
+      );
+    }
   }
 
   void _applyFilter(FilterOption option) {
@@ -109,31 +115,72 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     });
   }
 
-  void _acceptRequest(PermissionRequest request) {
+  void _acceptRequest(PermissionRequest request) async {
     setState(() {
       request.accepted = true;
       _applyFilter(_selectedFilter);
     });
-    final snackBar = SnackBarAceita(
-      nome: request.name,
-      titulo: "Permissão aceita!",
-      subtitulo: "Permissao de ${request.name} foi aceita.",
-    ).buildSnackBar(context);
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+    try {
+      final service = ManageAccessService();
+      await service.acceptPermissions(request.requestId);
+
+      final snackBar = SnackBarAceita(
+        nome: request.userName,
+        titulo: "Permissão aceita!",
+        subtitulo: "Permissão de ${request.userName} foi aceita com sucesso.",
+      ).buildSnackBar(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      setState(() {
+        request.accepted = false;
+        _applyFilter(_selectedFilter);
+      });
+
+      final snackBar = SnackBar(
+        content: Text('Erro ao aceitar permissão: $e'),
+        backgroundColor: Colors.red,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
-  void _rejectRequest(PermissionRequest request, String motivo) {
-    setState(() {
-      request.accepted = false;
-      request.rejectionReason = motivo;
-      _applyFilter(_selectedFilter);
-    });
-    final snackBar = SnackBarRejeitada(
-      nome: request.name,
-      titulo: "Permissão rejeitada!",
-      subtitulo: "Permissão de ${request.name} foi rejeitada.",
-    ).buildSnackBar(context);
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  void _rejectRequest(PermissionRequest request, String motivo) async {
+    try {
+      final service = ManageAccessService();
+      await service.rejectPermissions(
+        request.requestId,
+        motivo,
+        request.userName,
+      );
+
+      final snackBar = SnackBarRejeitada(
+        nome: request.userName,
+        titulo: "Permissão rejeitada!",
+        subtitulo:
+            "Permissão de ${request.userName} foi rejeitada com sucesso.",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      setState(() {
+        request.accepted = false;
+        request.rejectionReason = motivo;
+      });
+    } catch (e) {
+      setState(() {
+        request.rejectionReason = null;
+        _applyFilter(_selectedFilter);
+      });
+
+      final snackBar = SnackBarRejeitada(
+        nome: request.userName,
+        titulo: e.toString(),
+        subtitulo:
+        "Tente novamente mais tarde. Se o erro persistir, entre em contato com o suporte.",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   @override
@@ -142,7 +189,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
       appBar: AppBar(
         toolbarHeight: 90,
         title: const Text(
-          'Aceitar Permissões',
+          'Gerenciar Permissões',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -173,237 +220,266 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.only(right: 16, top: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                PopupMenuButton<FilterOption>(
-                  onSelected: _applyFilter,
-                  child: const Row(
-                    children: [
-                      Icon(
-                        FontAwesomeIcons.filter,
-                        color: Colors.grey,
-                        size: 16,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        "Filtrar",
-                        style: TextStyle(color: Colors.black54, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  itemBuilder:
-                      (BuildContext context) => <PopupMenuEntry<FilterOption>>[
-                        const PopupMenuItem<FilterOption>(
-                          value: FilterOption.todas,
-                          child: Text('Todas'),
-                        ),
-                        const PopupMenuItem<FilterOption>(
-                          value: FilterOption.aceitadas,
-                          child: Text('Aceitadas'),
-                        ),
-                        const PopupMenuItem<FilterOption>(
-                          value: FilterOption.rejeitadas,
-                          child: Text('Rejeitadas'),
-                        ),
-                        const PopupMenuItem<FilterOption>(
-                          value: FilterOption.naoRespondidas,
-                          child: Text('Não respondidas'),
-                        ),
-                      ],
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-              itemCount: _filteredRequests.length,
-              itemBuilder: (context, index) {
-                final req = _filteredRequests[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.grey[400]!, width: 1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(right: 16, top: 8),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        const CircleAvatar(
-                          radius: 24,
-                          backgroundColor: Color(0xFFE0E0E0),
-                          child: Icon(Icons.person, color: Colors.black45),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        PopupMenuButton<FilterOption>(
+                          onSelected: _applyFilter,
+                          child: const Row(
                             children: [
-                              Text(
-                                req.role,
-                                style: const TextStyle(
-                                  color: Colors.deepOrange,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Icon(
+                                FontAwesomeIcons.filter,
+                                color: Colors.grey,
+                                size: 16,
                               ),
+                              SizedBox(width: 4),
                               Text(
-                                req.name,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Text(
-                                req.email,
-                                style: const TextStyle(
+                                "Filtrar",
+                                style: TextStyle(
                                   color: Colors.black54,
-                                  fontSize: 14,
+                                  fontSize: 16,
                                 ),
                               ),
-                              Text(
-                                req.date,
-                                style: const TextStyle(
-                                  color: Colors.black45,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              if (req.rejectionReason != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: Text(
-                                    "Motivo: ${req.rejectionReason}",
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                ),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            if (req.accepted == null) ...[
-                              ElevatedButton(
-                                onPressed: () => _acceptRequest(req),
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                ),
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF34A34C),
-                                        Color(0xFF55C26C),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                          itemBuilder:
+                              (BuildContext context) =>
+                                  <PopupMenuEntry<FilterOption>>[
+                                    const PopupMenuItem<FilterOption>(
+                                      value: FilterOption.todas,
+                                      child: Text('Todas'),
                                     ),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 22,
-                                      vertical: 6,
+                                    const PopupMenuItem<FilterOption>(
+                                      value: FilterOption.aceitadas,
+                                      child: Text('Aceitadas'),
                                     ),
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "Aceitar",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                      ),
+                                    const PopupMenuItem<FilterOption>(
+                                      value: FilterOption.rejeitadas,
+                                      child: Text('Rejeitadas'),
                                     ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () {
-                                  showTelaRejeicao(
-                                    context: context,
-                                    onSalvar:
-                                        (motivo) => _rejectRequest(req, motivo),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                ),
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFB21A1A),
-                                        Color(0xFFE91919),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                                    const PopupMenuItem<FilterOption>(
+                                      value: FilterOption.naoRespondidas,
+                                      child: Text('Não respondidas'),
                                     ),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 6,
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "Rejeitar",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ] else ...[
-                              Container(
-                                width: 90,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 7,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  req.accepted == true ? "Aceita" : "Rejeitada",
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
+                                  ],
                         ),
                       ],
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 12,
+                      ),
+                      itemCount: _filteredRequests.length,
+                      itemBuilder: (context, index) {
+                        final req = _filteredRequests[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: Colors.grey[400]!,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                const CircleAvatar(
+                                  radius: 32,
+                                  backgroundColor: Color(0xFFE0E0E0),
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Colors.black45,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        req.targetRole,
+                                        style: const TextStyle(
+                                          color: Colors.deepOrange,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        req.userName,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        req.email,
+                                        style: const TextStyle(
+                                          color: Colors.black54,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      if (req.rejectionReason != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 4.0,
+                                          ),
+                                          child: Text(
+                                            "Motivo: ${req.rejectionReason}",
+                                            style: const TextStyle(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    if (req.accepted == null) ...[
+                                      ElevatedButton(
+                                        onPressed: () => _acceptRequest(req),
+                                        style: ElevatedButton.styleFrom(
+                                          padding: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          backgroundColor: Colors.transparent,
+                                          shadowColor: Colors.transparent,
+                                        ),
+                                        child: Ink(
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFF34A34C),
+                                                Color(0xFF55C26C),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 22,
+                                              vertical: 6,
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: const Text(
+                                              "Aceitar",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          showTelaRejeicao(
+                                            context: context,
+                                            onSalvar:
+                                                (motivo) =>
+                                                    _rejectRequest(req, motivo),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          backgroundColor: Colors.transparent,
+                                          shadowColor: Colors.transparent,
+                                        ),
+                                        child: Ink(
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFFB21A1A),
+                                                Color(0xFFE91919),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 20,
+                                              vertical: 6,
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: const Text(
+                                              "Rejeitar",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ] else ...[
+                                      Container(
+                                        width: 90,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 7,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey,
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          req.accepted == true
+                                              ? "Aceita"
+                                              : "Rejeitada",
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
     );
   }
 }

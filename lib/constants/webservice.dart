@@ -21,3 +21,15 @@ String getArtworkByIdEndpoint(String artworkId) => '$activeserver/artwork/$artwo
 String createArtworkEndpoint(String exhibitionId) => '$activeserver/artwork/$exhibitionId';
 // CREATE EXHIBITION
 const String createExhibitionEndpoint = '$activeserver/exhibition';
+// requests access as a researcher
+const String requestAccessResearcherEndpoint = '$activeserver/request/permission/researcher';
+// requests access as a curator
+const String requestAccessCuratorEndpoint = '$activeserver/request/permission/curator';
+// status request access
+const statusRequestAccessEndpoint = '$activeserver/request/permission/me/status';
+// lista de permissao para o admin
+const listPermissionsEndPoint = '$activeserver/evaluation/permission/list';
+// admin accept permission
+String acceptPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/accept/$permissionId';
+// admin reject permission
+String rejectPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/deny/$permissionId';

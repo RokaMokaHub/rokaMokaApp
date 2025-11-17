@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:roka_moka_app/constants/routes.dart';
+import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 import '../../domain/services/user_service.dart';
 import '../controllers/home_controller.dart';
@@ -146,6 +148,8 @@ class _SignupPageState extends State<SignupScreen> {
         _firstNameController.text,
         _lastNameController.text,
       );
+
+      context.read<UserProvider>().setRole(UserRole.comum);
 
       final snackBar = SnackBarAceita(
         titulo: "Seja bem vindo!",
