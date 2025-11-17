@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:roka_moka_app/domain/services/access_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 import '../../constants/colors.dart';
+import '../../domain/services/auth_service.dart';
 import '../widgets/snack_bar_aceita.dart';
 
 class SolicitarPermissaoScreen extends StatefulWidget {
@@ -16,9 +16,12 @@ class SolicitarPermissaoScreen extends StatefulWidget {
 }
 
 class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
+  final AccessService _accessService = AccessService();
+
   String? selectedCargo;
   bool solicitacaoFeita = false;
-  final AccessService _accessService = AccessService();
+  bool carregandoPermissao = true;
+  String? statusPermissao;
 
   @override
   void initState() {
@@ -28,23 +31,26 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
 
   Future<void> _carregarPermissaoAtual() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final permissionId = prefs.getInt('permissionId');
+      final data = await _accessService.checkPermissionStatus();
+      final body = data['body'];
+      final role = body['targetRole'];
+      final status = body['status'];
 
-      if (permissionId != null) {
-        final data = await _accessService.checkPermissionStatus(permissionId);
-        setState(() {
-          selectedCargo = _verificaRoleBanco(data['body']['targetRole']);
-          solicitacaoFeita = true;
-        });
-      }
+      setState(() {
+        selectedCargo = _verificaRoleBanco(role);
+        statusPermissao = status;
+        solicitacaoFeita = selectedCargo != null && selectedCargo!.isNotEmpty;
+        carregandoPermissao = false;
+      });
     } catch (e) {
       print('Erro ao carregar status da permissão: $e');
+      setState(() => carregandoPermissao = false);
     }
   }
 
+
   Future<void> _solicitarPermissao() async {
-    if (selectedCargo == null) {
+    if (selectedCargo == null || selectedCargo!.isEmpty) {
       final snackBar = SnackBarRejeitada(
         titulo: "Solicitação rejeitada!",
         subtitulo: "Selecione um cargo.",
@@ -65,8 +71,8 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
       }
 
       final permissionId = data['body']['id'];
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('permissionId', permissionId);
+      final auth = AuthService();
+      await auth.savePermissionId(permissionId);
 
       setState(() {
         solicitacaoFeita = true;
@@ -105,45 +111,49 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
     bool isSelected = selectedCargo == cargo;
 
     return GestureDetector(
-      onTap: solicitacaoFeita
+      onTap: (solicitacaoFeita || carregandoPermissao)
           ? null
           : () => setState(() => selectedCargo = cargo),
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade300,
-          border: Border.all(
-            color: isSelected ? Color(0xFFEF5B25) : Colors.grey.shade500,
-            width: isSelected ? 3 : 2,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.black54, size: 48),
-            SizedBox(width: 24),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    cargo,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    descricao,
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
+      child: Opacity(
+        opacity: carregandoPermissao ? 0.6 : 1,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            border: Border.all(
+              color: isSelected ? const Color(0xFFEF5B25) : Colors.grey.shade500,
+              width: isSelected ? 3 : 2,
             ),
-          ],
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.black54, size: 48),
+              const SizedBox(width: 24),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      cargo,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      descricao,
+                      style:
+                      TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -201,7 +211,7 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildCargoTile(
               cargo: 'Curador',
               descricao: 'Gerencie e organize conteúdos das exposições.',
@@ -212,12 +222,12 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
               descricao: 'Descrição sobre as funções atribuídas ao cargo.',
               icon: Icons.search,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
-                gradient: solicitacaoFeita
+                gradient: (solicitacaoFeita || carregandoPermissao)
                     ? null
-                    : LinearGradient(
+                    : const LinearGradient(
                   colors: [
                     Color(primaryColorGradient),
                     Color(secondaryColorGradient),
@@ -226,29 +236,33 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(32),
-                color: solicitacaoFeita ? Colors.grey[400] : null,
+                color: (solicitacaoFeita || carregandoPermissao)
+                    ? Colors.grey[400]
+                    : null,
               ),
               child: ElevatedButton(
-                onPressed: solicitacaoFeita ? null : _solicitarPermissao,
+                onPressed: (solicitacaoFeita || carregandoPermissao)
+                    ? null
+                    : _solicitarPermissao,
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(32),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Solicitar cargo',
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ),
             if (solicitacaoFeita) ...[
-              SizedBox(height: 32),
-              Divider(),
-              SizedBox(height: 12),
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 12),
               Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -262,14 +276,18 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Container(
                       width: double.infinity,
-                      padding:
-                      EdgeInsets.symmetric(vertical: 10, horizontal: 48),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 48,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey.shade600),
-                        color: Colors.grey[200],
+                        color: statusPermissao == 'DENY'
+                            ? Colors.red[500]
+                            : Colors.grey[200],
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Text.rich(
@@ -277,17 +295,19 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
                           children: [
                             TextSpan(
                               text: '$selectedCargo',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black54,
                                 fontSize: 16,
                               ),
                             ),
                             TextSpan(
-                              text: ' – Aguardando análise.',
-                              style: TextStyle(
+                              text: statusPermissao == 'DENY'
+                                  ? ' – Solicitação rejeitada.'
+                                  : ' – Aguardando análise.',
+                              style: const TextStyle(
                                 fontWeight: FontWeight.normal,
-                                color: Colors.black54,
+                                color: Colors.black87,
                                 fontSize: 16,
                               ),
                             ),

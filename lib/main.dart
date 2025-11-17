@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
+import 'package:roka_moka_app/domain/services/user_service.dart';
 import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
 import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
@@ -37,33 +38,23 @@ void main() async {
   final loggedIn = await authService.isLoggedIn();
   final userProvider = UserProvider();
   await userProvider.loadRole();
+  final userService = UserService();
+
+
+  if (loggedIn) {
+    try {
+      final userInfo = await userService.getUserInfo();
+      final role = userInfo['role'] ?? 'comum';
+      await userProvider.setRole(role);
+    } catch (e) {
+      if (kDebugMode) print('Erro ao sincronizar usuário: $e');
+    }
+  }
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
-  final deviceInfoPlugin = DeviceInfoPlugin();
-
-  try {
-    if (Platform.isAndroid) {
-      final androidInfo = await deviceInfoPlugin.androidInfo;
-      if (kDebugMode) {
-        print('Device ID (Android ID): ${androidInfo.id}');
-      }
-    } else if (Platform.isIOS) {
-      final iosInfo = await deviceInfoPlugin.iosInfo;
-      if (kDebugMode) {
-        print(
-          'Device ID (identifierForVendor): ${iosInfo.identifierForVendor}',
-        );
-      }
-    }
-  } catch (e) {
-    if (kDebugMode) {
-      print('Erro ao obter Device ID: $e');
-    }
-  }
 
   runApp(
     ChangeNotifierProvider.value(

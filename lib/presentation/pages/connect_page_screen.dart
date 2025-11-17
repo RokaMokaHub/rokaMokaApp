@@ -157,7 +157,7 @@ class _ConnectPageState extends State<ConnectScreen> {
       ).buildSnackBar(context);
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      context.read<UserProvider>().setRole(UserRole.comum);
+      context.read<UserProvider>().setRole(UserRole.anon);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeController()),

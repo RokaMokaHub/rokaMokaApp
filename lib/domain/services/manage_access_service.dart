@@ -32,22 +32,56 @@ class ManageAccessService {
     }
   }
 
-  /// rejeitar permissao
-  Future<void> denyPermission(int permissionId, String justificativaDenyPermission, String userName) async {
+  //aceita permissoes
+  Future<Map<String, dynamic>> acceptPermissions(int permissionId) async {
     final name = await _authService.getName();
     final password = await _authService.getPassword();
     final credentials = base64Encode(utf8.encode('$name:$password'));
-    final urlDenyPermission = Uri.parse(denyPermissionEndpoint(permissionId));
+    final urlAcceptPermission = Uri.parse(
+      acceptPermissionEndpoint(permissionId),
+    );
+    final response = await http.post(
+      urlAcceptPermission,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic $credentials',
+      },
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      final errorMessage =
+          data['exceptionMessage'] ?? 'Erro ao aceitar solicitação';
+      throw errorMessage;
+    }
+  }
+
+  //rejeita permissoes
+  Future<Map<String, dynamic>> rejectPermissions(
+    int permissionId,
+    String motivo,
+    String userName,
+  ) async {
+    final name = await _authService.getName();
+    final password = await _authService.getPassword();
+    final credentials = base64Encode(utf8.encode('$name:$password'));
+
+    final urlRejectPermission = Uri.parse(
+      rejectPermissionEndpoint(permissionId),
+    );
 
     final response = await http.post(
-      urlDenyPermission,
+      urlRejectPermission,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Basic $credentials',
       },
       body: jsonEncode({
         'id': permissionId,
-        'justificativa': justificativaDenyPermission,
+        'justificativa': motivo,
         'userName': userName,
       }),
     );
@@ -57,8 +91,7 @@ class ManageAccessService {
     if (response.statusCode == 200) {
       return data;
     } else {
-      final errorMessage =
-          data['exceptionMessage'] ?? 'Erro ao rejeitar permissão';
+      final errorMessage = data['error'] ?? 'Erro ao rejeitar solicitação';
       throw errorMessage;
     }
   }

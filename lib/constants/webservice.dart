@@ -26,10 +26,10 @@ const String requestAccessResearcherEndpoint = '$activeserver/request/permission
 // requests access as a curator
 const String requestAccessCuratorEndpoint = '$activeserver/request/permission/curator';
 // status request access
-String statusRequestAccessEndpoint(int permissionId) => '$activeserver/request/permission/status/$permissionId';
+const statusRequestAccessEndpoint = '$activeserver/request/permission/me/status';
 // lista de permissao para o admin
 const listPermissionsEndPoint = '$activeserver/evaluation/permission/list';
-// rejeitar permissao
-String denyPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/deny/$permissionId';
-// aceitar permissao
+// admin accept permission
 String acceptPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/accept/$permissionId';
+// admin reject permission
+String rejectPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/deny/$permissionId';

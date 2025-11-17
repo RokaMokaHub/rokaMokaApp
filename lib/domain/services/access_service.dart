@@ -57,10 +57,10 @@ class AccessService {
     }
   }
 
-  /// Obtém o ID da permissao
-  Future<Map<String, dynamic>> checkPermissionStatus(int permissionId) async {
+  /// Verifica o status da permissao
+  Future<Map<String, dynamic>> checkPermissionStatus() async {
     final token = await _authService.getToken();
-    final url = Uri.parse(statusRequestAccessEndpoint(permissionId));
+    final url = Uri.parse(statusRequestAccessEndpoint);
 
     final response = await http.get(
       url,

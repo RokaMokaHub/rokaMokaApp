@@ -11,6 +11,7 @@ enum FilterOption { todas, aceitadas, rejeitadas, naoRespondidas }
 class PermissionRequest {
   final int requestId;
   final String userName;
+  final String email;
   final String targetRole;
   bool? accepted;
   String? rejectionReason;
@@ -18,6 +19,7 @@ class PermissionRequest {
   PermissionRequest({
     required this.requestId,
     required this.userName,
+    required this.email,
     required this.targetRole,
     this.accepted,
     this.rejectionReason,
@@ -32,6 +34,7 @@ class PermissionRequest {
     return PermissionRequest(
       requestId: json['requestId'],
       userName: json['userName'],
+      email: json['email'],
       targetRole: formatRole(json['targetRole']),
     );
   }
@@ -112,52 +115,71 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     });
   }
 
-  void _acceptRequest(PermissionRequest request) {
+  void _acceptRequest(PermissionRequest request) async {
     setState(() {
       request.accepted = true;
       _applyFilter(_selectedFilter);
     });
 
-    final snackBar = SnackBarAceita(
-      nome: request.userName,
-      titulo: "Permissão aceita!",
-      subtitulo: "Permissão de ${request.userName} foi aceita.",
-    ).buildSnackBar(context);
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    try {
+      final service = ManageAccessService();
+      await service.acceptPermissions(request.requestId);
+
+      final snackBar = SnackBarAceita(
+        nome: request.userName,
+        titulo: "Permissão aceita!",
+        subtitulo: "Permissão de ${request.userName} foi aceita com sucesso.",
+      ).buildSnackBar(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      setState(() {
+        request.accepted = false;
+        _applyFilter(_selectedFilter);
+      });
+
+      final snackBar = SnackBar(
+        content: Text('Erro ao aceitar permissão: $e'),
+        backgroundColor: Colors.red,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
-  Future<void> _rejectRequest(PermissionRequest request, String motivo) async {
+  void _rejectRequest(PermissionRequest request, String motivo) async {
     try {
-      await _manageAccessService.denyPermission(
+      final service = ManageAccessService();
+      await service.rejectPermissions(
         request.requestId,
         motivo,
         request.userName,
       );
 
+      final snackBar = SnackBarRejeitada(
+        nome: request.userName,
+        titulo: "Permissão rejeitada!",
+        subtitulo:
+            "Permissão de ${request.userName} foi rejeitada com sucesso.",
+      ).buildSnackBar(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       setState(() {
         request.accepted = false;
         request.rejectionReason = motivo;
+      });
+    } catch (e) {
+      setState(() {
+        request.rejectionReason = null;
         _applyFilter(_selectedFilter);
       });
 
       final snackBar = SnackBarRejeitada(
         nome: request.userName,
-        titulo: "Permissão rejeitada!",
-        subtitulo: "Permissão de ${request.userName} foi rejeitada.",
+        titulo: e.toString(),
+        subtitulo:
+        "Tente novamente mais tarde. Se o erro persistir, entre em contato com o suporte.",
       ).buildSnackBar(context);
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      final snackBar = SnackBarRejeitada(
-        nome: request.userName,
-        titulo: "Erro inesperado!",
-        subtitulo: "Houve um erro ao rejeitar a permissão.",
-      ).buildSnackBar(context);
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      ;
     }
   }
 
@@ -167,7 +189,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
       appBar: AppBar(
         toolbarHeight: 90,
         title: const Text(
-          'Aceitar Permissões',
+          'Gerenciar Permissões',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -305,7 +327,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        "req.email",
+                                        req.email,
                                         style: const TextStyle(
                                           color: Colors.black54,
                                           fontSize: 14,
