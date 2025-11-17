@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/urgent_alert_dialog.dart';
 

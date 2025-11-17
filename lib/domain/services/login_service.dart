@@ -32,6 +32,7 @@ class LoginService {
         email: nome,
         name: nome,
         deviceId: deviceId,
+        password: password,
       );
     } else {
       final errorMessage = data['error'] ?? 'Erro ao fazer login.';
