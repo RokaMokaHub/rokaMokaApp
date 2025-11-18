@@ -16,17 +16,26 @@ class SwitchPasswordScreen extends StatefulWidget {
 
 class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _senhaAntigaController = TextEditingController();
   final _senhaAtualController = TextEditingController();
   final _confirmarSenhaController = TextEditingController();
+
   final userService = UserService();
   final authService = AuthService();
+
   String _email = '';
   String _name = '';
 
   bool _obscureAntiga = true;
   bool _obscureAtual = true;
   bool _obscureConfirmar = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
 
   @override
   void dispose() {
@@ -36,19 +45,34 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    _loadUserInfo();
-    super.initState();
-  }
-
   Future<void> _loadUserInfo() async {
     final fetchedEmail = await authService.getEmail();
     final fetchedUserName = await authService.getUserName();
+
     setState(() {
-      _email = fetchedEmail!;
-      _name = fetchedUserName!;
+      _email = fetchedEmail ?? '';
+      _name = fetchedUserName ?? '';
     });
+  }
+
+  String? _validatePassword(String? password) {
+    if (password == null || password.isEmpty) {
+      return 'A senha é obrigatória.';
+    }
+    if (password.length < 8) {
+      return 'Deve ter no mínimo 8 caracteres.';
+    }
+    if (!password.contains(RegExp(r'[0-9]'))) {
+      return 'Deve conter pelo menos um número.';
+    }
+    if (!password.contains(RegExp(r'[A-Z]'))) {
+      return 'Deve conter uma letra maiúscula.';
+    }
+    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      return 'Deve conter um caractere especial.';
+    }
+
+    return null;
   }
 
   void _trocarSenha() async {
@@ -65,17 +89,16 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
           titulo: "Sucesso!",
           subtitulo: "Sua senha foi alterada com sucesso.",
         ).buildSnackBar(context);
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         Navigator.pop(context);
       } catch (e) {
-        if (kDebugMode) {
-          final snackBar = SnackBarRejeitada(
-            titulo: _verificaRetornoLoginInvalido(e.toString()),
-            subtitulo: "Tente novamente!",
-          ).buildSnackBar(context);
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        }
+        final snackBar = SnackBarRejeitada(
+          titulo: _verificaRetornoLoginInvalido(e.toString()),
+          subtitulo: "Tente novamente!",
+        ).buildSnackBar(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     }
   }
@@ -84,32 +107,17 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
     if (retorno == 'Unauthorized') {
       return 'Credenciais inválidas, senha não foi alterada!';
     }
-    if (retorno == "A senha informada é inválida"){
+    if (retorno == "A senha informada é inválida") {
       return 'A senha informada é inválida';
     }
     return 'Erro desconhecido';
   }
 
-  String? _validatePassword(String? password) {
-    if (password == null || password.isEmpty) {
-      return 'A senha é obrigatória.';
-    }
-    if (password.length < 8) return 'Deve ter no mínimo 8 caracteres.';
-    if (!password.contains(RegExp(r'[0-9]')))
-      return 'Deve conter pelo menos um número.';
-    if (!password.contains(RegExp(r'[A-Z]')))
-      return 'Deve conter uma letra maiúscula.';
-    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-      return 'Deve conter um caractere especial.';
-    }
-    return null;
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(75),
         child: AppBar(
@@ -142,8 +150,9 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
           centerTitle: true,
         ),
       ),
+
       body: Padding(
-        padding: const EdgeInsets.all(18.0),
+        padding: const EdgeInsets.all(18),
         child: Form(
           key: _formKey,
           child: Column(
@@ -152,7 +161,6 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
               const SizedBox(height: 10),
               const Text(
                 'Preencha os seguintes campos para redefinir sua senha.',
-                textAlign: TextAlign.start,
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.black87,
@@ -169,10 +177,13 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
                 onToggle: () {
                   setState(() => _obscureAntiga = !_obscureAntiga);
                 },
+                validator:
+                    (v) => v == null || v.isEmpty ? 'Campo obrigatório' : null,
               ),
+
               const SizedBox(height: 16),
 
-              // Senha atual
+              // Senha atual (VALIDAÇÃO FORTE)
               _buildPasswordField(
                 label: 'Senha atual',
                 controller: _senhaAtualController,
@@ -180,10 +191,12 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
                 onToggle: () {
                   setState(() => _obscureAtual = !_obscureAtual);
                 },
+                validator: _validatePassword,
               ),
+
               const SizedBox(height: 16),
 
-              // Confirmar senha
+              // Confirmar senha (VALIDAÇÃO FORTE + IGUALDADE)
               _buildPasswordField(
                 label: 'Confirmar senha',
                 controller: _confirmarSenhaController,
@@ -192,15 +205,19 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
                   setState(() => _obscureConfirmar = !_obscureConfirmar);
                 },
                 validator: (value) {
+                  final valid = _validatePassword(value);
+                  if (valid != null) return valid;
+
                   if (value != _senhaAtualController.text) {
                     return 'As senhas não coincidem';
                   }
                   return null;
                 },
               ),
+
               const SizedBox(height: 40),
 
-              // Botão
+              // Botão trocar senha
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -208,8 +225,6 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
                       Color(primaryColorGradient),
                       Color(secondaryColorGradient),
                     ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(50),
                 ),
@@ -240,6 +255,7 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
     );
   }
 
+  // ------------------ WIDGET DE TEXTO DE SENHA ------------------
   Widget _buildPasswordField({
     required String label,
     required TextEditingController controller,
@@ -250,14 +266,7 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
-      validator:
-          validator ??
-          (value) {
-            if (value == null || value.isEmpty) {
-              return 'Campo obrigatório';
-            }
-            return null;
-          },
+      validator: validator,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
         suffixIcon: IconButton(
