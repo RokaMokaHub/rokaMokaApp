@@ -44,32 +44,34 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
 
   Future<void> _loadUserInfo() async {
     final fetchedEmail = await authService.getEmail();
-    final fetchedUserName = await authService.getName();
+    final fetchedUserName = await authService.getUserName();
     setState(() {
       _email = fetchedEmail!;
       _name = fetchedUserName!;
     });
   }
 
-  void _trocarSenha() {
+  void _trocarSenha() async {
     if (_formKey.currentState!.validate()) {
       try {
-        userService.resetPassword(
+        await userService.resetPassword(
           _email,
           _senhaAntigaController.text,
           _senhaAtualController.text,
           _name,
         );
+
         final snackBar = SnackBarAceita(
           titulo: "Sucesso!",
           subtitulo: "Sua senha foi alterada com sucesso.",
         ).buildSnackBar(context);
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
         Navigator.pop(context);
       } catch (e) {
         if (kDebugMode) {
           final snackBar = SnackBarRejeitada(
-            titulo: e.toString(),
+            titulo: _verificaRetornoLoginInvalido(e.toString()),
             subtitulo: "Tente novamente!",
           ).buildSnackBar(context);
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -77,6 +79,32 @@ class _SwitchPasswordScreenState extends State<SwitchPasswordScreen> {
       }
     }
   }
+
+  String _verificaRetornoLoginInvalido(String retorno) {
+    if (retorno == 'Unauthorized') {
+      return 'Credenciais inválidas, senha não foi alterada!';
+    }
+    if (retorno == "A senha informada é inválida"){
+      return 'A senha informada é inválida';
+    }
+    return 'Erro desconhecido';
+  }
+
+  String? _validatePassword(String? password) {
+    if (password == null || password.isEmpty) {
+      return 'A senha é obrigatória.';
+    }
+    if (password.length < 8) return 'Deve ter no mínimo 8 caracteres.';
+    if (!password.contains(RegExp(r'[0-9]')))
+      return 'Deve conter pelo menos um número.';
+    if (!password.contains(RegExp(r'[A-Z]')))
+      return 'Deve conter uma letra maiúscula.';
+    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      return 'Deve conter um caractere especial.';
+    }
+    return null;
+  }
+
 
   @override
   Widget build(BuildContext context) {

@@ -70,10 +70,6 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
         throw Exception("Cargo inválido.");
       }
 
-      final permissionId = data['body']['id'];
-      final auth = AuthService();
-      await auth.savePermissionId(permissionId);
-
       setState(() {
         solicitacaoFeita = true;
       });

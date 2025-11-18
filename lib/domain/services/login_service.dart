@@ -30,10 +30,11 @@ class LoginService {
       await _authService.saveAuthData(
         token: token,
         email: '',
-        name: nome,
+        userName: nome,
         deviceId: deviceId,
         firstName: '',
         lastName: '',
+        password: password
       );
 
       final userInfo = await UserService().getUserInfo();
@@ -46,10 +47,11 @@ class LoginService {
       await _authService.saveAuthData(
         token: token,
         email: email,
-        name: firstName,
+        userName: nome,
         deviceId: deviceId,
         firstName: firstName,
         lastName: lastName,
+        password: password
       );
     } else {
       final errorMessage = data['error'] ?? 'Erro ao fazer login.';

@@ -5,37 +5,40 @@ class AuthService {
 
   static const _keyToken = 'auth_token';
   static const _keyEmail = 'auth_email';
-  static const _keyName = 'auth_name';
+  static const _keyUserName = 'auth_userName';
   static const _keyDeviceId = 'auth_deviceId';
   static const _keyFirstName = 'auth_firstName';
   static const _keyLastName = 'auth_lastName';
+  static const _keyPassword = 'auth_password';
 
 
   // Salva os dados do usuário
   Future<void> saveAuthData({
     required String token,
     required String email,
-    required String name,
+    required String userName,
     required String deviceId,
     required String firstName,
     required String lastName,
+    required String password
   }) async {
     await _storage.write(key: _keyToken, value: token);
     await _storage.write(key: _keyEmail, value: email);
-    await _storage.write(key: _keyName, value: name);
+    await _storage.write(key: _keyUserName, value: userName);
     await _storage.write(key: _keyDeviceId, value: deviceId);
     await _storage.write(key: _keyFirstName, value: firstName);
     await _storage.write(key: _keyLastName, value: lastName);
+    await _storage.write(key: _keyPassword, value: password);
   }
 
   // Salva os dados do usuário anonimo
   Future<void> saveAuthDataAnon({
     required String token,
-    required String name,
+    required String userName,
     required String deviceId
   }) async {
     await _storage.write(key: _keyToken, value: token);
-    await _storage.write(key: _keyName, value: name);
+    await _storage.write(key: _keyUserName, value: userName);
     await _storage.write(key: _keyDeviceId, value: deviceId);
   }
 
@@ -43,10 +46,11 @@ class AuthService {
   // Recupera os dados
   Future<String?> getToken() async => await _storage.read(key: _keyToken);
   Future<String?> getEmail() async => await _storage.read(key: _keyEmail);
-  Future<String?> getName() async => await _storage.read(key: _keyName);
+  Future<String?> getUserName() async => await _storage.read(key: _keyUserName);
   Future<String?> getDeviceId() async => await _storage.read(key: _keyDeviceId);
   Future<String?> getFirstName() async => await _storage.read(key: _keyFirstName);
   Future<String?> getLastName() async => await _storage.read(key: _keyLastName);
+  Future<String?> getPassword() async => await _storage.read(key: _keyPassword);
 
   // Verifica se está logado
   Future<bool> isLoggedIn() async {

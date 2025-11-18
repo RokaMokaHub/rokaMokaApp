@@ -39,10 +39,11 @@ class UserService {
       await _authService.saveAuthData(
         token: token,
         email: email,
-        name: name,
+        userName: name,
         deviceId: deviceId,
         firstName: firstName,
-        lastName: lastName
+        lastName: lastName,
+        password: password
       );
       return data;
     } else {
@@ -61,13 +62,12 @@ class UserService {
       ) async {
     final url = Uri.parse(resetPasswordEndpoint);
     final token = await _authService.getToken();
-    final credentials = base64Encode(utf8.encode(token as String));
 
     final response = await http.post(
       url,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
+        'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
         'email': email,
@@ -82,7 +82,7 @@ class UserService {
     if (response.statusCode == 200) {
       return data;
     } else {
-      final errorMessage = data['error'] ?? 'Erro ao resetar senha.';
+      final errorMessage = data['error'] ?? data['exceptionMessage'];
       throw errorMessage;
     }
   }
@@ -107,7 +107,7 @@ class UserService {
       final token = data['body']['jwt'];
       await _authService.saveAuthDataAnon(
         token: token,
-        name: userName,
+        userName: userName,
         deviceId: deviceId,
       );
       return data;

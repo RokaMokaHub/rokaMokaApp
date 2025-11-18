@@ -11,7 +11,7 @@ class AccessService {
 
   /// Solicita acesso como pesquisador.
   Future<Map<String, dynamic>> requestAccessAsResearcher() async {
-    final name = await _authService.getName();
+    final name = await _authService.getUserName();
     final password = await _authService.getPassword();
     final credentials = base64Encode(utf8.encode('$name:$password'));
     final response = await http.post(
@@ -35,7 +35,7 @@ class AccessService {
 
   /// Solicita acesso como curador
   Future<Map<String, dynamic>> requestAccessAsCurator() async {
-    final name = await _authService.getName();
+    final name = await _authService.getUserName();
     final password = await _authService.getPassword();
     final credentials = base64Encode(utf8.encode('$name:$password'));
     final response = await http.post(
