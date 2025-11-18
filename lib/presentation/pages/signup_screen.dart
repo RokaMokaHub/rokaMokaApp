@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
-
 import '../../domain/services/user_service.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/snack_bar_aceita.dart';
@@ -16,12 +15,12 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupScreen> {
-  // Controla a visibilidade da senha
   bool _obscureTextPassword = true;
-  // Controla a visibilidade da confirmação da senha
   bool _obscureTextConfirmPassword = true;
 
-  // Controladores para os campos de texto
+  // Controladores dos campos
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -29,22 +28,22 @@ class _SignupPageState extends State<SignupScreen> {
       TextEditingController();
   final UserService _userService = UserService();
 
-  // Variáveis para armazenar mensagens de erro dos campos
-  String? _passwordError;
+  // Mensagens de erro
+  String? _firstNameError;
+  String? _lastNameError;
   String? _nameError;
   String? _emailError;
+  String? _passwordError;
   String? _confirmPasswordError;
 
-  // Cores personalizadas para as bordas dos campos de texto em diferentes estados
-  final Color _errorBorderColor = Color(0xFF960000);
-  final Color _focusedBorderColor = Color(0xFFE94C19);
-
-  // Indica se o formulário foi submetido
+  final Color _errorBorderColor = const Color(0xFF960000);
+  final Color _focusedBorderColor = const Color(0xFFE94C19);
   bool _submitted = false;
 
   @override
   void dispose() {
-    // Libera os recursos dos controladores quando o widget é descartado
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -52,20 +51,32 @@ class _SignupPageState extends State<SignupScreen> {
     super.dispose();
   }
 
-  // Valida o campo de nome de usuário
-  String? _validateName(String name) {
-    final validPattern = RegExp(r'^[a-zA-Z0-9_-]+$');
-
-    if (_submitted && name.isEmpty) {
-      return 'O nome de usuário é obrigatório.';
-    }
-    if (_submitted && !validPattern.hasMatch(name)) {
-      return 'Nome de usuário inválido - apenas letras, números, hífen e underline são permitidos';
+  // Validações -----------------------
+  String? _validateFirstName(String value) {
+    if (_submitted && value.trim().isEmpty) {
+      return 'O nome é obrigatório.';
     }
     return null;
   }
 
-  // Valida o campo de email
+  String? _validateLastName(String value) {
+    if (_submitted && value.trim().isEmpty) {
+      return 'O sobrenome é obrigatório.';
+    }
+    return null;
+  }
+
+  String? _validateName(String name) {
+    final validPattern = RegExp(r'^[a-zA-Z0-9_-]+$');
+    if (_submitted && name.isEmpty) {
+      return 'O nome de usuário é obrigatório.';
+    }
+    if (_submitted && !validPattern.hasMatch(name)) {
+      return 'Apenas letras, números, hífen e underline são permitidos.';
+    }
+    return null;
+  }
+
   String? _validateEmail(String email) {
     if (_submitted) {
       if (email.isEmpty) {
@@ -80,34 +91,24 @@ class _SignupPageState extends State<SignupScreen> {
     return null;
   }
 
-  // Valida o campo de senha com critérios de segurança
   String? _validatePassword(String password) {
     if (_submitted) {
-      if (password.isEmpty) {
-        return 'A senha é obrigatória.';
-      }
-      if (password.length < 8) {
-        return 'Deve ter no mínimo 8 caracteres.';
-      }
-      if (!password.contains(RegExp(r'[0-9]'))) {
+      if (password.isEmpty) return 'A senha é obrigatória.';
+      if (password.length < 8) return 'Deve ter no mínimo 8 caracteres.';
+      if (!password.contains(RegExp(r'[0-9]')))
         return 'Deve conter pelo menos um número.';
-      }
-      if (!password.contains(RegExp(r'[A-Z]'))) {
-        return 'Deve conter pelo menos uma letra maiúscula.';
-      }
+      if (!password.contains(RegExp(r'[A-Z]')))
+        return 'Deve conter uma letra maiúscula.';
       if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-        return 'Deve conter pelo menos um caractere especial.';
+        return 'Deve conter um caractere especial.';
       }
     }
     return null;
   }
 
-  // Valida o campo de confirmação de senha, comparando com a senha digitada
   String? _validateConfirmPassword(String confirmPassword) {
     if (_submitted) {
-      if (confirmPassword.isEmpty) {
-        return 'Confirme sua senha.';
-      }
+      if (confirmPassword.isEmpty) return 'Confirme sua senha.';
       if (confirmPassword != _passwordController.text) {
         return 'As senhas não coincidem.';
       }
@@ -115,10 +116,12 @@ class _SignupPageState extends State<SignupScreen> {
     return null;
   }
 
-  // Valida todos os campos e simula a criação da conta se todos forem válidos
+  // Valida e cria conta -----------------
   void _validateAndCreateAccount() async {
     setState(() {
       _submitted = true;
+      _firstNameError = _validateFirstName(_firstNameController.text);
+      _lastNameError = _validateLastName(_lastNameController.text);
       _nameError = _validateName(_nameController.text);
       _emailError = _validateEmail(_emailController.text);
       _passwordError = _validatePassword(_passwordController.text);
@@ -127,18 +130,23 @@ class _SignupPageState extends State<SignupScreen> {
       );
     });
 
-    if (_nameError != null ||
-        _emailError != null ||
-        _passwordError != null ||
-        _confirmPasswordError != null) {
+    if ([
+      _firstNameError,
+      _lastNameError,
+      _nameError,
+      _emailError,
+      _passwordError,
+      _confirmPasswordError,
+    ].any((e) => e != null))
       return;
-    }
 
     try {
       await _userService.createUser(
         _emailController.text,
         _passwordController.text,
         _nameController.text,
+        _firstNameController.text,
+        _lastNameController.text,
       );
 
       context.read<UserProvider>().setRole(UserRole.comum);
@@ -164,12 +172,12 @@ class _SignupPageState extends State<SignupScreen> {
     }
   }
 
+  // Widget ------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Imagem de fundo posicionada no topo da tela
           Positioned(
             top: 0,
             left: 0,
@@ -180,7 +188,6 @@ class _SignupPageState extends State<SignupScreen> {
               height: MediaQuery.of(context).size.height * 0.35,
             ),
           ),
-          // Conteúdo principal dentro de um SafeArea para evitar sobreposição com a barra de status
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -193,21 +200,17 @@ class _SignupPageState extends State<SignupScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Botão de voltar na parte superior
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
                             child: IconButton(
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.arrow_back,
                                 color: Colors.white,
                                 size: 30,
                               ),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
+                              onPressed: () => Navigator.pop(context),
                             ),
                           ),
-                          // Conteúdo do formulário expandido para ocupar o espaço restante
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -216,12 +219,11 @@ class _SignupPageState extends State<SignupScreen> {
                                   height:
                                       MediaQuery.of(context).size.height * 0.20,
                                 ),
-                                // Container branco com bordas arredondadas para o formulário
                                 Expanded(
                                   child: Container(
                                     width: double.infinity,
-                                    padding: EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
+                                    padding: const EdgeInsets.all(24),
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(16),
@@ -232,8 +234,7 @@ class _SignupPageState extends State<SignupScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        SizedBox(height: 10),
-                                        // Título da tela de cadastro
+                                        const SizedBox(height: 10),
                                         Text(
                                           'Cadastre-se',
                                           style: GoogleFonts.poppins(
@@ -242,7 +243,6 @@ class _SignupPageState extends State<SignupScreen> {
                                             color: Color(0xFFE94C19),
                                           ),
                                         ),
-                                        // Subtítulo da tela de cadastro
                                         Text(
                                           'Crie sua conta.',
                                           style: GoogleFonts.poppins(
@@ -251,387 +251,95 @@ class _SignupPageState extends State<SignupScreen> {
                                             fontSize: 20,
                                           ),
                                         ),
-                                        SizedBox(height: 30),
-                                        // Campo de texto para o nome de usuário
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            TextField(
-                                              controller: _nameController,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _nameError = _validateName(
-                                                    value,
-                                                  );
-                                                });
-                                              },
-                                              decoration: InputDecoration(
-                                                labelText: 'Usuário',
-                                                labelStyle: TextStyle(
-                                                  color: Color(0xFFABABAB),
-                                                ),
-                                                prefixIcon: Padding(
-                                                  padding: EdgeInsets.only(
-                                                    left: 20.0,
-                                                    top: 11.5,
-                                                    bottom: 11.5,
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.person_outline_sharp,
-                                                    color:
-                                                        _nameError == null
-                                                            ? _focusedBorderColor
-                                                            : _errorBorderColor,
-                                                  ),
-                                                ),
-                                                contentPadding: EdgeInsets.only(
-                                                  left: 26.0,
-                                                  top: 10.0,
-                                                  bottom: 10.0,
-                                                  right: 4.0,
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            30.0,
-                                                          ),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            _focusedBorderColor,
-                                                        width: 2.0,
-                                                      ),
-                                                    ),
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            30.0,
-                                                          ),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            _focusedBorderColor,
-                                                        width: 2.0,
-                                                      ),
-                                                    ),
-                                                errorBorder: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        30.0,
-                                                      ),
-                                                  borderSide: BorderSide(
-                                                    color: _errorBorderColor,
-                                                    width: 2.0,
-                                                  ),
-                                                ),
-                                                focusedErrorBorder:
-                                                    OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            30.0,
-                                                          ),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            _errorBorderColor,
-                                                        width: 2.0,
-                                                      ),
-                                                    ),
-                                              ),
-                                            ),
-                                            if (_submitted &&
-                                                _nameError != null)
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  left: 16.0,
-                                                  top: 6.0,
-                                                ),
-                                                child: Text(
-                                                  _nameError!,
-                                                  style: TextStyle(
-                                                    color: _errorBorderColor,
-                                                    fontSize: 12,
-                                                    height: 1.3,
-                                                  ),
-                                                ),
-                                              ),
-                                          ],
+                                        const SizedBox(height: 30),
+
+                                        // Nome
+                                        _buildTextField(
+                                          controller: _firstNameController,
+                                          label: 'Nome',
+                                          icon: Icons.badge_outlined,
+                                          error: _firstNameError,
+                                          validator: _validateFirstName,
                                         ),
-                                        SizedBox(height: 16),
-                                        // Campo de texto para o email
-                                        TextField(
+                                        const SizedBox(height: 16),
+
+                                        // Sobrenome
+                                        _buildTextField(
+                                          controller: _lastNameController,
+                                          label: 'Sobrenome',
+                                          icon: Icons.person_outline,
+                                          error: _lastNameError,
+                                          validator: _validateLastName,
+                                        ),
+                                        const SizedBox(height: 16),
+
+                                        // Usuário
+                                        _buildTextField(
+                                          controller: _nameController,
+                                          label: 'Usuário',
+                                          icon: Icons.account_circle_outlined,
+                                          error: _nameError,
+                                          validator: _validateName,
+                                        ),
+                                        const SizedBox(height: 16),
+
+                                        // Email
+                                        _buildTextField(
                                           controller: _emailController,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _emailError = _validateEmail(
-                                                value,
-                                              );
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            labelText: 'Email',
-                                            errorText:
-                                                _submitted ? _emailError : null,
-                                            labelStyle: TextStyle(
-                                              color: Color(0xFFABABAB),
-                                            ),
-                                            prefixIcon: Padding(
-                                              padding: EdgeInsets.only(
-                                                left: 20.0,
-                                                top: 11.5,
-                                                bottom: 11.5,
-                                              ),
-                                              child: Icon(
-                                                Icons.alternate_email,
-                                                color:
-                                                    _emailError == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
-                                              ),
-                                            ),
-                                            contentPadding: EdgeInsets.only(
-                                              left: 26.0,
-                                              top: 10.0,
-                                              bottom: 10.0,
-                                              right: 4.0,
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _focusedBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _focusedBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _errorBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            focusedErrorBorder:
-                                                OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        30.0,
-                                                      ),
-                                                  borderSide: BorderSide(
-                                                    color: _errorBorderColor,
-                                                    width: 2.0,
-                                                  ),
-                                                ),
-                                          ),
+                                          label: 'Email',
+                                          icon: Icons.alternate_email,
+                                          error: _emailError,
+                                          validator: _validateEmail,
                                         ),
-                                        SizedBox(height: 16),
-                                        // Campo de texto para a senha
-                                        TextField(
+                                        const SizedBox(height: 16),
+
+                                        // Senha
+                                        _buildTextField(
                                           controller: _passwordController,
+                                          label: 'Senha',
+                                          icon: Icons.lock_outline,
+                                          error: _passwordError,
+                                          validator: _validatePassword,
                                           obscureText: _obscureTextPassword,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _passwordError =
-                                                  _validatePassword(value);
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            labelText: 'Senha',
-                                            errorText:
-                                                _submitted
-                                                    ? _passwordError
-                                                    : null,
-                                            labelStyle: TextStyle(
-                                              color: Color(0xFFABABAB),
-                                            ),
-                                            prefixIcon: Padding(
-                                              padding: EdgeInsets.only(
-                                                left: 20.0,
-                                                top: 11.5,
-                                                bottom: 11.5,
-                                              ),
-                                              child: Icon(
-                                                Icons.lock_outline_rounded,
-                                                color:
-                                                    _passwordError == null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
-                                              ),
-                                            ),
-                                            contentPadding: EdgeInsets.only(
-                                              left: 26.0,
-                                              top: 10.0,
-                                              bottom: 10.0,
-                                              right: 4.0,
-                                            ),
-                                            suffixIcon: IconButton(
-                                              icon: Icon(
-                                                _obscureTextPassword
-                                                    ? Icons.visibility_outlined
-                                                    : Icons
-                                                        .visibility_off_outlined,
-                                                color: Color(0xFFABABAB),
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
+                                          onSuffixTap: () {
+                                            setState(
+                                              () =>
                                                   _obscureTextPassword =
-                                                      !_obscureTextPassword;
-                                                });
-                                              },
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _focusedBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _focusedBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _errorBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            focusedErrorBorder:
-                                                OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        30.0,
-                                                      ),
-                                                  borderSide: BorderSide(
-                                                    color: _errorBorderColor,
-                                                    width: 2.0,
-                                                  ),
-                                                ),
-                                          ),
+                                                      !_obscureTextPassword,
+                                            );
+                                          },
                                         ),
-                                        SizedBox(height: 16),
-                                        // Campo de texto para confirmar a senha
-                                        TextField(
+                                        const SizedBox(height: 16),
+
+                                        // Confirmar senha
+                                        _buildTextField(
                                           controller:
                                               _confirmPasswordController,
+                                          label: 'Confirmar Senha',
+                                          icon: Icons.lock_outline,
+                                          error: _confirmPasswordError,
+                                          validator: _validateConfirmPassword,
                                           obscureText:
                                               _obscureTextConfirmPassword,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _confirmPasswordError =
-                                                  _validateConfirmPassword(
-                                                    value,
-                                                  );
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                            labelText: 'Confirmar Senha',
-                                            errorText:
-                                                _submitted
-                                                    ? _confirmPasswordError
-                                                    : null,
-                                            labelStyle: TextStyle(
-                                              color: Color(0xFFABABAB),
-                                            ),
-                                            prefixIcon: Padding(
-                                              padding: EdgeInsets.only(
-                                                left: 20.0,
-                                                top: 11.5,
-                                                bottom: 11.5,
-                                              ),
-                                              child: Icon(
-                                                Icons.lock_outline_rounded,
-                                                color:
-                                                    _confirmPasswordError ==
-                                                            null
-                                                        ? _focusedBorderColor
-                                                        : _errorBorderColor,
-                                              ),
-                                            ),
-                                            contentPadding: EdgeInsets.only(
-                                              left: 26.0,
-                                              top: 10.0,
-                                              bottom: 10.0,
-                                              right: 4.0,
-                                            ),
-                                            suffixIcon: IconButton(
-                                              icon: Icon(
-                                                _obscureTextConfirmPassword
-                                                    ? Icons.visibility_outlined
-                                                    : Icons
-                                                        .visibility_off_outlined,
-                                                color: Color(0xFFABABAB),
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
+                                          onSuffixTap: () {
+                                            setState(
+                                              () =>
                                                   _obscureTextConfirmPassword =
-                                                      !_obscureTextConfirmPassword;
-                                                });
-                                              },
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _focusedBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _focusedBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
-                                              borderSide: BorderSide(
-                                                color: _errorBorderColor,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            focusedErrorBorder:
-                                                OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        30.0,
-                                                      ),
-                                                  borderSide: BorderSide(
-                                                    color: _errorBorderColor,
-                                                    width: 2.0,
-                                                  ),
-                                                ),
-                                          ),
+                                                      !_obscureTextConfirmPassword,
+                                            );
+                                          },
                                         ),
-                                        SizedBox(height: 30),
-                                        // Botão para criar a conta
+                                        const SizedBox(height: 30),
+
                                         GestureDetector(
                                           onTap: _validateAndCreateAccount,
                                           child: Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                               horizontal: 120,
                                               vertical: 14,
                                             ),
                                             decoration: BoxDecoration(
-                                              gradient: LinearGradient(
+                                              gradient: const LinearGradient(
                                                 colors: [
                                                   Color(0xFFB23F1A),
                                                   Color(0xFFE94C19),
@@ -671,6 +379,91 @@ class _SignupPageState extends State<SignupScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // Builder reutilizável para TextField
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required String? error,
+    required String? Function(String) validator,
+    bool obscureText = false,
+    VoidCallback? onSuffixTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          onChanged: (value) {
+            setState(() {
+              error = validator(value);
+            });
+          },
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(color: Color(0xFFABABAB)),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(
+                left: 20.0,
+                top: 11.5,
+                bottom: 11.5,
+              ),
+              child: Icon(
+                icon,
+                color: error == null ? _focusedBorderColor : _errorBorderColor,
+              ),
+            ),
+            suffixIcon:
+                onSuffixTap != null
+                    ? IconButton(
+                      icon: Icon(
+                        obscureText
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: const Color(0xFFABABAB),
+                      ),
+                      onPressed: onSuffixTap,
+                    )
+                    : null,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 26.0,
+              vertical: 12.0,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              borderSide: BorderSide(color: _focusedBorderColor, width: 2.0),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              borderSide: BorderSide(color: _errorBorderColor, width: 2.0),
+            ),
+          ),
+        ),
+        if (_submitted && error != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 6.0),
+            child: Text(
+              error!,
+              style: TextStyle(
+                color: _errorBorderColor,
+                fontSize: 12,
+                height: 1.3,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

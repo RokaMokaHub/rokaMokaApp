@@ -12,3 +12,4 @@ const String qrCodeRoute = '/qrCode';
 const String permissionsRoute = '/permissions';
 const String permissionRequestRoute = '/permissionRequest';
 const String explorerRoute = '/explorer';
+const String switchPasswordRoute = '/switchPasswordRoute';

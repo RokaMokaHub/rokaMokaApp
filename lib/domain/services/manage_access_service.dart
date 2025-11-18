@@ -10,7 +10,7 @@ class ManageAccessService {
 
   /// lista de permissoes
   Future<Map<String, dynamic>> listRequestpermissions() async {
-    final name = await _authService.getName();
+    final name = await _authService.getUserName();
     final password = await _authService.getPassword();
     final credentials = base64Encode(utf8.encode('$name:$password'));
     final response = await http.get(
@@ -34,7 +34,7 @@ class ManageAccessService {
 
   //aceita permissoes
   Future<Map<String, dynamic>> acceptPermissions(int permissionId) async {
-    final name = await _authService.getName();
+    final name = await _authService.getUserName();
     final password = await _authService.getPassword();
     final credentials = base64Encode(utf8.encode('$name:$password'));
     final urlAcceptPermission = Uri.parse(
@@ -65,7 +65,7 @@ class ManageAccessService {
     String motivo,
     String userName,
   ) async {
-    final name = await _authService.getName();
+    final name = await _authService.getUserName();
     final password = await _authService.getPassword();
     final credentials = base64Encode(utf8.encode('$name:$password'));
 

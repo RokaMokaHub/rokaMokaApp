@@ -13,6 +13,8 @@ class UserService {
       String email,
       String password,
       String name,
+      String firstName,
+      String lastName
       ) async {
     final deviceId = await getDeviceId();
     final url = Uri.parse(createUserEndpoint);
@@ -25,6 +27,8 @@ class UserService {
         'password': password,
         'name': name,
         'deviceId': deviceId,
+        'firstName': firstName,
+        'lastName': lastName
       }),
     );
 
@@ -35,9 +39,11 @@ class UserService {
       await _authService.saveAuthData(
         token: token,
         email: email,
-        name: name,
+        userName: name,
         deviceId: deviceId,
-        password: password,
+        firstName: firstName,
+        lastName: lastName,
+        password: password
       );
       return data;
     } else {
@@ -50,25 +56,24 @@ class UserService {
   // Resetando senha
   Future<Map<String, dynamic>> resetPassword(
       String email,
-      String password,
+      String oldPassword,
+      String newPassword,
       String name,
       ) async {
-    final deviceId = await getDeviceId();
     final url = Uri.parse(resetPasswordEndpoint);
     final token = await _authService.getToken();
-    final credentials = base64Encode(utf8.encode(token as String));
 
     final response = await http.post(
       url,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
+        'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
         'email': email,
-        'password': password,
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
         'name': name,
-        'deviceId': deviceId,
       }),
     );
 
@@ -77,7 +82,7 @@ class UserService {
     if (response.statusCode == 200) {
       return data;
     } else {
-      final errorMessage = data['error'] ?? 'Erro ao resetar senha.';
+      final errorMessage = data['error'] ?? data['exceptionMessage'];
       throw errorMessage;
     }
   }
@@ -102,7 +107,7 @@ class UserService {
       final token = data['body']['jwt'];
       await _authService.saveAuthDataAnon(
         token: token,
-        name: userName,
+        userName: userName,
         deviceId: deviceId,
       );
       return data;
