@@ -4,7 +4,8 @@ import '../../constants/webservice.dart';
 import 'auth_service.dart';
 import 'package:http/http.dart' as http;
 
-class ManageAccessService {
+//Classe para gerenciar as solicitações de acesso
+class ManageRoleRequestService {
   final _authService = AuthService();
   final urlListPermission = Uri.parse(listPermissionsEndPoint);
 

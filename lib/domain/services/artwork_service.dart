@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:roka_moka_app/constants/webservice.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 
+//Classe responsável por lidar com as operações relacionadas a obras de arte.
 class ArtworkService {
   final AuthService _authService = AuthService();
 

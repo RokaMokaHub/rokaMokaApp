@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/domain/services/access_service.dart';
+import 'package:roka_moka_app/domain/services/request_role_service.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 import '../../constants/colors.dart';
-import '../../domain/services/auth_service.dart';
 import '../widgets/snack_bar_aceita.dart';
 
 class SolicitarPermissaoScreen extends StatefulWidget {
@@ -16,7 +15,7 @@ class SolicitarPermissaoScreen extends StatefulWidget {
 }
 
 class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
-  final AccessService _accessService = AccessService();
+  final RequestRoleService _accessService = RequestRoleService();
 
   String? selectedCargo;
   bool solicitacaoFeita = false;

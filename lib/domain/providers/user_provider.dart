@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+//Classe usada para setar a role do usuario ao entrar no app
 enum UserRole { anon, comum, administrador, curador, pesquisador }
 
 class UserProvider with ChangeNotifier {
