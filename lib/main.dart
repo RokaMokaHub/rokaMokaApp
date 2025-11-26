@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:provider/provider.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
@@ -41,7 +41,6 @@ void main() async {
   await userProvider.loadRole();
   final userService = UserService();
 
-
   if (loggedIn) {
     try {
       final userInfo = await userService.getUserInfo();
@@ -58,9 +57,12 @@ void main() async {
   ]);
 
   runApp(
-    ChangeNotifierProvider.value(
-      value: userProvider,
-      child: MyApp(loggedIn: loggedIn),
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => ChangeNotifierProvider.value(
+        value: userProvider,
+        child: MyApp(loggedIn: loggedIn),
+      ),
     ),
   );
 }
@@ -75,6 +77,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Roká Móka',
+      // Integração com DevicePreview
+      useInheritedMediaQuery: true,
+      builder: DevicePreview.appBuilder,
+      locale: DevicePreview.locale(context),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
@@ -101,19 +107,12 @@ class MyApp extends StatelessWidget {
           final args = ModalRoute.of(context)!.settings.arguments;
           return CollectionInfoScreen(id: args);
         },
-        createExposureRoute:
-            (context) => CreateExposureScreen(
-              onBack: () {
-                Navigator.of(context).pop();
-              },
-            ),
-        permissionsRoute: (context) {
-          return PermissionsScreen(
-            onBack: () {
-              Navigator.of(context).pop();
-            },
-          );
-        },
+        createExposureRoute: (context) => CreateExposureScreen(
+          onBack: () => Navigator.of(context).pop(),
+        ),
+        permissionsRoute: (context) => PermissionsScreen(
+          onBack: () => Navigator.of(context).pop(),
+        ),
       },
     );
   }
