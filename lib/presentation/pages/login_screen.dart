@@ -20,19 +20,19 @@ class LoginScreen extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: SafeArea(
               child: SingleChildScrollView(
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(24),
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(36),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: 20),
                       Text(
                         'Olá!',
                         style: GoogleFonts.poppins(
@@ -121,7 +121,6 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
           ),
         ],
       ),
