@@ -20,19 +20,19 @@ class LoginScreen extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: SafeArea(
               child: SingleChildScrollView(
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(24),
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(36),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: 20),
                       Text(
                         'Olá!',
                         style: GoogleFonts.poppins(
@@ -59,31 +59,28 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 16),
-                      // Botão "Acessar"
-                      GestureDetector(
-                        // Envolve o Container inteiro
-                        onTap: () {
-                          Navigator.pushNamed(context, connectRoute);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 120,
-                            vertical: 14,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
+                      SizedBox(
+                        width: double.infinity,
+                        child: GestureDetector(
+                          onTap:
+                              () => Navigator.pushNamed(context, connectRoute),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(32),
                             ),
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Acessar',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                            child: Center(
+                              child: Text(
+                                'Acessar',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -98,27 +95,25 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 16),
-                      // Botão "Cadastre-se"
-                      OutlinedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, signupRoute);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Color(0xFFE94C19),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 110,
-                            vertical: 14,
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed:
+                              () => Navigator.pushNamed(context, signupRoute),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Color(0xFFE94C19),
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            side: BorderSide(color: Color(0xFFE94C19)),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          side: BorderSide(color: Color(0xFFE94C19)),
-                        ),
-                        child: Text(
-                          'Cadastre-se',
-                          style: GoogleFonts.poppins(
-                            color: Color(0xFFE94C19),
-                            fontWeight: FontWeight.w600,
+                          child: Text(
+                            'Cadastre-se',
+                            style: GoogleFonts.poppins(
+                              color: Color(0xFFE94C19),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -126,7 +121,6 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
           ),
         ],
       ),

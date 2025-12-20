@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'auth_service.dart';
 import 'package:roka_moka_app/constants/webservice.dart';
 
+//Classe responsavel pela criacao de usuario via banco de dados
 class UserService {
   final _authService = AuthService();
 
@@ -148,7 +149,7 @@ class UserService {
 
     if (Platform.isAndroid) {
       final androidInfo = await deviceInfo.androidInfo;
-      return androidInfo.id ?? 'android-unknown';
+      return androidInfo.id;
     } else if (Platform.isIOS) {
       final iosInfo = await deviceInfo.iosInfo;
       return iosInfo.identifierForVendor ?? 'ios-unknown';

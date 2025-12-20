@@ -4,7 +4,8 @@ import '../../constants/webservice.dart';
 import 'auth_service.dart';
 import 'package:http/http.dart' as http;
 
-class AccessService {
+//Classe utilizada para solicitar acesso como pesquisador ou curador ou verificar status
+class RequestRoleService {
   final _authService = AuthService();
   final urlResearcher = Uri.parse(requestAccessResearcherEndpoint);
   final urlCurator = Uri.parse(requestAccessCuratorEndpoint);

@@ -55,12 +55,11 @@ class BottomNavBar extends StatelessWidget {
           Navigator.pushNamed(context, permissionRequestRoute);
           break;
         case UserRole.anon:
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Usuário anônimo não pode solicitar cargo.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+          final snackBar = SnackBarRejeitada(
+            titulo: "Usuário anônimo não pode solicitar cargo!",
+            subtitulo: "Crie uma conta para solicitar.",
+          ).buildSnackBar(context);
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
           break;
       }
     } else {

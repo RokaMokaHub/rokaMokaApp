@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
-import '../../domain/services/manage_access_service.dart';
+import '../../domain/services/manage_role_request_service.dart';
 import '../widgets/show_tela_rejeicao.dart';
 
 enum FilterOption { todas, aceitadas, rejeitadas, naoRespondidas }
@@ -50,7 +50,7 @@ class PermissionsScreen extends StatefulWidget {
 }
 
 class _PermissionsScreenState extends State<PermissionsScreen> {
-  final ManageAccessService _manageAccessService = ManageAccessService();
+  final ManageRoleRequestService _manageAccessService = ManageRoleRequestService();
   final List<PermissionRequest> _allRequests = [];
   List<PermissionRequest> _filteredRequests = [];
 
@@ -124,7 +124,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     });
 
     try {
-      final service = ManageAccessService();
+      final service = ManageRoleRequestService();
       await service.acceptPermissions(request.requestId);
 
       final snackBar = SnackBarAceita(
@@ -151,7 +151,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
 
   void _rejectRequest(PermissionRequest request, String motivo) async {
     try {
-      final service = ManageAccessService();
+      final service = ManageRoleRequestService();
       await service.rejectPermissions(
         request.requestId,
         motivo,

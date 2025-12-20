@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:roka_moka_app/constants/webservice.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 
+// Classe para lidar com os serviços de exposição
 class ExposureService {
   final AuthService _authService = AuthService();
 

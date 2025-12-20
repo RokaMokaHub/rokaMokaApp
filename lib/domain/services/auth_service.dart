@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+//Classe de autenticação do usuário localmente
 class AuthService {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 

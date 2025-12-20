@@ -20,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _appVersion = '';
   String? _firstName;
   String? _lastName;
+  String? _userName;
 
   void onTap(int index) {
     setState(() {
@@ -44,9 +45,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadName() async {
     final fetchedFirstName = await authService.getFirstName();
     final fetchedLastName = await authService.getLastName();
+    final fetchedUsername = await authService.getUserName();
+
     setState(() {
       _firstName = fetchedFirstName;
       _lastName = fetchedLastName;
+      _userName = fetchedUsername;
     });
   }
 
@@ -95,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      _firstName ?? "Carregando...",
+                                      (_firstName ?? _userName ?? 'Usuário'),
                                       style: TextStyle(
                                         fontSize: 32,
                                         fontWeight: FontWeight.w600,
@@ -104,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     SizedBox(width: 6),
                                     Text(
-                                      _lastName ?? "Carregando...",
+                                      _lastName ?? "",
                                       style: TextStyle(
                                         fontSize: 32,
                                         fontWeight: FontWeight.w600,

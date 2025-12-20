@@ -8,6 +8,7 @@ import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
 import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
 
+//Classe principal do aplicativo usada para gerenciar telas, roles e outras funcionalidades.
 class HomeController extends StatefulWidget {
   const HomeController({super.key});
 
