@@ -10,6 +10,8 @@ import 'package:roka_moka_app/presentation/controllers/home_controller.dart';
 import 'package:roka_moka_app/presentation/pages/collection_info_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'package:roka_moka_app/presentation/pages/explorer_screen.dart';
+import 'package:roka_moka_app/presentation/pages/forgot_password_screen.dart';
+import 'package:roka_moka_app/presentation/pages/send_email_forgot_password_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
 import 'package:roka_moka_app/presentation/pages/post_qr_code_screen.dart';
@@ -96,6 +98,8 @@ class MyApp extends StatelessWidget {
         qrCodeRoute: (context) => QRCodeScreen(),
         explorerRoute: (context) => ExplorerScreen(),
         switchPasswordRoute: (context) => SwitchPasswordScreen(),
+        sendEmailForgotPasswordRoute: (context) => SendEmailForgotPasswordScreen(),
+        forgotPasswordRoute: (context) => ForgotPasswordScreen(),
         permissionRequestRoute: (context) {
           return SolicitarPermissaoScreen(
             onBack: () {

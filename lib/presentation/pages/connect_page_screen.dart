@@ -386,24 +386,23 @@ class _ConnectPageState extends State<ConnectScreen> {
                                                 : null,
                                           ),
                                         ),
-                                        SizedBox(height: 10),
-                                        //Esqueceu a senha?
-                                        // Align(
-                                        //   alignment: Alignment.centerRight,
-                                        //   child: GestureDetector(
-                                        //     onTap: () {
-                                        //       Navigator.pop(context);
-                                        //     },
-                                        //     child: Text(
-                                        //       'Esqueceu a senha?',
-                                        //       style: GoogleFonts.poppins(
-                                        //         fontSize: 14,
-                                        //         color: Color(greyButton),
-                                        //         fontWeight: FontWeight.w500,
-                                        //       ),
-                                        //     ),
-                                        //   ),
-                                        // ),
+                                        SizedBox(height: 15),
+                                        GestureDetector(
+                                          onTap: () => Navigator.pushNamed(context, sendEmailForgotPasswordRoute),
+                                          child: Container(
+                                            child: Align(
+                                              alignment: AlignmentGeometry.topRight,
+                                              child: Text(
+                                                'Esqueceu a senha?',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 16,
+                                                  color: Colors.black54,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                         SizedBox(height: 24),
                                         // Botão "Entrar"
                                         GestureDetector(
