@@ -53,7 +53,7 @@ class _SendEmailForgotPasswordScreenState
 
   String _verificaRetornoLoginInvalido(String retorno) {
     if (retorno == 'Unauthorized') {
-      return 'Credenciais inválidas, senha não foi alterada!';
+      return 'Email inválido, redefinição de senha não foi enviada!';
     }
     if (retorno == "A senha informada é inválida") {
       return 'A senha informada é inválida';

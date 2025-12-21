@@ -17,42 +17,25 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final _senhaAntigaController = TextEditingController();
   final _senhaAtualController = TextEditingController();
   final _confirmarSenhaController = TextEditingController();
 
   final userService = UserService();
   final authService = AuthService();
 
-  String _email = '';
-  String _name = '';
-
-  bool _obscureAntiga = true;
   bool _obscureAtual = true;
   bool _obscureConfirmar = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUserInfo();
   }
 
   @override
   void dispose() {
-    _senhaAntigaController.dispose();
     _senhaAtualController.dispose();
     _confirmarSenhaController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadUserInfo() async {
-    final fetchedEmail = await authService.getEmail();
-    final fetchedUserName = await authService.getUserName();
-
-    setState(() {
-      _email = fetchedEmail ?? '';
-      _name = fetchedUserName ?? '';
-    });
   }
 
   String? _validatePassword(String? password) {
@@ -79,23 +62,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     Navigator.pop(context);
   }
 
-  String _verificaRetornoLoginInvalido(String retorno) {
-    if (retorno == 'Unauthorized') {
-      return 'Credenciais inválidas, senha não foi alterada!';
-    }
-    if (retorno == "A senha informada é inválida") {
-      return 'A senha informada é inválida';
-    }
-    return 'Erro desconhecido';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
 
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(75),
+        preferredSize: const Size.fromHeight(65),
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -120,7 +93,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
           ),
           title: const Text(
-            'Alterar senha',
+            'Esqueceu a senha?',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
