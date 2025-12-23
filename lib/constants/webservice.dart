@@ -34,6 +34,6 @@ String acceptPermissionEndpoint(int permissionId) => '$activeserver/evaluation/p
 // admin reject permission
 String rejectPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/deny/$permissionId';
 // send email forgot password
-String sendEmailForgotPasswordEndpoint(String email) => '$activeserver/auth/send-email/forgot-password/$email';
+String sendEmailForgotPasswordEndpoint(String email) => '$activeserver/auth/forgot-password/send?email=$email';
 // forgot password
-const forgotPasswordEndpoint = '$activeserver/auth/forgot-password';
+const forgotPasswordEndpoint = '$activeserver/auth/forgot-password/reset';

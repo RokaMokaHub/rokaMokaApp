@@ -146,9 +146,7 @@ class UserService {
 
     final response = await http.post(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
     );
 
     final data = jsonDecode(response.body);
@@ -157,6 +155,26 @@ class UserService {
       return data;
     } else {
       final errorMessage = data['error'] ?? 'Erro ao enviar email.';
+      throw errorMessage;
+    }
+  }
+
+  //reseta senha sem estar logado
+  Future<Map<String, dynamic>> resetPasswordWithoutLogin(
+    String newPassword,
+    String token,
+  ) async {
+    final url = Uri.parse(forgotPasswordEndpoint);
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'newPassword': newPassword, 'token': token}),
+    );
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      final errorMessage = data['error'] ?? 'Erro ao redefinir senha.';
       throw errorMessage;
     }
   }

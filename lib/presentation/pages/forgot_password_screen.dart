@@ -4,11 +4,14 @@ import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 import 'package:roka_moka_app/domain/services/user_service.dart';
 
+import '../../main.dart';
 import '../widgets/snack_bar_aceita.dart';
 import '../widgets/snack_bar_rejeitada.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+  final String? token;
+
+  const ForgotPasswordScreen({super.key, required this.token});
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -59,7 +62,37 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _trocarSenha() async {
-    Navigator.pop(context);
+    try {
+      await userService.resetPasswordWithoutLogin(
+        _confirmarSenhaController.text,
+        widget.token.toString(),
+      );
+      final snackBar = SnackBarAceita(
+        titulo: "Sucesso!",
+        subtitulo:
+            "Sua senha foi redefinida com sucesso!",
+      ).buildSnackBar(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      navigatorKey.currentState?.maybePop();
+    } catch (e) {
+      final snackBar = SnackBarRejeitada(
+        titulo: _verificaRetornoLoginInvalido(e.toString()),
+        subtitulo: "Tente novamente!",
+      ).buildSnackBar(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  String _verificaRetornoLoginInvalido(String retorno) {
+    if (retorno == 'Unauthorized') {
+      return 'Email inválido, redefinição de senha não foi enviada!';
+    }
+    if (retorno == "A senha informada é inválida") {
+      return 'A senha informada é inválida';
+    }
+    return 'Erro desconhecido';
   }
 
   @override
