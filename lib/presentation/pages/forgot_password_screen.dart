@@ -4,6 +4,7 @@ import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 import 'package:roka_moka_app/domain/services/user_service.dart';
 
+import '../../constants/routes.dart';
 import '../../main.dart';
 import '../widgets/snack_bar_aceita.dart';
 import '../widgets/snack_bar_rejeitada.dart';
@@ -74,7 +75,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ).buildSnackBar(context);
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      navigatorKey.currentState?.maybePop();
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        loginRoute,
+            (route) => false,
+      );
     } catch (e) {
       final snackBar = SnackBarRejeitada(
         titulo: _verificaRetornoLoginInvalido(e.toString()),
@@ -103,12 +108,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(65),
         child: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
