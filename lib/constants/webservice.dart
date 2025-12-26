@@ -6,9 +6,9 @@ const String servidorRokaMoka = 'http://rokamoka.inf.ufpel.edu.br';
 const String activeserver = kReleaseMode ? servidorRokaMoka : devServer;
 
 // LOGIN
-const String loginEndpoint = '$activeserver/user/login';
+const String loginEndpoint = '$activeserver/auth/login';
 // RESET PASSWORD
-const String resetPasswordEndpoint = '$activeserver/user/reset-password';
+const String resetPasswordEndpoint = '$activeserver/auth/reset-password';
 // CREATE NORMAL USER
 const String createUserEndpoint = '$activeserver/user/normal/create';
 // CREATE ANON USER
@@ -33,3 +33,7 @@ const listPermissionsEndPoint = '$activeserver/evaluation/permission/list';
 String acceptPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/accept/$permissionId';
 // admin reject permission
 String rejectPermissionEndpoint(int permissionId) => '$activeserver/evaluation/permission/deny/$permissionId';
+// send email forgot password
+String sendEmailForgotPasswordEndpoint(String email) => '$activeserver/auth/forgot-password/send?email=$email';
+// forgot password
+const forgotPasswordEndpoint = '$activeserver/auth/forgot-password/reset';

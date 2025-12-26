@@ -11,12 +11,12 @@ class UserService {
 
   // Criando user
   Future<Map<String, dynamic>> createUser(
-      String email,
-      String password,
-      String name,
-      String firstName,
-      String lastName
-      ) async {
+    String email,
+    String password,
+    String name,
+    String firstName,
+    String lastName,
+  ) async {
     final deviceId = await getDeviceId();
     final url = Uri.parse(createUserEndpoint);
 
@@ -29,7 +29,7 @@ class UserService {
         'name': name,
         'deviceId': deviceId,
         'firstName': firstName,
-        'lastName': lastName
+        'lastName': lastName,
       }),
     );
 
@@ -44,7 +44,7 @@ class UserService {
         deviceId: deviceId,
         firstName: firstName,
         lastName: lastName,
-        password: password
+        password: password,
       );
       return data;
     } else {
@@ -56,11 +56,11 @@ class UserService {
 
   // Resetando senha
   Future<Map<String, dynamic>> resetPassword(
-      String email,
-      String oldPassword,
-      String newPassword,
-      String name,
-      ) async {
+    String email,
+    String oldPassword,
+    String newPassword,
+    String name,
+  ) async {
     final url = Uri.parse(resetPasswordEndpoint);
     final token = await _authService.getToken();
 
@@ -96,10 +96,7 @@ class UserService {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'userName': userName,
-        'deviceId': deviceId,
-      }),
+      body: jsonEncode({'userName': userName, 'deviceId': deviceId}),
     );
 
     final data = jsonDecode(response.body);
@@ -137,11 +134,50 @@ class UserService {
     if (response.statusCode == 200) {
       return data;
     } else {
-      final errorMessage = data['error'] ?? 'Erro ao obter informações do usuário.';
+      final errorMessage =
+          data['error'] ?? 'Erro ao obter informações do usuário.';
       throw errorMessage;
     }
   }
 
+  //envia email para recuperar senha
+  Future<Map<String, dynamic>> sendEmailForgotPassword(String email) async {
+    final url = Uri.parse(sendEmailForgotPasswordEndpoint(email));
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      final errorMessage = data['error'] ?? 'Erro ao enviar email.';
+      throw errorMessage;
+    }
+  }
+
+  //reseta senha sem estar logado
+  Future<Map<String, dynamic>> resetPasswordWithoutLogin(
+    String newPassword,
+    String token,
+  ) async {
+    final url = Uri.parse(forgotPasswordEndpoint);
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'newPassword': newPassword, 'token': token}),
+    );
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      final errorMessage = data['error'] ?? 'Erro ao redefinir senha.';
+      throw errorMessage;
+    }
+  }
 
   // Obter ID do dispositivo
   Future<String> getDeviceId() async {
