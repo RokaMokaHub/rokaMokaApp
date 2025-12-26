@@ -245,7 +245,7 @@ class _ConnectPageState extends State<ConnectScreen> {
                         children: [
                           // Botão de voltar
                           Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: IconButton(
                               icon: Icon(
                                 Icons.arrow_back,
