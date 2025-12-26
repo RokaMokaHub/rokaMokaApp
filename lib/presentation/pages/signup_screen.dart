@@ -53,16 +53,38 @@ class _SignupPageState extends State<SignupScreen> {
 
   // Validações -----------------------
   String? _validateFirstName(String value) {
-    if (_submitted && value.trim().isEmpty) {
+    final namePattern = RegExp(
+      r'^[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-zA-ZáéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇ]*$',
+    );
+
+    if (!_submitted) return null;
+
+    if (value.trim().isEmpty) {
       return 'O nome é obrigatório.';
     }
+
+    if (!namePattern.hasMatch(value.trim())) {
+      return 'Nome inválido - deve começar com letra maiúscula e conter apenas letras.';
+    }
+
     return null;
   }
 
   String? _validateLastName(String value) {
-    if (_submitted && value.trim().isEmpty) {
+    final namePattern = RegExp(
+      r'^[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-zA-ZáéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇ]*$',
+    );
+
+    if (!_submitted) return null;
+
+    if (value.trim().isEmpty) {
       return 'O sobrenome é obrigatório.';
     }
+
+    if (!namePattern.hasMatch(value.trim())) {
+      return 'Sobrenome inválido - deve começar com letra maiúscula e conter apenas letras.';
+    }
+
     return null;
   }
 
