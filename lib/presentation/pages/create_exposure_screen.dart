@@ -34,25 +34,25 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     'Museu da Baronesa': {
       'rua': 'Rua Baronesa',
       'numero': '100',
-      'cep': '96000-001',
+      'cep': '96000001',
       'complemento': 'Sala A',
     },
     'Museu de Arte Leopoldo Gotuzzo (MALG)': {
       'rua': 'Rua Leopoldo Gotuzzo',
       'numero': '50',
-      'cep': '96000-002',
+      'cep': '96000002',
       'complemento': 'Andar 2',
     },
     'Museu do Doce': {
       'rua': 'Rua Doce',
       'numero': '200',
-      'cep': '96000-003',
+      'cep': '96000003',
       'complemento': 'Entrada Principal',
     },
     'Museu de História Natural Carlos Ritter': {
       'rua': 'Rua Carlos Ritter',
       'numero': '75',
-      'cep': '96000-004',
+      'cep': '96000004',
       'complemento': 'Pavilhão B',
     },
   };
