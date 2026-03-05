@@ -97,6 +97,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (retorno == "A senha informada é inválida") {
       return 'A senha informada é inválida';
     }
+    if(retorno == "Erro ao redefinir senha."){
+      return "A senha informada tem que ter entre 8 a 20 caracteres.";
+    }
     return 'Erro desconhecido';
   }
 

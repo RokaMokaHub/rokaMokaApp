@@ -30,9 +30,8 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                    android:scheme="https"
-                    android:host="app.dominio.com"
-                    android:pathPrefix="/auth/reset"/>
+                    android:scheme="http"
+                    android:host="rokamoka-mobile.inf.ufpel.edu.br"/>
             </intent-filter>
 
             <meta-data
