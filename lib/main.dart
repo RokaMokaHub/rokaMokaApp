@@ -54,7 +54,7 @@ void main() async {
       final userService = UserService();
       final userInfo = await userService.getUserInfo();
       final role = userInfo['role'] ?? 'comum';
-      await userProvider.setRole(role);
+      await userProvider.setRoleByName(role.toString());
     } catch (e) {
       if (kDebugMode) {
         print('Erro ao sincronizar usuário: $e');
