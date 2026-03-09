@@ -60,7 +60,9 @@ class ArtworkService {
       } else {
         final responseBody = await response.stream.bytesToString();
         final errorData = jsonDecode(responseBody);
-        throw Exception('Falha ao criar obra: ${errorData['error'] ?? response.statusCode}');
+        throw Exception(
+          'Falha ao criar obra: ${errorData['error'] ?? response.statusCode}',
+        );
       }
     } catch (e) {
       print('Erro ao salvar obra: $e');
@@ -97,7 +99,9 @@ class ArtworkService {
         }
       } else {
         final errorBody = jsonDecode(response.body);
-        throw Exception('Erro ${response.statusCode}: ${errorBody['error'] ?? response.body}');
+        throw Exception(
+          'Erro ${response.statusCode}: ${errorBody['error'] ?? response.body}',
+        );
       }
     } catch (e) {
       print('Erro ao buscar obra: $e');

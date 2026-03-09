@@ -13,9 +13,7 @@ class ExplorerScreen extends StatelessWidget {
             'lib/presentation/assets/images/explore_image.png',
             fit: BoxFit.cover,
           ),
-          Container(
-            color: Colors.black.withOpacity(0.9),
-          ),
+          Container(color: Colors.black.withOpacity(0.9)),
           Center(
             child: Text(
               'Em breve!',

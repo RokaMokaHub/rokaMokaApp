@@ -47,7 +47,6 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
     }
   }
 
-
   Future<void> _solicitarPermissao() async {
     if (selectedCargo == null || selectedCargo!.isEmpty) {
       final snackBar = SnackBarRejeitada(
@@ -106,9 +105,10 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
     bool isSelected = selectedCargo == cargo;
 
     return GestureDetector(
-      onTap: (solicitacaoFeita || carregandoPermissao)
-          ? null
-          : () => setState(() => selectedCargo = cargo),
+      onTap:
+          (solicitacaoFeita || carregandoPermissao)
+              ? null
+              : () => setState(() => selectedCargo = cargo),
       child: Opacity(
         opacity: carregandoPermissao ? 0.6 : 1,
         child: Container(
@@ -117,7 +117,8 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
           decoration: BoxDecoration(
             color: Colors.grey.shade300,
             border: Border.all(
-              color: isSelected ? const Color(0xFFEF5B25) : Colors.grey.shade500,
+              color:
+                  isSelected ? const Color(0xFFEF5B25) : Colors.grey.shade500,
               width: isSelected ? 3 : 2,
             ),
             borderRadius: BorderRadius.circular(20),
@@ -141,8 +142,10 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
                     const SizedBox(height: 4),
                     Text(
                       descricao,
-                      style:
-                      TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ],
                 ),
@@ -220,25 +223,28 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
             const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
-                gradient: (solicitacaoFeita || carregandoPermissao)
-                    ? null
-                    : const LinearGradient(
-                  colors: [
-                    Color(primaryColorGradient),
-                    Color(secondaryColorGradient),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient:
+                    (solicitacaoFeita || carregandoPermissao)
+                        ? null
+                        : const LinearGradient(
+                          colors: [
+                            Color(primaryColorGradient),
+                            Color(secondaryColorGradient),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                 borderRadius: BorderRadius.circular(32),
-                color: (solicitacaoFeita || carregandoPermissao)
-                    ? Colors.grey[400]
-                    : null,
+                color:
+                    (solicitacaoFeita || carregandoPermissao)
+                        ? Colors.grey[400]
+                        : null,
               ),
               child: ElevatedButton(
-                onPressed: (solicitacaoFeita || carregandoPermissao)
-                    ? null
-                    : _solicitarPermissao,
+                onPressed:
+                    (solicitacaoFeita || carregandoPermissao)
+                        ? null
+                        : _solicitarPermissao,
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   backgroundColor: Colors.transparent,
@@ -280,9 +286,10 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
                       ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey.shade600),
-                        color: statusPermissao == 'DENY'
-                            ? Colors.red[500]
-                            : Colors.grey[200],
+                        color:
+                            statusPermissao == 'DENY'
+                                ? Colors.red[500]
+                                : Colors.grey[200],
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Text.rich(
@@ -297,9 +304,10 @@ class _SolicitarPermissaoScreenState extends State<SolicitarPermissaoScreen> {
                               ),
                             ),
                             TextSpan(
-                              text: statusPermissao == 'DENY'
-                                  ? ' – Solicitação rejeitada.'
-                                  : ' – Aguardando análise.',
+                              text:
+                                  statusPermissao == 'DENY'
+                                      ? ' – Solicitação rejeitada.'
+                                      : ' – Aguardando análise.',
                               style: const TextStyle(
                                 fontWeight: FontWeight.normal,
                                 color: Colors.black87,

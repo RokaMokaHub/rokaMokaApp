@@ -12,7 +12,6 @@ class AuthService {
   static const _keyLastName = 'auth_lastName';
   static const _keyPassword = 'auth_password';
 
-
   // Salva os dados do usuário
   Future<void> saveAuthData({
     required String token,
@@ -21,7 +20,7 @@ class AuthService {
     required String deviceId,
     required String firstName,
     required String lastName,
-    required String password
+    required String password,
   }) async {
     await _storage.write(key: _keyToken, value: token);
     await _storage.write(key: _keyEmail, value: email);
@@ -36,20 +35,20 @@ class AuthService {
   Future<void> saveAuthDataAnon({
     required String token,
     required String userName,
-    required String deviceId
+    required String deviceId,
   }) async {
     await _storage.write(key: _keyToken, value: token);
     await _storage.write(key: _keyUserName, value: userName);
     await _storage.write(key: _keyDeviceId, value: deviceId);
   }
 
-
   // Recupera os dados
   Future<String?> getToken() async => await _storage.read(key: _keyToken);
   Future<String?> getEmail() async => await _storage.read(key: _keyEmail);
   Future<String?> getUserName() async => await _storage.read(key: _keyUserName);
   Future<String?> getDeviceId() async => await _storage.read(key: _keyDeviceId);
-  Future<String?> getFirstName() async => await _storage.read(key: _keyFirstName);
+  Future<String?> getFirstName() async =>
+      await _storage.read(key: _keyFirstName);
   Future<String?> getLastName() async => await _storage.read(key: _keyLastName);
   Future<String?> getPassword() async => await _storage.read(key: _keyPassword);
 

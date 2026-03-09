@@ -10,7 +10,8 @@ import 'package:roka_moka_app/domain/services/artwork_service.dart';
 class CreateExposureScreen extends StatefulWidget {
   final VoidCallback onBack;
 
-  const CreateExposureScreen({Key? key, required this.onBack}) : super(key: key);
+  const CreateExposureScreen({Key? key, required this.onBack})
+    : super(key: key);
 
   @override
   State<CreateExposureScreen> createState() => _CreateExposureScreenState();
@@ -19,8 +20,10 @@ class CreateExposureScreen extends StatefulWidget {
 class _CreateExposureScreenState extends State<CreateExposureScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _nomeExposicaoController = TextEditingController();
-  final TextEditingController _descricaoExposicaoController = TextEditingController();
+  final TextEditingController _nomeExposicaoController =
+      TextEditingController();
+  final TextEditingController _descricaoExposicaoController =
+      TextEditingController();
 
   String? _museuSelecionado;
 
@@ -65,23 +68,34 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(children: [
-            const Text(
-              'Preencha as informações para cadastrar uma nova exposição:',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(_nomeExposicaoController, 'Nome da exposição', true),
-            const SizedBox(height: 16),
-            _buildDropdownMuseus(),
-            const SizedBox(height: 16),
-            _buildTextField(_descricaoExposicaoController, 'Descrição da exposição', false, maxLines: 4),
-            const SizedBox(height: 24),
-            _buildObras(),
-            const SizedBox(height: 32),
-            _buildSalvarButton(),
-            const SizedBox(height: 32),
-          ]),
+          child: Column(
+            children: [
+              const Text(
+                'Preencha as informações para cadastrar uma nova exposição:',
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                _nomeExposicaoController,
+                'Nome da exposição',
+                true,
+              ),
+              const SizedBox(height: 16),
+              _buildDropdownMuseus(),
+              const SizedBox(height: 16),
+              _buildTextField(
+                _descricaoExposicaoController,
+                'Descrição da exposição',
+                false,
+                maxLines: 4,
+              ),
+              const SizedBox(height: 24),
+              _buildObras(),
+              const SizedBox(height: 32),
+              _buildSalvarButton(),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
@@ -90,7 +104,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
   AppBar _buildAppBar() {
     return AppBar(
       toolbarHeight: 90,
-      title: const Text('Inserir Exposição', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      title: const Text(
+        'Inserir Exposição',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -99,25 +116,42 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       flexibleSpace: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
+            colors: [
+              Color(primaryColorGradient),
+              Color(secondaryColorGradient),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(32),
+            bottomRight: Radius.circular(32),
+          ),
         ),
       ),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(36), bottomRight: Radius.circular(36)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(36),
+          bottomRight: Radius.circular(36),
+        ),
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, bool required, {int maxLines = 1}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    bool required, {
+    int maxLines = 1,
+  }) {
     final double borderRadiusValue = 30.0;
 
     final OutlineInputBorder roundedInputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(borderRadiusValue)),
-      borderSide: const BorderSide(color: Color(focusedBorderColor), width: 2.0),
+      borderSide: const BorderSide(
+        color: Color(focusedBorderColor),
+        width: 2.0,
+      ),
     );
 
     return TextFormField(
@@ -126,7 +160,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Color(darkerGreyButton)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20.0,
+          vertical: 12.0,
+        ),
         border: roundedInputBorder,
         enabledBorder: roundedInputBorder,
         focusedBorder: roundedInputBorder,
@@ -145,7 +182,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     final double borderRadiusValue = 30.0;
     final OutlineInputBorder roundedInputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(borderRadiusValue)),
-      borderSide: const BorderSide(color: Color(focusedBorderColor), width: 2.0),
+      borderSide: const BorderSide(
+        color: Color(focusedBorderColor),
+        width: 2.0,
+      ),
     );
 
     return DropdownButtonFormField<String>(
@@ -154,17 +194,27 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       decoration: InputDecoration(
         labelText: 'Selecione o museu',
         labelStyle: TextStyle(color: Color(darkerGreyButton)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20.0,
+          vertical: 12.0,
+        ),
         border: roundedInputBorder,
         enabledBorder: roundedInputBorder,
         focusedBorder: roundedInputBorder,
       ),
       value: _museuSelecionado,
-      items: _museuEnderecoDTO.keys
-          .map((value) => DropdownMenuItem(value: value, child: Text(value)))
-          .toList(),
+      items:
+          _museuEnderecoDTO.keys
+              .map(
+                (value) => DropdownMenuItem(value: value, child: Text(value)),
+              )
+              .toList(),
       onChanged: (newValue) => setState(() => _museuSelecionado = newValue),
-      validator: (value) => value == null || value.isEmpty ? 'Por favor, selecione um museu' : null,
+      validator:
+          (value) =>
+              value == null || value.isEmpty
+                  ? 'Por favor, selecione um museu'
+                  : null,
     );
   }
 
@@ -182,7 +232,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               children: [
                 Text(
                   'Obra ${index + 1} de ${_obras.length}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 _buildObraForm(_obras, index),
               ],
@@ -194,7 +247,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
           child: TextButton.icon(
             onPressed: () => setState(() => _obras.add(Obra())),
             icon: Icon(Icons.add, color: Color(titleColor)),
-            label: Text('Adicionar obra', style: TextStyle(color: Color(titleColor))),
+            label: Text(
+              'Adicionar obra',
+              style: TextStyle(color: Color(titleColor)),
+            ),
           ),
         ),
       ],
@@ -221,7 +277,12 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
           const SizedBox(height: 16),
           _buildTextField(obra.tituloController, 'Título da obra', false),
           const SizedBox(height: 16),
-          _buildTextField(obra.descricaoController, 'Texto sobre a obra', false, maxLines: 4),
+          _buildTextField(
+            obra.descricaoController,
+            'Texto sobre a obra',
+            false,
+            maxLines: 4,
+          ),
           const SizedBox(height: 16),
           _buildTextField(obra.linkController, 'Link da obra', false),
           const SizedBox(height: 16),
@@ -230,14 +291,22 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    Text('Imagem da obra', style: TextStyle(color: Color(greySubtitleColor), fontSize: 16)),
+                    Text(
+                      'Imagem da obra',
+                      style: TextStyle(
+                        color: Color(greySubtitleColor),
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () async {
                         if (obra.imagem != null) {
                           setState(() => obra.imagem = null);
                         } else {
-                          final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+                          final picked = await ImagePicker().pickImage(
+                            source: ImageSource.gallery,
+                          );
                           if (picked != null) {
                             setState(() => obra.imagem = picked);
                           }
@@ -248,7 +317,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                         height: 120,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16.0),
-                          border: Border.all(color: Color(focusedBorderColor), width: 2.0),
+                          border: Border.all(
+                            color: Color(focusedBorderColor),
+                            width: 2.0,
+                          ),
                           color: Colors.white,
                         ),
                         child: Stack(
@@ -265,7 +337,11 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                                 ),
                               )
                             else
-                              Icon(Icons.attachment, color: Color(darkerGreyButton), size: 40),
+                              Icon(
+                                Icons.attachment,
+                                color: Color(darkerGreyButton),
+                                size: 40,
+                              ),
                           ],
                         ),
                       ),
@@ -277,14 +353,22 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    Text('QR Code Vinculado', style: TextStyle(color: Color(greySubtitleColor), fontSize: 16)),
+                    Text(
+                      'QR Code Vinculado',
+                      style: TextStyle(
+                        color: Color(greySubtitleColor),
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () async {
                         if (obra.qrCode != null) {
                           setState(() => obra.qrCode = null);
                         } else {
-                          final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+                          final picked = await ImagePicker().pickImage(
+                            source: ImageSource.gallery,
+                          );
                           if (picked != null) {
                             setState(() => obra.qrCode = picked);
                           }
@@ -295,7 +379,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                         height: 120,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16.0),
-                          border: Border.all(color: Color(focusedBorderColor), width: 2.0),
+                          border: Border.all(
+                            color: Color(focusedBorderColor),
+                            width: 2.0,
+                          ),
                           color: Colors.white,
                         ),
                         child: Stack(
@@ -312,7 +399,11 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                                 ),
                               )
                             else
-                              Icon(Icons.attachment, color: Color(darkerGreyButton), size: 40),
+                              Icon(
+                                Icons.attachment,
+                                color: Color(darkerGreyButton),
+                                size: 40,
+                              ),
                           ],
                         ),
                       ),
@@ -331,13 +422,13 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     return GestureDetector(
       onTap: _salvarExposicao,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 60,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
+            colors: [
+              Color(primaryColorGradient),
+              Color(secondaryColorGradient),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -361,7 +452,9 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_museuSelecionado == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor, selecione um museu')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, selecione um museu')),
+      );
       return;
     }
 
@@ -375,19 +468,26 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
         enderecoDTO: enderecoDTO,
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao criar exposição: ${e.toString()}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao criar exposição: ${e.toString()}')),
+      );
       return;
     }
 
     if (exhibitionId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro ao criar exposição: ID não retornado.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao criar exposição: ID não retornado.'),
+        ),
+      );
       return;
     }
 
     for (var obra in _obras) {
       bool success;
       try {
-        success = await _artworkService.createArtworkMultipart( // Chamando a função do serviço unificado
+        success = await _artworkService.createArtworkMultipart(
+          // Chamando a função do serviço unificado
           exhibitionId: exhibitionId,
           nome: obra.tituloController.text,
           descricao: obra.descricaoController.text,
@@ -397,17 +497,27 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
           qrCode: obra.qrCode,
         );
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao salvar uma das obras: ${e.toString()}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao salvar uma das obras: ${e.toString()}'),
+          ),
+        );
         return;
       }
 
       if (!success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro desconhecido ao salvar uma das obras.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro desconhecido ao salvar uma das obras.'),
+          ),
+        );
         return;
       }
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Exposição salva com sucesso!')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Exposição salva com sucesso!')),
+    );
     widget.onBack();
   }
 

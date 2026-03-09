@@ -15,4 +15,3 @@ const String explorerRoute = '/explorer';
 const String switchPasswordRoute = '/switchPasswordRoute';
 const String sendEmailForgotPasswordRoute = '/forgotPasswordRoute';
 const String forgotPasswordRoute = '/forgotPassword';
-

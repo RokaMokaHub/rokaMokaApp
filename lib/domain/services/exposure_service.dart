@@ -39,7 +39,9 @@ class ExposureService {
         return data['body']['id'];
       } else {
         final errorData = jsonDecode(response.body);
-        throw Exception('Falha ao criar exposição: ${errorData['error'] ?? response.statusCode}');
+        throw Exception(
+          'Falha ao criar exposição: ${errorData['error'] ?? response.statusCode}',
+        );
       }
     } catch (e) {
       print('Erro ao criar exposição: $e');
