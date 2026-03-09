@@ -5,13 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/exposure_service.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
+import 'package:roka_moka_app/domain/services/location_service.dart';
+import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
 
 // Classe principal da tela de criação de exposição
 class CreateExposureScreen extends StatefulWidget {
   final VoidCallback onBack;
 
-  const CreateExposureScreen({Key? key, required this.onBack})
-    : super(key: key);
+  const CreateExposureScreen({super.key, required this.onBack});
 
   @override
   State<CreateExposureScreen> createState() => _CreateExposureScreenState();
@@ -25,7 +26,11 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
   final TextEditingController _descricaoExposicaoController =
       TextEditingController();
 
-  String? _museuSelecionado;
+  final LocationService _locationService = LocationService();
+
+  String? _localSelecionadoId;
+  List<Location> _locais = const [];
+  bool _isLoadingLocais = true;
 
   final List<Obra> _obras = [Obra()];
 
@@ -33,32 +38,11 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
   final ExposureService _exposureService = ExposureService();
   final ArtworkService _artworkService = ArtworkService();
 
-  final Map<String, Map<String, String>> _museuEnderecoDTO = {
-    'Museu da Baronesa': {
-      'rua': 'Rua Baronesa',
-      'numero': '100',
-      'cep': '96000-001',
-      'complemento': 'Sala A',
-    },
-    'Museu de Arte Leopoldo Gotuzzo (MALG)': {
-      'rua': 'Rua Leopoldo Gotuzzo',
-      'numero': '50',
-      'cep': '96000-002',
-      'complemento': 'Andar 2',
-    },
-    'Museu do Doce': {
-      'rua': 'Rua Doce',
-      'numero': '200',
-      'cep': '96000-003',
-      'complemento': 'Entrada Principal',
-    },
-    'Museu de História Natural Carlos Ritter': {
-      'rua': 'Rua Carlos Ritter',
-      'numero': '75',
-      'cep': '96000-004',
-      'complemento': 'Pavilhão B',
-    },
-  };
+  @override
+  void initState() {
+    super.initState();
+    _loadLocations();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +66,8 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
               ),
               const SizedBox(height: 16),
               _buildDropdownMuseus(),
+              const SizedBox(height: 12),
+              _buildAddLocationButton(),
               const SizedBox(height: 16),
               _buildTextField(
                 _descricaoExposicaoController,
@@ -188,11 +174,15 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       ),
     );
 
+    final hasSelectedLocation = _locais.any(
+      (location) => location.id == _localSelecionadoId,
+    );
+
     return DropdownButtonFormField<String>(
       isExpanded: true,
       dropdownColor: Colors.white,
       decoration: InputDecoration(
-        labelText: 'Selecione o museu',
+        labelText: 'Selecione o local',
         labelStyle: TextStyle(color: Color(darkerGreyButton)),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20.0,
@@ -202,19 +192,43 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
         enabledBorder: roundedInputBorder,
         focusedBorder: roundedInputBorder,
       ),
-      value: _museuSelecionado,
+      initialValue: hasSelectedLocation ? _localSelecionadoId : null,
       items:
-          _museuEnderecoDTO.keys
+          _locais
               .map(
-                (value) => DropdownMenuItem(value: value, child: Text(value)),
+                (location) => DropdownMenuItem(
+                  value: location.id,
+                  child: Text(location.name),
+                ),
               )
               .toList(),
-      onChanged: (newValue) => setState(() => _museuSelecionado = newValue),
+      onChanged:
+          _isLoadingLocais
+              ? null
+              : (newValue) => setState(() => _localSelecionadoId = newValue),
+      hint:
+          _isLoadingLocais
+              ? const Text('Carregando locais...')
+              : const Text('Escolha um local'),
       validator:
           (value) =>
               value == null || value.isEmpty
-                  ? 'Por favor, selecione um museu'
+                  ? 'Por favor, selecione um local'
                   : null,
+    );
+  }
+
+  Widget _buildAddLocationButton() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton.icon(
+        onPressed: _openAddLocationForm,
+        icon: Icon(Icons.add_location_alt_outlined, color: Color(titleColor)),
+        label: Text(
+          'Adicionar local',
+          style: TextStyle(color: Color(titleColor)),
+        ),
+      ),
     );
   }
 
@@ -451,14 +465,34 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
   Future<void> _salvarExposicao() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_museuSelecionado == null) {
+    if (_localSelecionadoId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, selecione um museu')),
+        const SnackBar(content: Text('Por favor, selecione um local')),
       );
       return;
     }
 
-    final enderecoDTO = _museuEnderecoDTO[_museuSelecionado!]!;
+    Location? selectedLocation;
+    for (final location in _locais) {
+      if (location.id == _localSelecionadoId) {
+        selectedLocation = location;
+        break;
+      }
+    }
+
+    if (selectedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Local selecionado não encontrado')),
+      );
+      return;
+    }
+
+    final enderecoDTO = {
+      'rua': selectedLocation.street,
+      'numero': selectedLocation.number,
+      'cep': selectedLocation.zipCode,
+      'complemento': selectedLocation.complement,
+    };
     int? exhibitionId;
 
     try {
@@ -468,12 +502,18 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
         enderecoDTO: enderecoDTO,
       );
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao criar exposição: ${e.toString()}')),
       );
       return;
     }
 
+    if (!mounted) {
+      return;
+    }
     if (exhibitionId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -497,6 +537,9 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
           qrCode: obra.qrCode,
         );
       } catch (e) {
+        if (!mounted) {
+          return;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao salvar uma das obras: ${e.toString()}'),
@@ -506,6 +549,9 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       }
 
       if (!success) {
+        if (!mounted) {
+          return;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Erro desconhecido ao salvar uma das obras.'),
@@ -515,10 +561,60 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       }
     }
 
+    if (!mounted) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Exposição salva com sucesso!')),
     );
     widget.onBack();
+  }
+
+  Future<void> _openAddLocationForm() async {
+    final shouldReload = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => LocationFormScreen(locationService: _locationService),
+      ),
+    );
+
+    if (shouldReload == true) {
+      await _loadLocations();
+    }
+  }
+
+  Future<void> _loadLocations() async {
+    setState(() {
+      _isLoadingLocais = true;
+    });
+
+    try {
+      final locations = await _locationService.listLocations();
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _locais = locations;
+        _isLoadingLocais = false;
+        if (!_locais.any((location) => location.id == _localSelecionadoId)) {
+          _localSelecionadoId = null;
+        }
+      });
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _locais = const [];
+        _isLoadingLocais = false;
+        _localSelecionadoId = null;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar locais: ${e.toString()}')),
+      );
+    }
   }
 
   @override
