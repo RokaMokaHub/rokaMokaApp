@@ -27,6 +27,8 @@ const String createExhibitionEndpoint = '$activeserver/exhibition';
 const String listLocationsEndpoint = '$activeserver/location/all';
 const String createLocationEndpoint = '$activeserver/location';
 const String updateLocationEndpoint = '$activeserver/location';
+const String deleteLocationEndpoint = '$activeserver/location';
+// REQUEST ACCESS
 // requests access as a researcher
 const String requestAccessResearcherEndpoint =
     '$activeserver/request/permission/researcher';

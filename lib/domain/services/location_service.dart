@@ -188,4 +188,37 @@ class LocationService {
 
     throw Exception('Erro ao processar local.');
   }
+
+  Future<void> deleteLocation(String id) async {
+    final uri = Uri.parse('$deleteLocationEndpoint/$id');
+
+    final response = await _authorizedDelete(uri);
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      final data =
+      response.body.isEmpty ? null : jsonDecode(response.body);
+
+      if (data is Map<String, dynamic>) {
+        throw Exception(
+          data['error'] ??
+              data['exceptionMessage'] ??
+              'Erro ao excluir local.',
+        );
+      }
+
+      throw Exception('Erro ao excluir local.');
+    }
+  }
+
+  Future<http.Response> _authorizedDelete(Uri uri) async {
+    final token = await _authService.getToken();
+
+    return _client.delete(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+  }
 }

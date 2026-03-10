@@ -5,6 +5,8 @@ import 'package:roka_moka_app/domain/services/location_service.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
+import '../widgets/snack_bar_aceita.dart';
+
 class LocationsScreen extends StatefulWidget {
   final VoidCallback onBack;
   final LocationService? locationService;
@@ -147,6 +149,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
           return _LocationCard(
             location: location,
             onEdit: () => _openForm(context, location: location),
+            onDelete: () => _confirmDelete(location),
           );
         },
       ),
@@ -198,13 +201,70 @@ class _LocationsScreenState extends State<LocationsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
+
+  Future<void> _confirmDelete(Location location) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Excluir local'),
+          content: Text('Deseja realmente excluir "${location.name}"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await _deleteLocation(location);
+    }
+  }
+
+  Future<void> _deleteLocation(Location location) async {
+    try {
+      await _locationService.deleteLocation(location.id);
+
+      if (!mounted) return;
+
+      final snackBar = SnackBarAceita(
+        titulo: 'Sucesso!',
+        subtitulo: 'Local excluído com sucesso.',
+      ).buildSnackBar(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      await _loadLocations();
+    } catch (e) {
+      if (!mounted) return;
+
+      final snackBar = SnackBarRejeitada(
+        titulo: 'Erro ao excluir local',
+        subtitulo: e.toString(),
+      ).buildSnackBar(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
 }
 
 class _LocationCard extends StatelessWidget {
   final Location location;
   final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
-  const _LocationCard({required this.location, required this.onEdit});
+  const _LocationCard({
+    required this.location,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +273,7 @@ class _LocationCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFD9D9D9),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(borderColor)),
+        border: Border.all(color: const Color(borderColor), width: 2.5),
       ),
       child: Row(
         children: [
@@ -238,10 +298,31 @@ class _LocationCard extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             ),
             child: const Text(
               'Editar',
+              style: TextStyle(
+                color: Color(focusedBorderColor),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          OutlinedButton(
+            onPressed: onDelete,
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(
+                color: Color(focusedBorderColor),
+                width: 2,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            ),
+            child: const Text(
+              'Excluir',
               style: TextStyle(
                 color: Color(focusedBorderColor),
                 fontWeight: FontWeight.w700,
