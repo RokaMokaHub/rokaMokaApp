@@ -28,10 +28,28 @@ class UserProvider with ChangeNotifier {
   }
 
   UserRole _parseRole(String roleName) {
-    final normalizedRole = roleName.trim().toLowerCase();
-    return UserRole.values.firstWhere(
-      (e) => e.name.toLowerCase() == normalizedRole,
-      orElse: () => UserRole.comum,
+    final normalizedRole = roleName.trim().toLowerCase().replaceAll(
+      'role_',
+      '',
     );
+
+    switch (normalizedRole) {
+      case 'anon':
+      case 'anonymous':
+      case 'anonimo':
+        return UserRole.anon;
+      case 'admin':
+      case 'administrador':
+        return UserRole.administrador;
+      case 'curador':
+        return UserRole.curador;
+      case 'pesquisador':
+        return UserRole.pesquisador;
+      case 'comum':
+      case 'user':
+        return UserRole.comum;
+      default:
+        return UserRole.comum;
+    }
   }
 }

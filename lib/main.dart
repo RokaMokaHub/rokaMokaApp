@@ -15,8 +15,6 @@ import 'package:roka_moka_app/presentation/pages/forgot_password_screen.dart';
 import 'package:roka_moka_app/presentation/pages/send_email_forgot_password_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
-import 'package:roka_moka_app/presentation/pages/post_qr_code_screen.dart';
-import 'dart:io';
 
 import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
 import 'package:roka_moka_app/presentation/pages/connect_page_screen.dart';
@@ -53,7 +51,7 @@ void main() async {
     try {
       final userService = UserService();
       final userInfo = await userService.getUserInfo();
-      final role = userInfo['role'] ?? 'comum';
+      final role = userInfo['body']?['role'] ?? userInfo['role'] ?? 'comum';
       await userProvider.setRoleByName(role.toString());
     } catch (e) {
       if (kDebugMode) {
@@ -126,8 +124,6 @@ class _MyAppState extends State<MyApp> {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Roká Móka',
-
-      useInheritedMediaQuery: true,
       builder: DevicePreview.appBuilder,
       locale: DevicePreview.locale(context),
 
