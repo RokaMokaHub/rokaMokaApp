@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/location_service.dart';
+import 'package:roka_moka_app/domain/services/via_cep_service.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
@@ -30,7 +31,9 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
   late final TextEditingController _numberController;
   late final TextEditingController _zipCodeController;
 
+  final ViaCepService _viaCepService = ViaCepService();
   bool _isSaving = false;
+  bool _isFetchingCep = false;
   _CreateStep _createStep = _CreateStep.name;
 
   @override
@@ -41,8 +44,36 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
     _streetController = TextEditingController(text: location?.street ?? '');
     _numberController = TextEditingController(text: location?.number ?? '');
     _zipCodeController = TextEditingController(text: location?.zipCode ?? '');
+    _zipCodeController.addListener(_onCepChanged);
     if (widget.isEditing) {
       _createStep = _CreateStep.address;
+    }
+  }
+
+  void _onCepChanged() {
+    final digits = _zipCodeController.text.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 8) {
+      _fetchAddressByCep(digits);
+    }
+  }
+
+  Future<void> _fetchAddressByCep(String cep) async {
+    if (_isFetchingCep) return;
+    setState(() => _isFetchingCep = true);
+    try {
+      final address = await _viaCepService.fetchAddress(cep);
+      if (!mounted) return;
+      setState(() {
+        _streetController.text = address.logradouro;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarRejeitada(titulo: 'CEP não encontrado', subtitulo: e.toString())
+            .buildSnackBar(context),
+      );
+    } finally {
+      if (mounted) setState(() => _isFetchingCep = false);
     }
   }
 
@@ -101,7 +132,7 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
                   const Padding(
                     padding: EdgeInsets.only(bottom: 18),
                     child: Text(
-                      'Insira o nome do local e toque em “próximo” para adicionar um novo local.',
+                      'Insira o nome do local e toque em "próximo" para adicionar um novo local.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(greySubtitleColor),
@@ -129,6 +160,25 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
                     const SizedBox(height: 14),
                   ],
                   _buildTextField(
+                    fieldKey: const Key('location_zip_code_field'),
+                    controller: _zipCodeController,
+                    hintText: 'CEP',
+                    suffixIcon:
+                        _isFetchingCep
+                            ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                            : null,
+                  ),
+                  const SizedBox(height: 14),
+                  _buildTextField(
                     fieldKey: const Key('location_street_field'),
                     controller: _streetController,
                     hintText: 'Endereço (Ex: Rua Afonso Pena)',
@@ -138,12 +188,6 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
                     fieldKey: const Key('location_number_field'),
                     controller: _numberController,
                     hintText: 'Número',
-                  ),
-                  const SizedBox(height: 14),
-                  _buildTextField(
-                    fieldKey: const Key('location_zip_code_field'),
-                    controller: _zipCodeController,
-                    hintText: 'CEP',
                   ),
                   const SizedBox(height: 20),
                   _buildPrimaryButton(
@@ -164,6 +208,7 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
     Key? fieldKey,
     required TextEditingController controller,
     required String hintText,
+    Widget? suffixIcon,
   }) {
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(28),
@@ -185,6 +230,7 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
           horizontal: 16,
           vertical: 14,
         ),
+        suffixIcon: suffixIcon,
         border: border,
         enabledBorder: border.copyWith(
           borderSide: const BorderSide(
@@ -364,6 +410,7 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
 
   @override
   void dispose() {
+    _zipCodeController.removeListener(_onCepChanged);
     _nameController.dispose();
     _streetController.dispose();
     _numberController.dispose();
