@@ -48,7 +48,6 @@ class _EditProfileState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-
   Widget _buttonSave() {
     return Container(
       width: double.infinity,

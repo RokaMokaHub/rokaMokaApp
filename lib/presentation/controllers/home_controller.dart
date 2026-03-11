@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:roka_moka_app/presentation/pages/permission_request_screen.dart';
 import 'package:roka_moka_app/presentation/pages/permission_screen.dart';
 import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
+import 'package:roka_moka_app/presentation/pages/locations_screen.dart';
 import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
 
@@ -28,7 +28,7 @@ class _HomeControllerState extends State<HomeController> {
 
   late final CreateExposureScreen _createExposureScreenInstance;
   late final PermissionsScreen _permissionsScreenInstance;
-  late final SolicitarPermissaoScreen _requestPermissionsScreenInstance;
+  late final LocationsScreen _locationsScreenInstance;
   late final QRCodeScreen _capturarScreen;
 
   @override
@@ -53,9 +53,7 @@ class _HomeControllerState extends State<HomeController> {
       onBack: _goBackFromModalPage,
     );
 
-    _requestPermissionsScreenInstance = SolicitarPermissaoScreen(
-      onBack: _goBackFromModalPage,
-    );
+    _locationsScreenInstance = LocationsScreen(onBack: _goBackFromModalPage);
   }
 
   void _onTapNavItem(int index) {
@@ -103,6 +101,7 @@ class _HomeControllerState extends State<HomeController> {
         onShowCreateExposure:
             () => _showPageFromModal(_createExposureScreenInstance),
         onShowPermissions: () => _showPageFromModal(_permissionsScreenInstance),
+        onShowLocations: () => _showPageFromModal(_locationsScreenInstance),
       ),
     );
   }

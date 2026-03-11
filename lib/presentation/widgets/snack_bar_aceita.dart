@@ -5,7 +5,12 @@ class SnackBarAceita extends StatelessWidget {
   final String titulo;
   final String subtitulo;
 
-  const SnackBarAceita({Key? key, this.nome, required this.titulo, required this.subtitulo}) : super(key: key);
+  const SnackBarAceita({
+    Key? key,
+    this.nome,
+    required this.titulo,
+    required this.subtitulo,
+  }) : super(key: key);
 
   SnackBar buildSnackBar(BuildContext context) {
     return SnackBar(

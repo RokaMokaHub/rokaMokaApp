@@ -35,14 +35,15 @@ class LoginService {
         deviceId: deviceId,
         firstName: '',
         lastName: '',
-        password: password
+        password: password,
       );
 
       final userInfo = await UserService().getUserInfo();
-      final firstName = userInfo['body']?['firstName'] ?? userInfo['firstName'] ?? nome;
-      final lastName = userInfo['body']?['lastName'] ?? userInfo['lastName'] ?? '';
+      final firstName =
+          userInfo['body']?['firstName'] ?? userInfo['firstName'] ?? nome;
+      final lastName =
+          userInfo['body']?['lastName'] ?? userInfo['lastName'] ?? '';
       final email = userInfo['body']?['email'] ?? userInfo['email'] ?? nome;
-
 
       // 🔹 Atualiza os dados salvos com os nomes corretos
       await _authService.saveAuthData(
@@ -52,7 +53,7 @@ class LoginService {
         deviceId: deviceId,
         firstName: firstName,
         lastName: lastName,
-        password: password
+        password: password,
       );
     } else {
       final errorMessage = data['error'] ?? 'Erro ao fazer login.';

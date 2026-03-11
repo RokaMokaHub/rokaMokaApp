@@ -34,7 +34,9 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
       errorMessage = null;
     });
     try {
-      final responseBody = await _artworkService.fetchArtworkById(widget.artworkId); // Chamando a função do serviço unificado
+      final responseBody = await _artworkService.fetchArtworkById(
+        widget.artworkId,
+      ); // Chamando a função do serviço unificado
 
       setState(() {
         artworkData = {
@@ -42,9 +44,10 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
           'author': responseBody['nomeArtista'] ?? 'Desconhecido',
           'description': responseBody['descricao'] ?? '',
           'imageUrl': responseBody['image'] ?? '',
-          'relatedLinks': responseBody['links'] != null && responseBody['links'] is List
-              ? List<String>.from(responseBody['links'])
-              : [],
+          'relatedLinks':
+              responseBody['links'] != null && responseBody['links'] is List
+                  ? List<String>.from(responseBody['links'])
+                  : [],
         };
         isLoading = false;
       });
@@ -69,65 +72,70 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : errorMessage != null
-          ? Center(child: Text(errorMessage!))
-          : SafeArea(
-        child: Column(
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                _OrangeHeader(
-                  onBackButtonPressed: () => Navigator.pop(context),
-                ),
-                Positioned(
-                  top: 60,
-                  left: (MediaQuery.of(context).size.width - 220) / 2,
-                  child: _ArtworkDetailsCard(
-                    imageUrl: artworkData!['imageUrl'],
-                    title: artworkData!['title'],
-                    author: artworkData!['author'],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : errorMessage != null
+              ? Center(child: Text(errorMessage!))
+              : SafeArea(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 244),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.2,
-                      ),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        _OrangeHeader(
+                          onBackButtonPressed: () => Navigator.pop(context),
+                        ),
+                        Positioned(
+                          top: 60,
+                          left: (MediaQuery.of(context).size.width - 220) / 2,
+                          child: _ArtworkDetailsCard(
+                            imageUrl: artworkData!['imageUrl'],
+                            title: artworkData!['title'],
+                            author: artworkData!['author'],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 40),
+                    Expanded(
                       child: SingleChildScrollView(
-                        child: Text(
-                          artworkData!['description'],
-                          textAlign: TextAlign.justify,
-                          style: const TextStyle(fontSize: 14, height: 1.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 244),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.of(context).size.height * 0.2,
+                              ),
+                              child: SingleChildScrollView(
+                                child: Text(
+                                  artworkData!['description'],
+                                  textAlign: TextAlign.justify,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _RelatedLinksSection(
+                              links: List<String>.from(
+                                artworkData!['relatedLinks'],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _CollectStarButton(onPressed: _onCollectStar),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    _RelatedLinksSection(
-                      links: List<String>.from(artworkData!['relatedLinks']),
-                    ),
-                    const SizedBox(height: 24),
-                    _CollectStarButton(
-                      onPressed: _onCollectStar,
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -135,7 +143,8 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
 class _OrangeHeader extends StatelessWidget {
   final VoidCallback onBackButtonPressed;
 
-  const _OrangeHeader({Key? key, required this.onBackButtonPressed}) : super(key: key);
+  const _OrangeHeader({Key? key, required this.onBackButtonPressed})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,10 +152,7 @@ class _OrangeHeader extends StatelessWidget {
       height: 160,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(primaryColorGradient),
-            Color(secondaryColorGradient),
-          ],
+          colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -214,7 +220,11 @@ class _ArtworkDetailsCard extends StatelessWidget {
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Center(
-                  child: Icon(Icons.broken_image, size: 80, color: Color(greySubtitleColor)),
+                  child: Icon(
+                    Icons.broken_image,
+                    size: 80,
+                    color: Color(greySubtitleColor),
+                  ),
                 );
               },
             ),
@@ -267,7 +277,7 @@ class _RelatedLinksSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         ...links.map(
-              (link) => Padding(
+          (link) => Padding(
             padding: const EdgeInsets.only(bottom: 4.0),
             child: Text(
               link,
@@ -287,7 +297,8 @@ class _RelatedLinksSection extends StatelessWidget {
 class _CollectStarButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const _CollectStarButton({Key? key, required this.onPressed}) : super(key: key);
+  const _CollectStarButton({Key? key, required this.onPressed})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -296,9 +307,7 @@ class _CollectStarButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: Color(primaryColor),
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
       child: const Text(
         'Coletar Estrela',

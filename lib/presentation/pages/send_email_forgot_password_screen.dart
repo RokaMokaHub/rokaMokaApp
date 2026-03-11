@@ -42,7 +42,8 @@ class _SendEmailForgotPasswordScreenState
 
       final snackBar = SnackBarAceita(
         titulo: "Sucesso!",
-        subtitulo: "Um email foi enviado para você com as instruções para redefinir sua senha.",
+        subtitulo:
+            "Um email foi enviado para você com as instruções para redefinir sua senha.",
       ).buildSnackBar(context);
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -200,7 +201,7 @@ class _SendEmailForgotPasswordScreenState
       barrierDismissible: false,
       builder: (context) {
         return const Center(
-          child: CircularProgressIndicator(color: Colors.deepOrange,),
+          child: CircularProgressIndicator(color: Colors.deepOrange),
         );
       },
     );

@@ -5,7 +5,12 @@ class SnackBarRejeitada extends StatelessWidget {
   final String titulo;
   final String subtitulo;
 
-  const SnackBarRejeitada({Key? key, this.nome, required this.titulo, required this.subtitulo}) : super(key: key);
+  const SnackBarRejeitada({
+    Key? key,
+    this.nome,
+    required this.titulo,
+    required this.subtitulo,
+  }) : super(key: key);
 
   SnackBar buildSnackBar(BuildContext context) {
     return SnackBar(

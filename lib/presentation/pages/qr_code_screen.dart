@@ -63,13 +63,18 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
 
       final String errorMessage = e.toString();
 
-      if (errorMessage.contains('controllerInitializing') || errorMessage.contains('The MobileScannerController is still initializing')) {
+      if (errorMessage.contains('controllerInitializing') ||
+          errorMessage.contains(
+            'The MobileScannerController is still initializing',
+          )) {
         if (_retryCount < _maxRetries) {
           _retryCount++;
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Câmera indisponível, aguarde ${_retryDelay.inSeconds}s e tente novamente. Tentativa $_retryCount de $_maxRetries.'),
+                content: Text(
+                  'Câmera indisponível, aguarde ${_retryDelay.inSeconds}s e tente novamente. Tentativa $_retryCount de $_maxRetries.',
+                ),
               ),
             );
           }
@@ -80,7 +85,11 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Não foi possível iniciar a câmera após várias tentativas. Por favor, tente novamente mais tarde.')),
+              const SnackBar(
+                content: Text(
+                  'Não foi possível iniciar a câmera após várias tentativas. Por favor, tente novamente mais tarde.',
+                ),
+              ),
             );
             setState(() {
               showCamera = false;
@@ -162,7 +171,11 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                       onPressed: _handleBackButton,
                     ),
                   ),
@@ -203,7 +216,10 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                                       await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => PostQRCodeScreen(artworkId: code),
+                                          builder:
+                                              (context) => PostQRCodeScreen(
+                                                artworkId: code,
+                                              ),
                                         ),
                                       );
                                       setState(() {

@@ -11,14 +11,16 @@ class BottomNavBar extends StatelessWidget {
   final Function(int) onTap;
   final VoidCallback onShowPermissions;
   final VoidCallback onShowCreateExposure;
+  final VoidCallback onShowLocations;
 
   const BottomNavBar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
     required this.onShowPermissions,
     required this.onShowCreateExposure,
-  }) : super(key: key);
+    required this.onShowLocations,
+  });
 
   List<Map<String, dynamic>> getNavItems(UserRole role) {
     final items = [
@@ -46,7 +48,7 @@ class BottomNavBar extends StatelessWidget {
           _showAdminModal(context);
           break;
         case UserRole.curador:
-          _showOnlyPermission(context);
+          _showCuratorModal(context);
           break;
         case UserRole.pesquisador:
           _showOnlyExposure(context);
@@ -73,44 +75,67 @@ class BottomNavBar extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (modalContext) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.notifications_none),
-            title: const Text('Permissões'),
-            onTap: () {
-              Navigator.pop(modalContext);
-              onShowPermissions();
-            },
+      builder:
+          (modalContext) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.notifications_none),
+                title: const Text('Permissões'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  onShowPermissions();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.image_outlined),
+                title: const Text('Inserir Exposição'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  onShowCreateExposure();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.place_outlined),
+                title: const Text('Locais'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  onShowLocations();
+                },
+              ),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.image_outlined),
-            title: const Text('Inserir Exposição'),
-            onTap: () {
-              Navigator.pop(modalContext);
-              onShowCreateExposure();
-            },
-          ),
-        ],
-      ),
     );
   }
 
-  void _showOnlyPermission(BuildContext context) {
+  void _showCuratorModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (modalContext) => ListTile(
-        leading: const Icon(Icons.notifications_none),
-        title: const Text('Permissões'),
-        onTap: () {
-          Navigator.pop(modalContext);
-          onShowPermissions();
-        },
-      ),
+      builder:
+          (modalContext) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.notifications_none),
+                title: const Text('Permissões'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  onShowPermissions();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.place_outlined),
+                title: const Text('Locais'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  onShowLocations();
+                },
+              ),
+            ],
+          ),
     );
   }
 
@@ -120,14 +145,15 @@ class BottomNavBar extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (modalContext) => ListTile(
-        leading: const Icon(Icons.image_outlined),
-        title: const Text('Inserir Exposição'),
-        onTap: () {
-          Navigator.pop(modalContext);
-          onShowCreateExposure();
-        },
-      ),
+      builder:
+          (modalContext) => ListTile(
+            leading: const Icon(Icons.image_outlined),
+            title: const Text('Inserir Exposição'),
+            onTap: () {
+              Navigator.pop(modalContext);
+              onShowCreateExposure();
+            },
+          ),
     );
   }
 
@@ -164,18 +190,21 @@ class BottomNavBar extends StatelessWidget {
 
         _handleNavigation(index, context, role);
       },
-      items: items.map((item) {
-        final isSolicitarCargo = item['label'].toString().contains('Solicitar');
-        final isDisabled = isAnon && isSolicitarCargo;
+      items:
+          items.map((item) {
+            final isSolicitarCargo = item['label'].toString().contains(
+              'Solicitar',
+            );
+            final isDisabled = isAnon && isSolicitarCargo;
 
-        return BottomNavigationBarItem(
-          icon: Icon(
-            item['icon'] as IconData,
-            color: isDisabled ? Colors.grey : null,
-          ),
-          label: item['label'] as String,
-        );
-      }).toList(),
+            return BottomNavigationBarItem(
+              icon: Icon(
+                item['icon'] as IconData,
+                color: isDisabled ? Colors.grey : null,
+              ),
+              label: item['label'] as String,
+            );
+          }).toList(),
     );
   }
 }
