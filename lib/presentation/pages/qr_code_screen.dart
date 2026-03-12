@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'dart:async';
+import '../widgets/snack_bar_rejeitada.dart';
 import 'post_qr_code_screen.dart';
 
 class QRCodeScreen extends StatefulWidget {
@@ -30,14 +31,15 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
   }
 
   void _startScanTimeout() {
-    _scanTimeoutTimer = Timer(const Duration(seconds: 10), () async {
+    _scanTimeoutTimer = Timer(const Duration(seconds: 60), () async {
       if (!isScanned && showCamera) {
         await _stopCamera();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tempo limite para leitura do QR Code atingido.'),
-            ),
+            SnackBarRejeitada(
+              titulo: 'Local não selecionado',
+              subtitulo: 'Por favor, selecione um local antes de salvar.',
+            ).buildSnackBar(context),
           );
         }
       }
@@ -71,11 +73,11 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
           _retryCount++;
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Câmera indisponível, aguarde ${_retryDelay.inSeconds}s e tente novamente. Tentativa $_retryCount de $_maxRetries.',
-                ),
-              ),
+              SnackBarRejeitada(
+                titulo: 'Câmera indisponível',
+                subtitulo:
+                    'Aguarde ${_retryDelay.inSeconds}s. Tentativa $_retryCount de $_maxRetries.',
+              ).buildSnackBar(context),
             );
           }
           await Future.delayed(_retryDelay);
@@ -85,11 +87,11 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Não foi possível iniciar a câmera após várias tentativas. Por favor, tente novamente mais tarde.',
-                ),
-              ),
+              SnackBarRejeitada(
+                titulo: 'Câmera indisponível',
+                subtitulo:
+                    'Não foi possível iniciar a câmera. Tente novamente mais tarde.',
+              ).buildSnackBar(context),
             );
             setState(() {
               showCamera = false;
@@ -99,7 +101,10 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao iniciar a câmera: $errorMessage')),
+            SnackBarRejeitada(
+              titulo: 'Erro ao iniciar a câmera',
+              subtitulo: errorMessage,
+            ).buildSnackBar(context),
           );
           setState(() {
             showCamera = false;
@@ -218,7 +223,7 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                                         MaterialPageRoute(
                                           builder:
                                               (context) => PostQRCodeScreen(
-                                                artworkId: code,
+                                                qrCode: code,
                                               ),
                                         ),
                                       );

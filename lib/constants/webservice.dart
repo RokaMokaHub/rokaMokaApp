@@ -18,11 +18,27 @@ const String getUserInfoEndpoint = '$activeserver/user/me';
 // GET ARTWORK BY ID
 String getArtworkByIdEndpoint(String artworkId) =>
     '$activeserver/artwork/$artworkId';
+// GET ARTWORK BY QRCODE
+String getArtworkByQrcodeEndpoint(String qrcode) =>
+    '$activeserver/artwork/qrcode/$qrcode';
+// COLLECT STAR (mokadex)
+String collectStarEndpoint(String qrcode) =>
+    '$activeserver/mokadex/collect/$qrcode';
 // CREATE ARTWORK
 String createArtworkEndpoint(String exhibitionId) =>
     '$activeserver/artwork/$exhibitionId';
 // CREATE EXHIBITION
 const String createExhibitionEndpoint = '$activeserver/exhibition';
+// LIST EXHIBITIONS
+const String listExhibitionsEndpoint = '$activeserver/exhibition/all';
+// GET EXHIBITION BY ID
+String getExhibitionByIdEndpoint(String id) => '$activeserver/exhibition/$id';
+// LIST ARTWORKS BY EXHIBITION
+String listArtworksByExhibitionEndpoint(String exhibitionId) =>
+    '$activeserver/artwork/exposicao/$exhibitionId';
+// GET MISSING ARTWORKS (mokadex)
+String getMissingArtworksEndpoint(String exhibitionId) =>
+    '$activeserver/mokadex/missing/$exhibitionId';
 // LOCATIONS
 const String listLocationsEndpoint = '$activeserver/location/all';
 const String createLocationEndpoint = '$activeserver/location';

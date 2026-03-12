@@ -48,4 +48,48 @@ class ExposureService {
       rethrow;
     }
   }
+
+  Future<List<Map<String, dynamic>>> listExhibitions() async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.get(
+      Uri.parse(listExhibitionsEndpoint),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final body = data['body'];
+      if (body is List) {
+        return body.whereType<Map<String, dynamic>>().toList();
+      }
+      return [];
+    } else {
+      throw Exception('Falha ao listar exposições: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getExhibitionById(int id) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.get(
+      Uri.parse(getExhibitionByIdEndpoint(id.toString())),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['body'] as Map<String, dynamic>;
+    } else {
+      throw Exception('Falha ao buscar exposição: ${response.statusCode}');
+    }
+  }
 }

@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
+import '../widgets/snack_bar_rejeitada.dart';
 import 'package:roka_moka_app/constants/colors.dart';
-import 'package:roka_moka_app/domain/services/artwork_service.dart'; // Importe o ArtworkService unificado
+import 'package:roka_moka_app/domain/services/artwork_service.dart';
 
 /// Tela que exibe os detalhes de uma obra após leitura do QRCode
 class PostQRCodeScreen extends StatefulWidget {
-  final String artworkId;
+  final String qrCode;
 
-  const PostQRCodeScreen({Key? key, required this.artworkId}) : super(key: key);
+  const PostQRCodeScreen({Key? key, required this.qrCode}) : super(key: key);
 
   @override
   State<PostQRCodeScreen> createState() => _PostQRCodeScreenState();
 }
 
 class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
-  // Instância do ArtworkService unificado
   final ArtworkService _artworkService = ArtworkService();
 
   Map<String, dynamic>? artworkData;
   bool isLoading = true;
+  bool isCollecting = false;
+  bool collected = false;
   String? errorMessage;
 
   @override
@@ -27,27 +30,28 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
     _fetchArtworkDetails();
   }
 
-  /// Busca os detalhes da obra utilizando o ArtworkService
   Future<void> _fetchArtworkDetails() async {
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
     try {
-      final responseBody = await _artworkService.fetchArtworkById(
-        widget.artworkId,
-      ); // Chamando a função do serviço unificado
+      final responseBody = await _artworkService.fetchArtworkByQrcode(
+        widget.qrCode,
+      );
+
+      final rawDescription = (responseBody['descricao'] as String?) ?? '';
+      final description = rawDescription.length > 400
+          ? '${rawDescription.substring(0, 400)}...'
+          : rawDescription;
 
       setState(() {
         artworkData = {
           'title': responseBody['nome'] ?? 'Sem título',
           'author': responseBody['nomeArtista'] ?? 'Desconhecido',
-          'description': responseBody['descricao'] ?? '',
+          'description': description,
           'imageUrl': responseBody['image'] ?? '',
-          'relatedLinks':
-              responseBody['links'] != null && responseBody['links'] is List
-                  ? List<String>.from(responseBody['links'])
-                  : [],
+          'link': (responseBody['link'] as String?) ?? '',
         };
         isLoading = false;
       });
@@ -59,83 +63,176 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
     }
   }
 
-  void _onCollectStar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Estrela coletada!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  Future<void> _onCollectStar() async {
+    if (isCollecting || collected) return;
+    setState(() => isCollecting = true);
+
+    try {
+      final mokadex = await _artworkService.collectStar(widget.qrCode);
+
+      // Extrair nome da exposição da resposta
+      String? exhibitionName;
+      final collectionSet = mokadex['collectionSet'];
+      if (collectionSet is List && collectionSet.isNotEmpty) {
+        final exhibition = collectionSet.first['exhibition'];
+        if (exhibition is Map) {
+          exhibitionName = exhibition['name'] as String?;
+        }
+      }
+
+      // Verificar se desbloqueou um emblema
+      final emblemSet = mokadex['emblemSet'];
+      final unlockedEmblem =
+          emblemSet is List && emblemSet.isNotEmpty ? emblemSet.first : null;
+
+      if (mounted) {
+        setState(() {
+          collected = true;
+          isCollecting = false;
+        });
+
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.star, color: Colors.orange, size: 60),
+                const SizedBox(height: 12),
+                const Text(
+                  'Estrela coletada!',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(titleColor),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (exhibitionName != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Exposição: $exhibitionName',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(greySubtitleColor),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+                if (unlockedEmblem != null) ...[
+                  const SizedBox(height: 16),
+                  const Icon(Icons.emoji_events, color: Colors.amber, size: 40),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Emblema desbloqueado: ${unlockedEmblem['nome'] ?? ''}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pop(true); // sinaliza coleta ao caller
+                },
+                child: const Text('Continuar'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => isCollecting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBarRejeitada(
+            titulo: 'Erro ao coletar estrela',
+            subtitulo: e.toString(),
+          ).buildSnackBar(context),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : errorMessage != null
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : errorMessage != null
               ? Center(child: Text(errorMessage!))
               : SafeArea(
-                child: Column(
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        _OrangeHeader(
-                          onBackButtonPressed: () => Navigator.pop(context),
-                        ),
-                        Positioned(
-                          top: 60,
-                          left: (MediaQuery.of(context).size.width - 220) / 2,
-                          child: _ArtworkDetailsCard(
-                            imageUrl: artworkData!['imageUrl'],
-                            title: artworkData!['title'],
-                            author: artworkData!['author'],
+                  child: Column(
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          _OrangeHeader(
+                            onBackButtonPressed: () =>
+                                Navigator.pop(context, false),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 40),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 244),
-                            ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxHeight:
-                                    MediaQuery.of(context).size.height * 0.2,
-                              ),
-                              child: SingleChildScrollView(
-                                child: Text(
-                                  artworkData!['description'],
-                                  textAlign: TextAlign.justify,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    height: 1.5,
+                          Positioned(
+                            top: 60,
+                            left:
+                                (MediaQuery.of(context).size.width - 220) / 2,
+                            child: _ArtworkDetailsCard(
+                              imageUrl: artworkData!['imageUrl'],
+                              title: artworkData!['title'],
+                              author: artworkData!['author'],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 40),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 244),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height *
+                                      0.2,
+                                ),
+                                child: SingleChildScrollView(
+                                  child: Text(
+                                    artworkData!['description'],
+                                    textAlign: TextAlign.justify,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      height: 1.5,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 24),
-                            _RelatedLinksSection(
-                              links: List<String>.from(
-                                artworkData!['relatedLinks'],
+                              const SizedBox(height: 24),
+                              _LinkSection(link: artworkData!['link'] as String),
+                              const SizedBox(height: 24),
+                              _CollectStarButton(
+                                onPressed: _onCollectStar,
+                                isCollecting: isCollecting,
+                                collected: collected,
                               ),
-                            ),
-                            const SizedBox(height: 24),
-                            _CollectStarButton(onPressed: _onCollectStar),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
     );
   }
 }
@@ -156,7 +253,7 @@ class _OrangeHeader extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(50),
           bottomRight: Radius.circular(50),
         ),
@@ -191,7 +288,6 @@ class _ArtworkDetailsCard extends StatelessWidget {
       final decodedBytes = base64Decode(imageUrl);
       imageProvider = MemoryImage(decodedBytes);
     } catch (e) {
-      print('Erro ao decodificar imagem: $e');
       imageProvider = const AssetImage('assets/placeholder_image.png');
     }
 
@@ -255,20 +351,20 @@ class _ArtworkDetailsCard extends StatelessWidget {
   }
 }
 
-class _RelatedLinksSection extends StatelessWidget {
-  final List<String> links;
+class _LinkSection extends StatelessWidget {
+  final String link;
 
-  const _RelatedLinksSection({Key? key, required this.links}) : super(key: key);
+  const _LinkSection({Key? key, required this.link}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (links.isEmpty) return const SizedBox.shrink();
+    if (link.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Links Relacionados:',
+          'Mais informações:',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -276,16 +372,19 @@ class _RelatedLinksSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        ...links.map(
-          (link) => Padding(
-            padding: const EdgeInsets.only(bottom: 4.0),
-            child: Text(
-              link,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.blue,
-                decoration: TextDecoration.underline,
-              ),
+        InkWell(
+          onTap: () async {
+            final uri = Uri.tryParse(link);
+            if (uri != null && await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          },
+          child: Text(
+            link,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
             ),
           ),
         ),
@@ -296,27 +395,43 @@ class _RelatedLinksSection extends StatelessWidget {
 
 class _CollectStarButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final bool isCollecting;
+  final bool collected;
 
-  const _CollectStarButton({Key? key, required this.onPressed})
-    : super(key: key);
+  const _CollectStarButton({
+    Key? key,
+    required this.onPressed,
+    required this.isCollecting,
+    required this.collected,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: (isCollecting || collected) ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Color(primaryColor),
+        backgroundColor:
+            collected ? Colors.grey : Color(primaryColor),
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
-      child: const Text(
-        'Coletar Estrela',
-        style: TextStyle(
-          fontSize: 18,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: isCollecting
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            )
+          : Text(
+              collected ? 'Coletada!' : 'Coletar Estrela',
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
     );
   }
 }

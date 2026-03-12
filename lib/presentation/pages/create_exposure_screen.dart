@@ -132,6 +132,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     String label,
     bool required, {
     int maxLines = 1,
+    int? maxLength,
   }) {
     final double borderRadiusValue = 30.0;
 
@@ -146,6 +147,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      maxLength: maxLength,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Color(darkerGreyButton)),
@@ -299,6 +301,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
             'Texto sobre a obra',
             false,
             maxLines: 4,
+            maxLength: 400,
           ),
           const SizedBox(height: 16),
           _buildTextField(obra.linkController, 'Link da obra', false),
@@ -640,7 +643,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar locais: ${e.toString()}')),
+        SnackBarRejeitada(
+          titulo: 'Erro ao carregar locais',
+          subtitulo: e.toString(),
+        ).buildSnackBar(context),
       );
     }
   }

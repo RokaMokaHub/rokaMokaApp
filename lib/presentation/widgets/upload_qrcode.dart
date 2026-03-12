@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'snack_bar_rejeitada.dart';
 
 class QrCodeUploadField extends StatefulWidget {
   final String label;
@@ -30,7 +31,10 @@ class _QrCodeUploadFieldState extends State<QrCodeUploadField> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao selecionar imagem do QR Code: $e')),
+          SnackBarRejeitada(
+            titulo: 'Erro ao selecionar QR Code',
+            subtitulo: e.toString(),
+          ).buildSnackBar(context),
         );
       }
     }
