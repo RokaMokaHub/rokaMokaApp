@@ -19,7 +19,7 @@ class ArtworkService {
     required String nomeArtista,
     String? link,
     XFile? imagem,
-    XFile? qrCode,
+    String? qrCode,
   }) async {
     try {
       final token = await _authService.getToken();
@@ -47,11 +47,8 @@ class ArtworkService {
         request.files.add(multipartFile);
       }
 
-      if (qrCode != null) {
-        final qrBytes = await qrCode.readAsBytes();
-        // Assumindo que seu backend espera uma string base64 para o QR code
-        final qrBase64 = base64Encode(qrBytes);
-        request.fields['qrCode'] = qrBase64;
+      if (qrCode != null && qrCode.isNotEmpty) {
+        request.fields['qrCode'] = qrCode;
       }
 
       final response = await request.send();

@@ -13,7 +13,7 @@ class ExposureService {
   Future<int?> createExhibition({
     required String name,
     required String description,
-    required Map<String, String> enderecoDTO,
+    required int locationId,
   }) async {
     try {
       final token = await _authService.getToken();
@@ -30,7 +30,7 @@ class ExposureService {
         body: jsonEncode({
           'name': name,
           'description': description,
-          'enderecoDTO': enderecoDTO,
+          'locationId': locationId,
         }),
       );
 
