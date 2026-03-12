@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
@@ -121,22 +122,7 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
             top: 50,
             left: 0,
             right: 0,
-            child: headerImageUrl != null && headerImageUrl.isNotEmpty
-                ? Image.network(
-                    headerImageUrl,
-                    fit: BoxFit.cover,
-                    height: MediaQuery.of(context).size.height * 0.28,
-                    errorBuilder: (_, __, ___) => Image.asset(
-                      'lib/presentation/assets/images/starry_night.jpg',
-                      fit: BoxFit.cover,
-                      height: MediaQuery.of(context).size.height * 0.28,
-                    ),
-                  )
-                : Image.asset(
-                    'lib/presentation/assets/images/starry_night.jpg',
-                    fit: BoxFit.cover,
-                    height: MediaQuery.of(context).size.height * 0.28,
-                  ),
+            child: _buildHeaderImage(context, headerImageUrl),
           ),
           _buildHeader(context),
           Positioned(
@@ -350,6 +336,28 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
       ),
     );
   }
+
+  Widget _buildHeaderImage(BuildContext context, String? imageBase64) {
+    final height = MediaQuery.of(context).size.height * 0.28;
+    if (imageBase64 != null && imageBase64.isNotEmpty) {
+      try {
+        final bytes = base64Decode(imageBase64);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          height: height,
+          errorBuilder: (_, __, ___) => _fallbackImage(height),
+        );
+      } catch (_) {}
+    }
+    return _fallbackImage(height);
+  }
+
+  Widget _fallbackImage(double height) => Image.asset(
+        'lib/presentation/assets/images/starry_night.jpg',
+        fit: BoxFit.cover,
+        height: height,
+      );
 
   Widget _buildHeader(BuildContext context) {
     return Positioned(
