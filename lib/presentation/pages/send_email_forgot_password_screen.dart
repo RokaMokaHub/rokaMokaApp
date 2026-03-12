@@ -23,6 +23,7 @@ class _SendEmailForgotPasswordScreenState
 
   final userService = UserService();
   final authService = AuthService();
+  bool _loading = false;
 
   final _emailController = TextEditingController();
 
@@ -32,16 +33,24 @@ class _SendEmailForgotPasswordScreenState
   }
 
   void _enviarEmail() async {
+    _mostrarLoading();
+
     try {
       await userService.sendEmailForgotPassword(_emailController.text);
+
+      Navigator.pop(context);
+
       final snackBar = SnackBarAceita(
         titulo: "Sucesso!",
-        subtitulo: "Um email foi enviado para você com as instruções para redefinir sua senha.",
+        subtitulo:
+            "Um email foi enviado para você com as instruções para redefinir sua senha.",
       ).buildSnackBar(context);
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       Navigator.pop(context);
     } catch (e) {
+      Navigator.pop(context); // fecha o loading
+
       final snackBar = SnackBarRejeitada(
         titulo: _verificaRetornoLoginInvalido(e.toString()),
         subtitulo: "Tente novamente!",
@@ -183,6 +192,18 @@ class _SendEmailForgotPasswordScreenState
           borderSide: const BorderSide(color: Colors.deepOrange, width: 2.5),
         ),
       ),
+    );
+  }
+
+  void _mostrarLoading() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(color: Colors.deepOrange),
+        );
+      },
     );
   }
 }

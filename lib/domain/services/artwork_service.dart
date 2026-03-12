@@ -5,8 +5,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:roka_moka_app/constants/webservice.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
-import 'package:mime/mime.dart'; // Pacote para detectar o tipo da imagem
 
+//Classe responsável por lidar com as operações relacionadas a obras de arte.
 class ArtworkService {
   final AuthService _authService = AuthService();
 
@@ -38,43 +38,31 @@ class ArtworkService {
 
       if (imagem != null) {
         final fileBytes = await imagem.readAsBytes();
-        final mimeType = lookupMimeType(imagem.path); // Detecta o tipo do arquivo
-
         final multipartFile = http.MultipartFile.fromBytes(
           'image',
           fileBytes,
           filename: imagem.name,
-          // Usa o tipo de arquivo detectado (ex: 'image/png')
-          contentType: MediaType.parse(mimeType ?? 'application/octet-stream'),
+          contentType: MediaType('image', 'jpeg'),
         );
         request.files.add(multipartFile);
       }
 
       if (qrCode != null) {
         final qrBytes = await qrCode.readAsBytes();
+        // Assumindo que seu backend espera uma string base64 para o QR code
         final qrBase64 = base64Encode(qrBytes);
         request.fields['qrCode'] = qrBase64;
       }
 
       final response = await request.send();
-      final responseBody = await response.stream.bytesToString(); // Lê a resposta uma única vez
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
       } else {
-        String errorMessage;
-        try {
-          if (responseBody.isNotEmpty) {
-            final errorData = jsonDecode(responseBody);
-            errorMessage = errorData['error'] ?? 'Erro desconhecido do servidor.';
-          } else {
-            // Se o corpo estiver vazio, usa uma mensagem padrão
-            errorMessage = 'Erro com código de status: ${response.statusCode}';
-          }
-        } catch (e) {
-          errorMessage = responseBody;
-        }
-        throw Exception('Falha ao criar obra: $errorMessage');
+        final responseBody = await response.stream.bytesToString();
+        final errorData = jsonDecode(responseBody);
+        throw Exception(
+          'Falha ao criar obra: ${errorData['error'] ?? response.statusCode}',
+        );
       }
     } catch (e) {
       print('Erro ao salvar obra: $e');
@@ -107,25 +95,17 @@ class ArtworkService {
         if (data.containsKey('body')) {
           return data['body'];
         } else {
-          return data;
+          throw Exception('Resposta da API não contém a chave "body".');
         }
       } else {
-        String errorMessage;
-        try {
-          if (response.body.isNotEmpty) {
-            final errorData = jsonDecode(response.body);
-            errorMessage = errorData['error'] ?? 'Erro desconhecido do servidor.';
-          } else {
-            errorMessage = 'Erro com código de status: ${response.statusCode}';
-          }
-        } catch (e) {
-          errorMessage = response.body;
-        }
-        throw Exception('Erro ${response.statusCode}: $errorMessage');
+        final errorBody = jsonDecode(response.body);
+        throw Exception(
+          'Erro ${response.statusCode}: ${errorBody['error'] ?? response.body}',
+        );
       }
     } catch (e) {
       print('Erro ao buscar obra: $e');
-      rethrow;
+      rethrow; // Relança a exceção para ser tratada pela UI
     }
   }
 }

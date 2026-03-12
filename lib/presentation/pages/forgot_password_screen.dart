@@ -70,16 +70,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       );
       final snackBar = SnackBarAceita(
         titulo: "Sucesso!",
-        subtitulo:
-            "Sua senha foi redefinida com sucesso!",
+        subtitulo: "Sua senha foi redefinida com sucesso!",
       ).buildSnackBar(context);
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        loginRoute,
-            (route) => false,
-      );
+      Navigator.pushNamedAndRemoveUntil(context, loginRoute, (route) => false);
     } catch (e) {
       final snackBar = SnackBarRejeitada(
         titulo: _verificaRetornoLoginInvalido(e.toString()),
@@ -96,6 +91,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
     if (retorno == "A senha informada é inválida") {
       return 'A senha informada é inválida';
+    }
+    if (retorno == "Erro ao redefinir senha.") {
+      return "A senha informada tem que ter entre 8 a 20 caracteres.";
     }
     return 'Erro desconhecido';
   }
