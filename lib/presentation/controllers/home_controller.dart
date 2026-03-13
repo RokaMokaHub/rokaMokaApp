@@ -4,6 +4,7 @@ import 'package:roka_moka_app/presentation/pages/profile_screen.dart';
 import 'package:roka_moka_app/presentation/pages/collections_screen.dart';
 import 'package:roka_moka_app/presentation/pages/emblems_screen.dart';
 import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
+import 'package:roka_moka_app/presentation/pages/edit_exposure_screen.dart';
 import 'package:roka_moka_app/presentation/pages/locations_screen.dart';
 import 'package:roka_moka_app/presentation/pages/qr_code_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/bottom_navbar.dart';
@@ -27,6 +28,7 @@ class _HomeControllerState extends State<HomeController> {
   late final List<Widget> _contentPages;
 
   late final CreateExposureScreen _createExposureScreenInstance;
+  late final EditExposureScreen _editExposureScreenInstance;
   late final PermissionsScreen _permissionsScreenInstance;
   late final LocationsScreen _locationsScreenInstance;
   late final QRCodeScreen _capturarScreen;
@@ -46,6 +48,10 @@ class _HomeControllerState extends State<HomeController> {
     ];
 
     _createExposureScreenInstance = CreateExposureScreen(
+      onBack: _goBackFromModalPage,
+    );
+
+    _editExposureScreenInstance = EditExposureScreen(
       onBack: _goBackFromModalPage,
     );
 
@@ -100,6 +106,8 @@ class _HomeControllerState extends State<HomeController> {
         onTap: _onTapNavItem,
         onShowCreateExposure:
             () => _showPageFromModal(_createExposureScreenInstance),
+        onShowEditExposure:
+            () => _showPageFromModal(_editExposureScreenInstance),
         onShowPermissions: () => _showPageFromModal(_permissionsScreenInstance),
         onShowLocations: () => _showPageFromModal(_locationsScreenInstance),
       ),

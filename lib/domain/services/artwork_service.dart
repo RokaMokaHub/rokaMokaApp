@@ -67,6 +67,51 @@ class ArtworkService {
     }
   }
 
+  Future<void> updateArtwork({
+    required int id,
+    required String nome,
+    String? nomeArtista,
+    String? descricao,
+    String? link,
+    String? qrCode,
+    XFile? imagem,
+  }) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final uri = Uri.parse(updateArtworkEndpoint);
+    final request = http.MultipartRequest('PATCH', uri);
+    request.headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
+
+    request.fields['id'] = id.toString();
+    request.fields['nome'] = nome;
+    if (nomeArtista != null) request.fields['nomeArtista'] = nomeArtista;
+    if (descricao != null) request.fields['descricao'] = descricao;
+    if (link != null) request.fields['link'] = link;
+    if (qrCode != null && qrCode.isNotEmpty) request.fields['qrCode'] = qrCode;
+
+    if (imagem != null) {
+      final fileBytes = await imagem.readAsBytes();
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          fileBytes,
+          filename: imagem.name,
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      );
+    }
+
+    final streamed = await request.send();
+    if (streamed.statusCode != 200) {
+      final body = await streamed.stream.bytesToString();
+      final errorData = jsonDecode(body);
+      throw Exception(
+        'Erro ao atualizar obra: ${errorData['error'] ?? streamed.statusCode}',
+      );
+    }
+  }
+
   Future<List<Map<String, dynamic>>> listArtworksByExhibition(
     int exhibitionId,
   ) async {

@@ -73,6 +73,37 @@ class ExposureService {
     }
   }
 
+  Future<void> updateExhibition({
+    required int id,
+    required String name,
+    String? description,
+    required int locationId,
+  }) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.patch(
+      Uri.parse(updateExhibitionEndpoint),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+      body: jsonEncode({
+        'id': id,
+        'name': name,
+        'description': description ?? '',
+        'locationId': locationId,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(
+        'Erro ao atualizar exposição: ${errorData['error'] ?? response.statusCode}',
+      );
+    }
+  }
+
   Future<Map<String, dynamic>> getExhibitionById(int id) async {
     final token = await _authService.getToken();
     if (token == null) throw Exception('Token de autenticação não encontrado.');

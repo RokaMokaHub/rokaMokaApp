@@ -162,6 +162,52 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
     }
   }
 
+  Widget _buildErrorState() {
+    return Column(
+      children: [
+        _OrangeHeader(
+          onBackButtonPressed: () => Navigator.pop(context, false),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 64,
+                  color: Color(0xFFE94C19),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Obra não encontrada',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Color(primaryColorGradient),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Não foi possível carregar os detalhes desta obra. Verifique se o QR code está correto ou tente novamente.',
+                  style: TextStyle(
+                    fontSize: 18,
+                    height: 1.6,
+                    color: Color(greySubtitleColor),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 36),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,10 +215,9 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : errorMessage != null
-              ? Center(child: Text(errorMessage!))
-              : SafeArea(
-                  child: Column(
-                    children: [
+              ? _buildErrorState()
+              : Column(
+                  children: [
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
@@ -232,7 +277,6 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
                       ),
                     ],
                   ),
-                ),
     );
   }
 }
@@ -245,8 +289,9 @@ class _OrangeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
     return Container(
-      height: 160,
+      height: 80 + topPadding,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
@@ -258,11 +303,14 @@ class _OrangeHeader extends StatelessWidget {
           bottomRight: Radius.circular(50),
         ),
       ),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
-          onPressed: onBackButtonPressed,
+      child: Padding(
+        padding: EdgeInsets.only(top: topPadding),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+            onPressed: onBackButtonPressed,
+          ),
         ),
       ),
     );

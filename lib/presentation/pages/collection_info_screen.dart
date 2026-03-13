@@ -48,10 +48,29 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
         _artworkService.getMissingArtworks(id),
       ]);
 
+      var artworks = results[1] as List<Map<String, dynamic>>;
+
+      // Se a lista não trouxer a imagem da primeira obra, busca os detalhes
+      if (artworks.isNotEmpty &&
+          (artworks.first['image'] == null ||
+              (artworks.first['image'] as String).isEmpty)) {
+        try {
+          final firstId = artworks.first['id'].toString();
+          final detail = await _artworkService.fetchArtworkById(firstId);
+          if (detail['image'] != null &&
+              (detail['image'] as String).isNotEmpty) {
+            artworks = [
+              {...artworks.first, 'image': detail['image']},
+              ...artworks.skip(1),
+            ];
+          }
+        } catch (_) {}
+      }
+
       if (mounted) {
         setState(() {
           _exhibition = results[0] as Map<String, dynamic>;
-          _artworks = results[1] as List<Map<String, dynamic>>;
+          _artworks = artworks;
           _missingArtworks = results[2] as List<Map<String, dynamic>>;
           _isLoading = false;
         });
@@ -353,10 +372,25 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
     return _fallbackImage(height);
   }
 
-  Widget _fallbackImage(double height) => Image.asset(
-        'lib/presentation/assets/images/starry_night.jpg',
-        fit: BoxFit.cover,
+  Widget _fallbackImage(double height) => Container(
         height: height,
+        width: double.infinity,
+        color: const Color(0xFFEEEEEE),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.image_not_supported_outlined,
+                size: 48, color: Color(0xFFAAAAAA)),
+            SizedBox(height: 8),
+            Text(
+              'Imagem indisponível',
+              style: TextStyle(
+                color: Color(0xFFAAAAAA),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       );
 
   Widget _buildHeader(BuildContext context) {

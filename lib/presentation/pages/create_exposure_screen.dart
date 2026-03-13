@@ -56,11 +56,9 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Preencha as informações para cadastrar uma nova exposição:',
-                style: TextStyle(fontSize: 16),
-              ),
+              _buildSectionHeader('Dados da exposição'),
               const SizedBox(height: 16),
               _buildTextField(
                 _nomeExposicaoController,
@@ -124,6 +122,69 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
           bottomRight: Radius.circular(36),
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 22,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(primaryColorGradient),
+                  Color(secondaryColorGradient),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: Color(titleColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildObraHeader(int index) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(primaryColorGradient),
+                Color(secondaryColorGradient),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            'Obra ${index + 1} de ${_obras.length}',
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -241,6 +302,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildSectionHeader('Obras da exposição'),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -249,13 +311,8 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Obra ${index + 1} de ${_obras.length}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const SizedBox(height: 16),
+                _buildObraHeader(index),
                 _buildObraForm(_obras, index),
               ],
             );

@@ -29,6 +29,10 @@ String createArtworkEndpoint(String exhibitionId) =>
     '$activeserver/artwork/$exhibitionId';
 // CREATE EXHIBITION
 const String createExhibitionEndpoint = '$activeserver/exhibition';
+// UPDATE EXHIBITION
+const String updateExhibitionEndpoint = '$activeserver/exhibition';
+// UPDATE ARTWORK
+const String updateArtworkEndpoint = '$activeserver/artwork';
 // LIST EXHIBITIONS
 const String listExhibitionsEndpoint = '$activeserver/exhibition/all';
 // GET EXHIBITION BY ID
