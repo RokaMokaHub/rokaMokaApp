@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roka_moka_app/constants/colors.dart';
 
 class UrgentAlertDialog extends StatelessWidget {
   final String title;
@@ -19,56 +20,78 @@ class UrgentAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
-      title: Row(
-        children: [
-          Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 32, 28, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
               title,
               style: GoogleFonts.poppins(
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Color(titleColor),
               ),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
-      ),
-      content: Text(
-        content,
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.black87,
+            const SizedBox(height: 8),
+            Text(
+              content,
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                color: Color(greySubtitleColor),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+            _buildGradientButton(
+              label: confirmText,
+              onPressed: () => Navigator.pop(context, true),
+            ),
+            const SizedBox(height: 14),
+            _buildGradientButton(
+              label: cancelText,
+              onPressed: () => Navigator.pop(context, false),
+            ),
+            const SizedBox(height: 4),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
+    );
+  }
+
+  Widget _buildGradientButton({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(32),
+        ),
+        child: Center(
           child: Text(
-            cancelText,
+            label,
             style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
           ),
         ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(
-            confirmText,
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: confirmTextColor,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
