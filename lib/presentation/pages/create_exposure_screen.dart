@@ -4,18 +4,21 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:roka_moka_app/constants/colors.dart';
-import 'package:roka_moka_app/domain/services/exposure_service.dart';
-import 'package:roka_moka_app/domain/services/artwork_service.dart';
 import 'package:roka_moka_app/domain/services/location_service.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
-import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
+import 'package:roka_moka_app/presentation/pages/review_exposure_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
 // Classe principal da tela de criação de exposição
 class CreateExposureScreen extends StatefulWidget {
   final VoidCallback onBack;
+  final VoidCallback? onConfirmed;
 
-  const CreateExposureScreen({super.key, required this.onBack});
+  const CreateExposureScreen({
+    super.key,
+    required this.onBack,
+    this.onConfirmed,
+  });
 
   @override
   State<CreateExposureScreen> createState() => _CreateExposureScreenState();
@@ -36,10 +39,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
   bool _isLoadingLocais = true;
 
   final List<Obra> _obras = [Obra()];
-
-  // Instâncias dos serviços: ExposureService e ArtworkService
-  final ExposureService _exposureService = ExposureService();
-  final ArtworkService _artworkService = ArtworkService();
 
   @override
   void initState() {
@@ -573,89 +572,23 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       return;
     }
 
-    int? exhibitionId;
+    final locationName = _locais
+        .firstWhere((l) => l.id == _localSelecionadoId)
+        .name;
 
-    try {
-      exhibitionId = await _exposureService.createExhibition(
-        name: _nomeExposicaoController.text,
-        description: _descricaoExposicaoController.text,
-        locationId: int.parse(_localSelecionadoId!),
-      );
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBarRejeitada(
-          titulo: 'Erro ao criar exposição',
-          subtitulo: e.toString(),
-        ).buildSnackBar(context),
-      );
-      return;
-    }
-
-    if (!mounted) {
-      return;
-    }
-    if (exhibitionId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBarRejeitada(
-          titulo: 'Erro ao criar exposição',
-          subtitulo: 'ID da exposição não foi retornado pelo servidor.',
-        ).buildSnackBar(context),
-      );
-      return;
-    }
-
-    for (var obra in _obras) {
-      bool success;
-      try {
-        success = await _artworkService.createArtworkMultipart(
-          exhibitionId: exhibitionId,
-          nome: obra.tituloController.text,
-          descricao: obra.descricaoController.text,
-          nomeArtista: obra.artistaController.text,
-          link: obra.linkController.text,
-          imagem: obra.imagem,
-          qrCode: obra.qrCodeValue,
-        );
-      } catch (e) {
-        if (!mounted) {
-          return;
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBarRejeitada(
-            titulo: 'Erro ao salvar obra',
-            subtitulo: e.toString(),
-          ).buildSnackBar(context),
-        );
-        return;
-      }
-
-      if (!success) {
-        if (!mounted) {
-          return;
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBarRejeitada(
-            titulo: 'Erro ao salvar obra',
-            subtitulo: 'Erro desconhecido ao salvar uma das obras.',
-          ).buildSnackBar(context),
-        );
-        return;
-      }
-    }
-
-    if (!mounted) {
-      return;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBarAceita(
-        titulo: 'Exposição salva!',
-        subtitulo: 'A exposição foi cadastrada com sucesso.',
-      ).buildSnackBar(context),
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ReviewExposureScreen(
+          exhibitionName: _nomeExposicaoController.text,
+          locationName: locationName,
+          artworksCount: _obras.length,
+          description: _descricaoExposicaoController.text,
+          locationId: int.parse(_localSelecionadoId!),
+          obras: _obras,
+          onBack: widget.onConfirmed ?? widget.onBack,
+        ),
+      ),
     );
-    widget.onBack();
   }
 
   Future<void> _openAddLocationForm() async {

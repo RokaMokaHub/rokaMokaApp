@@ -49,6 +49,7 @@ class _HomeControllerState extends State<HomeController> {
 
     _createExposureScreenInstance = CreateExposureScreen(
       onBack: _goBackFromModalPage,
+      onConfirmed: _goBackToCollections,
     );
 
     _editExposureScreenInstance = EditExposureScreen(
@@ -84,6 +85,15 @@ class _HomeControllerState extends State<HomeController> {
   void _goBackFromModalPage() {
     setState(() {
       _modalPageContent = null;
+    });
+  }
+
+  void _goBackToCollections() {
+    setState(() {
+      _modalPageContent = null;
+      _currentIndex = 2;
+      _lastActiveMainIndex = 2;
+      _contentPages[2] = CollectionsScreen();
     });
   }
 
