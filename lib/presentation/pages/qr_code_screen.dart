@@ -14,34 +14,21 @@ class QRCodeScreen extends StatefulWidget {
 class _QRCodeScreenState extends State<QRCodeScreen> {
   bool showCamera = false;
   bool isScanned = false;
-  bool cameraBusy = false;
   String? scannedValue;
-  final MobileScannerController cameraController = MobileScannerController();
+  MobileScannerController? _cameraController;
   Timer? _scanTimeoutTimer;
-
-  int _retryCount = 0;
-  final int _maxRetries = 3;
-  final Duration _retryDelay = const Duration(seconds: 5);
 
   @override
   void dispose() {
     _stopScanTimeout();
-    cameraController.dispose();
+    _cameraController?.dispose();
     super.dispose();
   }
 
   void _startScanTimeout() {
     _scanTimeoutTimer = Timer(const Duration(seconds: 60), () async {
       if (!isScanned && showCamera) {
-        await _stopCamera();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBarRejeitada(
-              titulo: 'Local não selecionado',
-              subtitulo: 'Por favor, selecione um local antes de salvar.',
-            ).buildSnackBar(context),
-          );
-        }
+        await _closeCamera();
       }
     });
   }
@@ -51,104 +38,68 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
     _scanTimeoutTimer = null;
   }
 
-  Future<void> _startCamera() async {
-    if (cameraBusy) return;
-    cameraBusy = true;
-    try {
-      await cameraController.stop();
-      await Future.delayed(const Duration(milliseconds: 300));
-      await cameraController.start();
-      _startScanTimeout();
-      _retryCount = 0;
-    } catch (e) {
-      print('Erro ao iniciar a câmera: $e');
-
-      final String errorMessage = e.toString();
-
-      if (errorMessage.contains('controllerInitializing') ||
-          errorMessage.contains(
-            'The MobileScannerController is still initializing',
-          )) {
-        if (_retryCount < _maxRetries) {
-          _retryCount++;
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBarRejeitada(
-                titulo: 'Câmera indisponível',
-                subtitulo:
-                    'Aguarde ${_retryDelay.inSeconds}s. Tentativa $_retryCount de $_maxRetries.',
-              ).buildSnackBar(context),
-            );
-          }
-          await Future.delayed(_retryDelay);
-          if (mounted) {
-            await _startCamera();
-          }
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBarRejeitada(
-                titulo: 'Câmera indisponível',
-                subtitulo:
-                    'Não foi possível iniciar a câmera. Tente novamente mais tarde.',
-              ).buildSnackBar(context),
-            );
-            setState(() {
-              showCamera = false;
-            });
-          }
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBarRejeitada(
-              titulo: 'Erro ao iniciar a câmera',
-              subtitulo: errorMessage,
-            ).buildSnackBar(context),
-          );
-          setState(() {
-            showCamera = false;
-          });
-        }
-      }
-    } finally {
-      cameraBusy = false;
-    }
-  }
-
-  Future<void> _stopCamera() async {
-    if (cameraBusy) return;
-    cameraBusy = true;
-    try {
-      await cameraController.stop();
+  /// Fecha a câmera e limpa o estado. Pode ser chamado de qualquer lugar.
+  Future<void> _closeCamera() async {
+    _stopScanTimeout();
+    final old = _cameraController;
+    if (mounted) {
       setState(() {
         showCamera = false;
         isScanned = false;
         scannedValue = null;
+        _cameraController = null;
       });
-    } catch (e) {
-      print('Erro ao parar a câmera: $e');
-    } finally {
-      _stopScanTimeout();
-      cameraBusy = false;
     }
+    try {
+      await old?.stop();
+      await old?.dispose();
+    } catch (_) {}
+  }
+
+  /// Abre uma nova sessão de scan:
+  /// 1. Cria controller fresco com autoStart: false
+  /// 2. Monta o widget MobileScanner
+  /// 3. Chama start() via postFrameCallback (exigido pelo mobile_scanner v7)
+  void _openCamera() {
+    final newController = MobileScannerController(autoStart: false);
+    setState(() {
+      showCamera = true;
+      isScanned = false;
+      scannedValue = null;
+      _cameraController = newController;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      try {
+        await newController.start();
+        _startScanTimeout();
+      } catch (e) {
+        debugPrint('Erro ao iniciar câmera: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBarRejeitada(
+              titulo: 'Erro ao iniciar a câmera',
+              subtitulo: e.toString(),
+            ).buildSnackBar(context),
+          );
+          await _closeCamera();
+        }
+      }
+    });
   }
 
   Future<bool> _onWillPop() async {
     if (showCamera) {
-      await _stopCamera();
+      await _closeCamera();
       return false;
-    } else {
-      return true;
     }
+    return true;
   }
 
   void _handleBackButton() {
-    if (showCamera) {
-      _onWillPop();
-    } else {
-      Navigator.pop(context);
-    }
+    if (showCamera) _closeCamera();
+    // Quando a câmera não está aberta não faz nada — QRCodeScreen é
+    // embutida no HomeController, não é uma rota empurrada.
   }
 
   @override
@@ -191,7 +142,7 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        if (showCamera)
+                        if (showCamera && _cameraController != null)
                           Container(
                             height: 320,
                             width: 320,
@@ -205,7 +156,7 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: MobileScanner(
-                                controller: cameraController,
+                                controller: _cameraController!,
                                 onDetect: (capture) async {
                                   if (!isScanned) {
                                     final String? code =
@@ -214,29 +165,36 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                                       setState(() {
                                         scannedValue = code;
                                         isScanned = true;
-                                        showCamera = false;
                                       });
-                                      _stopScanTimeout();
-                                      await cameraController.stop();
+                                      await _closeCamera();
                                       await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder:
-                                              (context) => PostQRCodeScreen(
-                                                qrCode: code,
-                                              ),
+                                          builder: (context) =>
+                                              PostQRCodeScreen(qrCode: code),
                                         ),
                                       );
-                                      setState(() {
-                                        scannedValue = null;
-                                        isScanned = false;
-                                      });
+                                      if (mounted) {
+                                        setState(() => scannedValue = null);
+                                      }
                                     }
                                   }
                                 },
                               ),
                             ),
                           ),
+
+                        if (showCamera && _cameraController == null)
+                          const SizedBox(
+                            height: 320,
+                            width: 320,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ),
+
                         const SizedBox(height: 36),
                         if (scannedValue != null && !showCamera)
                           const Text(
@@ -262,18 +220,7 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
-                      onPressed: () async {
-                        setState(() {
-                          showCamera = true;
-                          isScanned = false;
-                          scannedValue = null;
-                        });
-                        WidgetsBinding.instance.addPostFrameCallback((_) async {
-                          if (mounted) {
-                            await _startCamera();
-                          }
-                        });
-                      },
+                      onPressed: _openCamera,
                       child: const Text(
                         'Capturar Obra',
                         style: TextStyle(color: Colors.white, fontSize: 16),
