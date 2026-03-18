@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
 import 'package:roka_moka_app/domain/services/exposure_service.dart';
@@ -826,42 +826,15 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
   }
 
   Future<void> _scanQrCode(ObraEdit obra) async {
-    final controller = MobileScannerController();
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        contentPadding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: SizedBox(
-          width: 300,
-          height: 300,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: MobileScanner(
-              controller: controller,
-              onDetect: (capture) {
-                final rawValue = capture.barcodes.first.rawValue;
-                if (rawValue != null) {
-                  setState(() => obra.qrCodeValue = rawValue);
-                  controller.dispose();
-                  Navigator.of(ctx).pop();
-                }
-              },
-            ),
-          ),
-        ),
-        title: const Text('Escanear QR Code', textAlign: TextAlign.center),
-        actions: [
-          TextButton(
-            onPressed: () {
-              controller.dispose();
-              Navigator.of(ctx).pop();
-            },
-            child: const Text('Cancelar'),
-          ),
-        ],
-      ),
+    final result = await FlutterBarcodeScanner.scanBarcode(
+      '#FF6600',
+      'Cancelar',
+      true,
+      ScanMode.QR,
     );
+    if (result != '-1' && mounted) {
+      setState(() => obra.qrCodeValue = result);
+    }
   }
 
   Future<void> _openAddLocationForm() async {
