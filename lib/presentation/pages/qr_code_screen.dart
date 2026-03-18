@@ -5,7 +5,9 @@ import '../widgets/snack_bar_rejeitada.dart';
 import 'post_qr_code_screen.dart';
 
 class QRCodeScreen extends StatefulWidget {
-  const QRCodeScreen({Key? key}) : super(key: key);
+  final VoidCallback? onBack;
+
+  const QRCodeScreen({Key? key, this.onBack}) : super(key: key);
 
   @override
   State<QRCodeScreen> createState() => _QRCodeScreenState();
@@ -78,7 +80,7 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                       color: Colors.white,
                       size: 30,
                     ),
-                    onPressed: () {},
+                    onPressed: widget.onBack ?? () {},
                   ),
                 ),
               ),

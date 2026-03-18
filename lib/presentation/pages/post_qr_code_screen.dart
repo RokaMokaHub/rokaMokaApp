@@ -218,65 +218,53 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
               ? _buildErrorState()
               : Column(
                   children: [
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          _OrangeHeader(
-                            onBackButtonPressed: () =>
-                                Navigator.pop(context, false),
-                          ),
-                          Positioned(
-                            top: 60,
-                            left:
-                                (MediaQuery.of(context).size.width - 220) / 2,
-                            child: _ArtworkDetailsCard(
+                    _OrangeHeader(
+                      onBackButtonPressed: () => Navigator.pop(context, false),
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 16),
+                            _ArtworkDetailsCard(
                               imageUrl: artworkData!['imageUrl'],
                               title: artworkData!['title'],
                               author: artworkData!['author'],
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 40),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(height: 244),
-                              ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxHeight:
-                                      MediaQuery.of(context).size.height *
-                                      0.2,
-                                ),
-                                child: SingleChildScrollView(
-                                  child: Text(
-                                    artworkData!['description'],
-                                    textAlign: TextAlign.justify,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      height: 1.5,
-                                    ),
+                            const SizedBox(height: 24),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.of(context).size.height * 0.2,
+                              ),
+                              child: SingleChildScrollView(
+                                child: Text(
+                                  artworkData!['description'],
+                                  textAlign: TextAlign.justify,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    height: 1.5,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 24),
-                              _LinkSection(link: artworkData!['link'] as String),
-                              const SizedBox(height: 24),
-                              _CollectStarButton(
-                                onPressed: _onCollectStar,
-                                isCollecting: isCollecting,
-                                collected: collected,
-                              ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 24),
+                            _LinkSection(link: artworkData!['link'] as String),
+                            const SizedBox(height: 24),
+                            _CollectStarButton(
+                              onPressed: _onCollectStar,
+                              isCollecting: isCollecting,
+                              collected: collected,
+                            ),
+                            const SizedBox(height: 32),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
     );
   }
 }

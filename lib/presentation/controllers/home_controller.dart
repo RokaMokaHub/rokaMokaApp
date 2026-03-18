@@ -37,7 +37,7 @@ class _HomeControllerState extends State<HomeController> {
   void initState() {
     super.initState();
 
-    _capturarScreen = QRCodeScreen();
+    _capturarScreen = QRCodeScreen(onBack: () => _onTapNavItem(0));
 
     _contentPages = [
       _profileScreen,
