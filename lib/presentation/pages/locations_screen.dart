@@ -280,47 +280,15 @@ class _LocationCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          OutlinedButton(
+          IconButton(
+            icon: Icon(Icons.edit_outlined, color: Color(titleColor)),
+            tooltip: 'Editar local',
             onPressed: onEdit,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(
-                color: Color(focusedBorderColor),
-                width: 2,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            ),
-            child: const Text(
-              'Editar',
-              style: TextStyle(
-                color: Color(focusedBorderColor),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
           ),
-          const SizedBox(width: 12),
-          OutlinedButton(
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            tooltip: 'Excluir local',
             onPressed: onDelete,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(
-                color: Color(focusedBorderColor),
-                width: 2,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            ),
-            child: const Text(
-              'Excluir',
-              style: TextStyle(
-                color: Color(focusedBorderColor),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
           ),
         ],
       ),

@@ -37,6 +37,10 @@ const String updateArtworkEndpoint = '$activeserver/artwork';
 const String listExhibitionsEndpoint = '$activeserver/exhibition/all';
 // GET EXHIBITION BY ID
 String getExhibitionByIdEndpoint(String id) => '$activeserver/exhibition/$id';
+// DELETE EXHIBITION
+String deleteExhibitionEndpoint(String id) => '$activeserver/exhibition/$id';
+// DELETE ARTWORK
+String deleteArtworkEndpoint(String id) => '$activeserver/artwork/$id';
 // LIST ARTWORKS BY EXHIBITION
 String listArtworksByExhibitionEndpoint(String exhibitionId) =>
     '$activeserver/artwork/exposicao/$exhibitionId';

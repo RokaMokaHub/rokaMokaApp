@@ -104,6 +104,26 @@ class ExposureService {
     }
   }
 
+  Future<void> deleteExhibition(int id) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.delete(
+      Uri.parse(deleteExhibitionEndpoint(id.toString())),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(
+        'Erro ao deletar exposição: ${errorData['error'] ?? response.statusCode}',
+      );
+    }
+  }
+
   Future<Map<String, dynamic>> getExhibitionById(int id) async {
     final token = await _authService.getToken();
     if (token == null) throw Exception('Token de autenticação não encontrado.');

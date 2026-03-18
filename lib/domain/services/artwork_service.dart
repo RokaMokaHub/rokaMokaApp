@@ -213,6 +213,26 @@ class ArtworkService {
     }
   }
 
+  Future<void> deleteArtwork(int id) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.delete(
+      Uri.parse(deleteArtworkEndpoint(id.toString())),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(
+        'Erro ao deletar obra: ${errorData['error'] ?? response.statusCode}',
+      );
+    }
+  }
+
   /// Busca os detalhes de uma obra pelo ID utilizando o token JWT para autenticação.
   /// Retorna um [Map<String, dynamic>] contendo os dados da obra se bem-sucedido
   Future<Map<String, dynamic>> fetchArtworkById(String artworkId) async {

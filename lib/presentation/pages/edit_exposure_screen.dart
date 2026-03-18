@@ -11,6 +11,7 @@ import 'package:roka_moka_app/domain/services/location_service.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
+import 'package:roka_moka_app/presentation/widgets/urgent_alert_dialog.dart';
 
 class EditExposureScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -42,6 +43,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
   bool _isLoadingObraData = true;
   String? _loadObraError;
   bool _isSaving = false;
+  bool _isDeleting = false;
 
   final ExposureService _exposureService = ExposureService();
   final ArtworkService _artworkService = ArtworkService();
@@ -228,6 +230,95 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
     widget.onBack();
   }
 
+  // ── Excluir exposição ─────────────────────────────────────────────────────
+
+  Future<void> _excluirExposicao(int exhibitionId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const UrgentAlertDialog(
+        title: 'Excluir exposição',
+        content:
+            'Tem certeza que deseja excluir esta exposição? Esta ação não pode ser desfeita.',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isDeleting = true);
+    try {
+      await _exposureService.deleteExhibition(exhibitionId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarAceita(
+          titulo: 'Exposição excluída!',
+          subtitulo: 'A exposição foi removida com sucesso.',
+        ).buildSnackBar(context),
+      );
+      widget.onBack();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isDeleting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarRejeitada(
+          titulo: 'Erro ao excluir exposição',
+          subtitulo: e.toString(),
+        ).buildSnackBar(context),
+      );
+    }
+  }
+
+  // ── Excluir obra ──────────────────────────────────────────────────────────
+
+  Future<void> _excluirObra(int index) async {
+    if (_obras.length <= 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarRejeitada(
+          titulo: 'Não é possível excluir',
+          subtitulo: 'A exposição deve ter ao menos uma obra.',
+        ).buildSnackBar(context),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const UrgentAlertDialog(
+        title: 'Excluir obra',
+        content:
+            'Tem certeza que deseja excluir esta obra? Esta ação não pode ser desfeita.',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final obra = _obras[index];
+    try {
+      await _artworkService.deleteArtwork(obra.id);
+      if (!mounted) return;
+      setState(() {
+        _obras.removeAt(index);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarAceita(
+          titulo: 'Obra excluída!',
+          subtitulo: 'A obra foi removida com sucesso.',
+        ).buildSnackBar(context),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarRejeitada(
+          titulo: 'Erro ao excluir obra',
+          subtitulo: e.toString(),
+        ).buildSnackBar(context),
+      );
+    }
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
@@ -335,73 +426,84 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
             separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final ex = _exhibitions[index];
+              final exId = ex['id'] as int;
               return Material(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 elevation: 2,
                 shadowColor: Colors.black12,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => _selectExhibition(ex),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(primaryColorGradient),
-                                Color(secondaryColorGradient),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(primaryColorGradient),
+                              Color(secondaryColorGradient),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          child: const Icon(
-                            Icons.image_outlined,
-                            color: Colors.white,
-                            size: 22,
-                          ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                        child: const Icon(
+                          Icons.image_outlined,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ex['name'] as String? ?? '',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                            if (ex['description'] != null &&
+                                (ex['description'] as String).isNotEmpty)
                               Text(
-                                ex['name'] as String? ?? '',
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
+                                ex['description'] as String,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Color(greySubtitleColor),
+                                  fontSize: 13,
                                 ),
                               ),
-                              if (ex['description'] != null &&
-                                  (ex['description'] as String).isNotEmpty)
-                                Text(
-                                  ex['description'] as String,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Color(greySubtitleColor),
-                                    fontSize: 13,
-                                  ),
-                                ),
-                            ],
-                          ),
+                          ],
                         ),
-                        Icon(
-                          Icons.chevron_right,
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.edit_outlined,
                           color: Color(titleColor),
                         ),
-                      ],
-                    ),
+                        tooltip: 'Editar exposição',
+                        onPressed: () => _selectExhibition(ex),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
+                        tooltip: 'Excluir exposição',
+                        onPressed: _isDeleting
+                            ? null
+                            : () => _excluirExposicao(exId),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -551,6 +653,12 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
                 color: Colors.white,
               ),
             ),
+          ),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            tooltip: 'Excluir obra',
+            onPressed: () => _excluirObra(index),
           ),
         ],
       ),
