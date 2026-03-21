@@ -36,6 +36,12 @@ class _ReviewExposureScreenState extends State<ReviewExposureScreen> {
   final ArtworkService _artworkService = ArtworkService();
   bool _isLoading = false;
 
+  String _mensagemErro(Object e) {
+    final msg = e.toString();
+    if (msg.startsWith('Exception: ')) return msg.substring('Exception: '.length);
+    return msg;
+  }
+
   Future<void> _confirmar() async {
     setState(() => _isLoading = true);
 
@@ -53,7 +59,7 @@ class _ReviewExposureScreenState extends State<ReviewExposureScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBarRejeitada(
           titulo: 'Erro ao criar exposição',
-          subtitulo: e.toString(),
+          subtitulo: _mensagemErro(e),
         ).buildSnackBar(context),
       );
       return;
@@ -90,7 +96,7 @@ class _ReviewExposureScreenState extends State<ReviewExposureScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBarRejeitada(
             titulo: 'Erro ao salvar obra',
-            subtitulo: e.toString(),
+            subtitulo: _mensagemErro(e),
           ).buildSnackBar(context),
         );
         return;

@@ -57,8 +57,15 @@ class ArtworkService {
       } else {
         final responseBody = await response.stream.bytesToString();
         final errorData = jsonDecode(responseBody);
+        final exceptionMessage =
+            errorData['exceptionMessage']?.toString() ?? '';
+        if (exceptionMessage.contains('value too long for type character varying')) {
+          throw Exception(
+            'Um ou mais campos da obra excedem o limite de 255 caracteres.',
+          );
+        }
         throw Exception(
-          'Falha ao criar obra: ${errorData['error'] ?? response.statusCode}',
+          errorData['error'] ?? 'Erro ${response.statusCode} ao criar obra.',
         );
       }
     } catch (e) {
