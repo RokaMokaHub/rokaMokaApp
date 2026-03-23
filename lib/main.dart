@@ -42,7 +42,8 @@ void main() async {
   ]);
 
   final authService = AuthService();
-  final loggedIn = await authService.isLoggedIn();
+  bool loggedIn = await authService.isLoggedIn();
+  bool sessionExpired = false;
 
   final userProvider = UserProvider();
   await userProvider.loadRole();
@@ -57,6 +58,9 @@ void main() async {
       if (kDebugMode) {
         print('Erro ao sincronizar usuário: $e');
       }
+      await authService.clearAuthData();
+      loggedIn = false;
+      sessionExpired = true;
     }
   }
 
@@ -66,7 +70,7 @@ void main() async {
       builder:
           (_) => ChangeNotifierProvider.value(
             value: userProvider,
-            child: MyApp(loggedIn: loggedIn),
+            child: MyApp(loggedIn: loggedIn, sessionExpired: sessionExpired),
           ),
     ),
   );
@@ -76,8 +80,9 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatefulWidget {
   final bool loggedIn;
+  final bool sessionExpired;
 
-  const MyApp({super.key, required this.loggedIn});
+  const MyApp({super.key, required this.loggedIn, this.sessionExpired = false});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -131,7 +136,9 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
 
-      home: widget.loggedIn ? HomeController() : LoginScreen(),
+      home: widget.loggedIn
+          ? HomeController()
+          : LoginScreen(sessionExpired: widget.sessionExpired),
 
       routes: {
         loginRoute: (_) => LoginScreen(),
