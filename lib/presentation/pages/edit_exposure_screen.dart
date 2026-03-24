@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
 import 'package:roka_moka_app/domain/services/exposure_service.dart';
@@ -11,6 +12,7 @@ import 'package:roka_moka_app/domain/services/location_service.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
+import 'package:roka_moka_app/domain/services/emblem_service.dart';
 import 'package:roka_moka_app/presentation/widgets/urgent_alert_dialog.dart';
 
 class EditExposureScreen extends StatefulWidget {
@@ -44,10 +46,17 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
   String? _loadObraError;
   bool _isSaving = false;
   bool _isDeleting = false;
+  bool _isCreatingEmblem = false;
+
+  // Emblemas indexados por exhibitionId — carregados do SharedPreferences + API
+  final Map<int, Map<String, dynamic>> _emblemByExhibitionId = {};
+
+  static const String _emblemPrefsKey = 'emblem_ids_by_exhibition';
 
   final ExposureService _exposureService = ExposureService();
   final ArtworkService _artworkService = ArtworkService();
   final LocationService _locationService = LocationService();
+  final EmblemService _emblemService = EmblemService();
 
   @override
   void initState() {
@@ -65,6 +74,40 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
     super.dispose();
   }
 
+  // ── Persistência de emblem IDs via SharedPreferences ──────────────────────
+
+  Future<Map<int, int>> _loadSavedEmblemIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_emblemPrefsKey);
+    if (raw == null || raw.isEmpty) return {};
+    try {
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
+      return decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+    } catch (_) {
+      return {};
+    }
+  }
+
+  Future<void> _saveEmblemId(int exhibitionId, int emblemId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = await _loadSavedEmblemIds();
+    current[exhibitionId] = emblemId;
+    await prefs.setString(
+      _emblemPrefsKey,
+      jsonEncode(current.map((k, v) => MapEntry(k.toString(), v))),
+    );
+  }
+
+  Future<void> _removeSavedEmblemId(int exhibitionId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = await _loadSavedEmblemIds();
+    current.remove(exhibitionId);
+    await prefs.setString(
+      _emblemPrefsKey,
+      jsonEncode(current.map((k, v) => MapEntry(k.toString(), v))),
+    );
+  }
+
   // ── Etapa 0: carregar lista de exposições ──────────────────────────────────
 
   Future<void> _loadExhibitions() async {
@@ -74,6 +117,20 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
     });
     try {
       final list = await _exposureService.listExhibitions();
+      if (!mounted) return;
+
+      // Carrega emblemas salvos e busca cada um via getEmblemById
+      final savedIds = await _loadSavedEmblemIds();
+      for (final entry in savedIds.entries) {
+        try {
+          final emblem = await _emblemService.getEmblemById(entry.value);
+          _emblemByExhibitionId[entry.key] = emblem;
+        } catch (_) {
+          // Emblema não existe mais — limpa do cache
+          _removeSavedEmblemId(entry.key);
+        }
+      }
+
       if (!mounted) return;
       setState(() {
         _exhibitions = list;
@@ -256,7 +313,11 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
           subtitulo: 'A exposição foi removida com sucesso.',
         ).buildSnackBar(context),
       );
-      widget.onBack();
+      setState(() {
+        _isDeleting = false;
+        _step = 0;
+      });
+      _loadExhibitions();
     } catch (e) {
       if (!mounted) return;
       setState(() => _isDeleting = false);
@@ -317,6 +378,381 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
         ).buildSnackBar(context),
       );
     }
+  }
+
+  // ── Dialog de detalhes do emblema ─────────────────────────────────────────
+
+  Future<void> _showEmblemDetailDialog(
+    Map<String, dynamic> emblem,
+    Map<String, dynamic> exhibition,
+  ) async {
+    final String nome = emblem['nome'] as String? ?? '';
+    final String descricao = emblem['descricao'] as String? ?? '';
+    final String exposicaoNome = exhibition['name'] as String? ?? '';
+    final int exId = exhibition['id'] as int;
+    final int? emblemId = emblem['id'] as int?;
+
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header com gradiente
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(51),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.emoji_events,
+                      size: 40,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Emblema',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Conteúdo
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+              child: Column(
+                children: [
+                  Text(
+                    nome,
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(titleColor),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (exposicaoNome.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.collections_outlined,
+                            size: 14, color: Color(greySubtitleColor)),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            exposicaoNome,
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              color: Color(greySubtitleColor),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (descricao.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    const Divider(height: 1),
+                    const SizedBox(height: 14),
+                    Text(
+                      descricao,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+            // Botão excluir emblema
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18),
+                  label: Text(
+                    'Excluir emblema',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.red,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.red),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ),
+            // Botão fechar
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(ctx, false),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(primaryColorGradient),
+                          Color(secondaryColorGradient),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Fechar',
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+
+    if (shouldDelete != true || emblemId == null || !mounted) return;
+
+    // Confirmação antes de excluir
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const UrgentAlertDialog(
+        title: 'Excluir emblema',
+        content: 'Tem certeza que deseja excluir este emblema? Esta ação não pode ser desfeita.',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await _emblemService.deleteEmblem(emblemId);
+      if (!mounted) return;
+      _removeSavedEmblemId(exId);
+      setState(() => _emblemByExhibitionId.remove(exId));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarAceita(
+          titulo: 'Emblema excluído!',
+          subtitulo: 'O emblema foi removido com sucesso.',
+        ).buildSnackBar(context),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarRejeitada(
+          titulo: 'Erro ao excluir emblema',
+          subtitulo: e.toString(),
+        ).buildSnackBar(context),
+      );
+    }
+  }
+
+  // ── Gerenciar emblema ─────────────────────────────────────────────────────
+
+  Future<void> _gerenciarEmblema(Map<String, dynamic> exhibition) async {
+    final exId = exhibition['id'] as int;
+    final emblemExistente = _emblemByExhibitionId[exId];
+
+    if (emblemExistente != null) {
+      await _showEmblemDetailDialog(emblemExistente, exhibition);
+      return;
+    }
+
+    // Formulário para criar novo emblema
+    final nomeController = TextEditingController();
+    final descricaoController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetCtx) => StatefulBuilder(
+        builder: (ctx, setModalState) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            ),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Adicionar Emblema',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(titleColor),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    exhibition['name'] as String? ?? '',
+                    style: TextStyle(
+                        fontSize: 13, color: Color(greySubtitleColor)),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    nomeController,
+                    'Nome do emblema',
+                    true,
+                    maxLength: 30,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    descricaoController,
+                    'Descrição (opcional)',
+                    false,
+                    maxLines: 3,
+                    maxLength: 255,
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: GestureDetector(
+                      onTap: _isCreatingEmblem
+                          ? null
+                          : () async {
+                              if (!formKey.currentState!.validate()) return;
+                              setModalState(() {});
+                              setState(() => _isCreatingEmblem = true);
+                              final nav = Navigator.of(sheetCtx);
+                              final scaffold = ScaffoldMessenger.of(context);
+                              try {
+                                final emblem =
+                                    await _emblemService.createEmblem(
+                                  exhibitionId: exId,
+                                  nome: nomeController.text,
+                                  descricao: descricaoController.text,
+                                );
+                                if (!mounted) return;
+                                final emblemId = emblem['id'] as int?;
+                                if (emblemId != null) {
+                                  _saveEmblemId(exId, emblemId);
+                                }
+                                setState(() {
+                                  _emblemByExhibitionId[exId] = emblem;
+                                  _isCreatingEmblem = false;
+                                });
+                                nav.pop();
+                                scaffold.showSnackBar(
+                                  SnackBarAceita(
+                                    titulo: 'Emblema criado!',
+                                    subtitulo:
+                                        'O emblema foi cadastrado com sucesso.',
+                                  ).buildSnackBar(context),
+                                );
+                              } catch (e) {
+                                if (!mounted) return;
+                                setState(() => _isCreatingEmblem = false);
+                                nav.pop();
+                                scaffold.showSnackBar(
+                                  SnackBarRejeitada(
+                                    titulo: 'Erro ao criar emblema',
+                                    subtitulo: e.toString(),
+                                  ).buildSnackBar(context),
+                                );
+                              }
+                            },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(primaryColorGradient),
+                              Color(secondaryColorGradient),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                        child: Center(
+                          child: _isCreatingEmblem
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2),
+                                )
+                              : Text(
+                                  'Criar Emblema',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    // Não chamar dispose() aqui: o sheet ainda pode estar animando o fechamento
+    // quando o await retorna, e o Flutter continuaria reconstruindo os TextFormFields
+    // referenciando controllers já descartados. Eles serão coletados pelo GC naturalmente.
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -494,6 +930,16 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
                         onPressed: () => _selectExhibition(ex),
                       ),
                       IconButton(
+                        icon: Icon(
+                          Icons.workspace_premium_outlined,
+                          color: _emblemByExhibitionId.containsKey(exId)
+                              ? const Color(0xFFE94C19)
+                              : Color(titleColor),
+                        ),
+                        tooltip: 'Gerenciar emblema',
+                        onPressed: () => _gerenciarEmblema(ex),
+                      ),
+                      IconButton(
                         icon: const Icon(
                           Icons.delete_outline,
                           color: Colors.red,
@@ -584,6 +1030,8 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
             ],
             const SizedBox(height: 32),
             _buildSalvarButton(),
+            const SizedBox(height: 24),
+            _buildEmblemaSectionStep1(),
             const SizedBox(height: 32),
           ],
         ),
@@ -891,6 +1339,76 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
     }
     return Center(
       child: Icon(Icons.attachment, color: Color(darkerGreyButton), size: 40),
+    );
+  }
+
+  Widget _buildEmblemaSectionStep1() {
+    final emblem = _emblemByExhibitionId[_selectedExhibitionId];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Emblema da exposição'),
+        const SizedBox(height: 12),
+        if (emblem != null)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange[50],
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Colors.orange[100],
+                  child: const Icon(Icons.emoji_events,
+                      size: 28, color: Color(0xFFE94C19)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        emblem['nome'] as String? ?? '',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: Color(titleColor),
+                        ),
+                      ),
+                      if ((emblem['descricao'] as String?)?.isNotEmpty ??
+                          false)
+                        Text(
+                          emblem['descricao'] as String,
+                          style: TextStyle(
+                              fontSize: 12, color: Color(greySubtitleColor)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          Row(
+            children: [
+              Icon(Icons.workspace_premium_outlined,
+                  color: Color(greySubtitleColor)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Nenhum emblema cadastrado. Adicione um usando o ícone  na lista de exposições.',
+                  style: TextStyle(
+                      fontSize: 13, color: Color(greySubtitleColor)),
+                ),
+              ),
+            ],
+          ),
+      ],
     );
   }
 

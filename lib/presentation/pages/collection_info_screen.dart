@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
 import 'package:roka_moka_app/domain/services/exposure_service.dart';
+import 'package:roka_moka_app/domain/services/user_service.dart';
 
 class CollectionInfoScreen extends StatefulWidget {
   final dynamic id;
@@ -16,6 +17,7 @@ class CollectionInfoScreen extends StatefulWidget {
 class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
   final ExposureService _exposureService = ExposureService();
   final ArtworkService _artworkService = ArtworkService();
+  final UserService _userService = UserService();
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -23,6 +25,7 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
   Map<String, dynamic>? _exhibition;
   List<Map<String, dynamic>> _artworks = [];
   List<Map<String, dynamic>> _missingArtworks = [];
+  Map<String, dynamic>? _userEmblem;
 
   int get _totalStars => (_exhibition?['numberOfArtworks'] as int?) ?? 0;
   int get _collectedStars => _totalStars - _missingArtworks.length;
@@ -46,6 +49,7 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
         _exposureService.getExhibitionById(id),
         _artworkService.listArtworksByExhibition(id),
         _artworkService.getMissingArtworks(id),
+        _userService.getUserInfo(),
       ]);
 
       var artworks = results[1] as List<Map<String, dynamic>>;
@@ -67,11 +71,30 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
         } catch (_) {}
       }
 
+      // Extrai emblema do usuário para esta exposição
+      Map<String, dynamic>? userEmblem;
+      try {
+        final userInfo = results[3] as Map<String, dynamic>;
+        final emblemSet = userInfo['body']?['mokaDex']?['emblemSet'];
+        if (emblemSet is List) {
+          for (final e in emblemSet) {
+            if (e is Map<String, dynamic>) {
+              final exh = e['exhibition'];
+              if (exh is Map && exh['id'] == id) {
+                userEmblem = e;
+                break;
+              }
+            }
+          }
+        }
+      } catch (_) {}
+
       if (mounted) {
         setState(() {
           _exhibition = results[0] as Map<String, dynamic>;
           _artworks = artworks;
           _missingArtworks = results[2] as List<Map<String, dynamic>>;
+          _userEmblem = userEmblem;
           _isLoading = false;
         });
       }
@@ -247,23 +270,7 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Center(
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: _emblemUnlocked
-                              ? Colors.orange[100]
-                              : Colors.grey[200],
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          _emblemUnlocked ? Icons.emoji_events : Icons.lock,
-                          size: 60,
-                          color: _emblemUnlocked ? Colors.orange : Colors.grey,
-                        ),
-                      ),
-                    ),
+                    _buildEmblemSection(),
                     if (_artworks.isNotEmpty) ...[
                       const SizedBox(height: 24),
                       const Align(
@@ -316,32 +323,38 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
                     Container(
                       margin: const EdgeInsets.only(bottom: 18),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        gradient: _emblemUnlocked
+                            ? null
+                            : const LinearGradient(
+                                colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                        color: _emblemUnlocked ? Colors.grey : null,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: ElevatedButton(
-                        onPressed: () async {
-                          await Navigator.pushNamed(context, qrCodeRoute);
-                          if (mounted) _loadData();
-                        },
+                        onPressed: _emblemUnlocked
+                            ? null
+                            : () async {
+                                await Navigator.pushNamed(context, qrCodeRoute);
+                                if (mounted) _loadData();
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
+                          disabledBackgroundColor: Colors.transparent,
                           minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Coletar via QR Code',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: _emblemUnlocked ? Colors.white70 : Colors.white,
                           ),
                         ),
                       ),
@@ -353,6 +366,92 @@ class _CollectionInfoScreenState extends State<CollectionInfoScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildEmblemSection() {
+    if (_userEmblem != null) {
+      final String nome = _userEmblem!['nome'] as String? ?? '';
+      final String descricao = _userEmblem!['descricao'] as String? ?? '';
+      return Column(
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.orange[100],
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.emoji_events,
+              size: 60,
+              color: Color(0xFFE94C19),
+            ),
+          ),
+          if (nome.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              nome,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFD1572A),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+          if (descricao.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              descricao,
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      );
+    }
+
+    if (_emblemUnlocked) {
+      return Column(
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.orange[50],
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.hourglass_top,
+              size: 60,
+              color: Colors.orange,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Emblema em processamento...',
+            style: TextStyle(fontSize: 13, color: Colors.orange),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Atualize a tela de emblemas em alguns instantes.',
+            style: TextStyle(fontSize: 11, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      );
+    }
+
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(Icons.lock, size: 60, color: Colors.grey),
     );
   }
 

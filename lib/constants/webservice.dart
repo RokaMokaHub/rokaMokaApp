@@ -75,3 +75,7 @@ String sendEmailForgotPasswordEndpoint(String email) =>
     '$activeserver/auth/forgot-password/send?email=$email';
 // forgot password
 const forgotPasswordEndpoint = '$activeserver/auth/forgot-password/reset';
+// EMBLEM
+const String createEmblemEndpoint = '$activeserver/emblem/create';
+String getEmblemByIdEndpoint(String id) => '$activeserver/emblem/$id';
+String deleteEmblemEndpoint(String id) => '$activeserver/emblem/$id';
