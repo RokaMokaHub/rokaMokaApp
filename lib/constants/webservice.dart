@@ -75,6 +75,8 @@ String sendEmailForgotPasswordEndpoint(String email) =>
     '$activeserver/auth/forgot-password/send?email=$email';
 // forgot password
 const forgotPasswordEndpoint = '$activeserver/auth/forgot-password/reset';
+// MOKADEX SUMMARY
+const String mokadexSummaryEndpoint = '$activeserver/mokadex/summary';
 // EMBLEM
 const String createEmblemEndpoint = '$activeserver/emblem/create';
 String getEmblemByIdEndpoint(String id) => '$activeserver/emblem/$id';

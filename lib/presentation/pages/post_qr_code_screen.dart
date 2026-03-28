@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/snack_bar_rejeitada.dart';
 import 'package:roka_moka_app/constants/colors.dart';
@@ -93,59 +94,144 @@ class _PostQRCodeScreenState extends State<PostQRCodeScreen> {
 
         await showDialog<void>(
           context: context,
-          builder: (ctx) => AlertDialog(
+          builder: (ctx) => Dialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(24),
             ),
-            content: Column(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star, color: Colors.orange, size: 60),
-                const SizedBox(height: 12),
-                const Text(
-                  'Estrela coletada!',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(titleColor),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(51),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.star,
+                          size: 40,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Estrela coletada!',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                if (exhibitionName != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    'Exposição: $exhibitionName',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(greySubtitleColor),
-                    ),
-                    textAlign: TextAlign.center,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+                  child: Column(
+                    children: [
+                      if (exhibitionName != null) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.museum, size: 16, color: Color(greySubtitleColor)),
+                            const SizedBox(width: 6),
+                            Text(
+                              exhibitionName,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Color(greySubtitleColor),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (unlockedEmblem != null) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withAlpha(30),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.emoji_events,
+                            size: 28,
+                            color: Colors.amber,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Emblema desbloqueado!',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(titleColor),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          unlockedEmblem['nome'] ?? '',
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Color(greySubtitleColor),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-                if (unlockedEmblem != null) ...[
-                  const SizedBox(height: 16),
-                  const Icon(Icons.emoji_events, color: Colors.amber, size: 40),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Emblema desbloqueado: ${unlockedEmblem['nome'] ?? ''}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.amber,
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(ctx).pop();
+                        Navigator.of(context).pop(true);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Continuar',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ],
+                ),
               ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  Navigator.of(context).pop(true); // sinaliza coleta ao caller
-                },
-                child: const Text('Continuar'),
-              ),
-            ],
           ),
         );
       }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
+import 'package:roka_moka_app/domain/services/user_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,10 +18,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Presumi que a Perfil é a página inicial após o login, então currentIndex = 0;
   int currentIndex = 0;
   final authService = AuthService();
+  final userService = UserService();
   String _appVersion = '';
   String? _firstName;
   String? _lastName;
   String? _userName;
+  int _emblemCount = 0;
+  int _starCount = 0;
 
   void onTap(int index) {
     setState(() {
@@ -33,6 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _loadName();
     _loadAppVersion();
+    _loadMokadexSummary();
   }
 
   Future<void> _loadAppVersion() async {
@@ -40,6 +45,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _appVersion = 'Versão ${info.version}';
     });
+  }
+
+  Future<void> _loadMokadexSummary() async {
+    try {
+      final data = await userService.getMokadexSummary();
+      final body = data['body'];
+      setState(() {
+        _emblemCount = body['emblemCount'] ?? 0;
+        _starCount = body['starCount'] ?? 0;
+      });
+    } catch (_) {}
   }
 
   Future<void> _loadName() async {
@@ -121,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                        _buildStack(),
+                        _buildStack(_emblemCount, _starCount),
                         _buildListButtons(context),
                         SizedBox(height: 60),
                       ],
@@ -148,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-Widget _buildStack() {
+Widget _buildStack(int emblemCount, int starCount) {
   return Stack(
     children: [
       Column(
@@ -170,8 +186,8 @@ Widget _buildStack() {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 20,
         children: [
-          _buildCards(31, ['rotas', 'completas']),
-          _buildCards(120, ['QR', 'Code coletados']),
+          _buildCards(emblemCount, ['rotas', 'completas']),
+          _buildCards(starCount, ['QR', 'Code coletados']),
         ],
       ),
     ],
