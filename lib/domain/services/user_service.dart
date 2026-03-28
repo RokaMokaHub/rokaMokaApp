@@ -44,7 +44,6 @@ class UserService {
         deviceId: deviceId,
         firstName: firstName,
         lastName: lastName,
-        password: password,
       );
       return data;
     } else {
@@ -142,7 +141,7 @@ class UserService {
 
   //envia email para recuperar senha
   Future<Map<String, dynamic>> sendEmailForgotPassword(String email) async {
-    final url = Uri.parse(sendEmailForgotPasswordEndpoint(email));
+    final url = sendEmailForgotPasswordEndpoint(email);
 
     final response = await http.post(
       url,

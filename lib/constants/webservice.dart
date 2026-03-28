@@ -71,8 +71,9 @@ String acceptPermissionEndpoint(int permissionId) =>
 String rejectPermissionEndpoint(int permissionId) =>
     '$activeserver/evaluation/permission/deny/$permissionId';
 // send email forgot password
-String sendEmailForgotPasswordEndpoint(String email) =>
-    '$activeserver/auth/forgot-password/send?email=$email';
+Uri sendEmailForgotPasswordEndpoint(String email) =>
+    Uri.parse('$activeserver/auth/forgot-password/send')
+        .replace(queryParameters: {'email': email});
 // forgot password
 const forgotPasswordEndpoint = '$activeserver/auth/forgot-password/reset';
 // MOKADEX SUMMARY

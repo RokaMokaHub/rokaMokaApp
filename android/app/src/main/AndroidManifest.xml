@@ -23,14 +23,14 @@
             </intent-filter>
 
             <!-- Deep Link / App Link -->
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                    android:scheme="http"
+                    android:scheme="https"
                     android:host="rokamoka-mobile.inf.ufpel.edu.br"/>
             </intent-filter>
 
