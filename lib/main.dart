@@ -111,7 +111,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleUri(Uri uri) {
-    if (uri.host == 'rokamoka-mobile.inf.ufpel.edu.br') {
+    if (uri.host == 'rokamoka.inf.ufpel.edu.br') {
       final token = uri.queryParameters['token'];
 
       if (token != null) {

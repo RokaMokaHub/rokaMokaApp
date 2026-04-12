@@ -31,7 +31,7 @@
 
                 <data
                     android:scheme="https"
-                    android:host="rokamoka-mobile.inf.ufpel.edu.br"/>
+                    android:host="rokamoka.inf.ufpel.edu.br"/>
             </intent-filter>
 
             <meta-data
