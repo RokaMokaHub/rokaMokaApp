@@ -2,17 +2,23 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
 import 'package:roka_moka_app/constants/colors.dart';
-import 'package:roka_moka_app/domain/services/exposure_service.dart';
-import 'package:roka_moka_app/domain/services/artwork_service.dart';
 import 'package:roka_moka_app/domain/services/location_service.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
+import 'package:roka_moka_app/presentation/pages/review_exposure_screen.dart';
+import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
 // Classe principal da tela de criação de exposição
 class CreateExposureScreen extends StatefulWidget {
   final VoidCallback onBack;
+  final VoidCallback? onConfirmed;
 
-  const CreateExposureScreen({super.key, required this.onBack});
+  const CreateExposureScreen({
+    super.key,
+    required this.onBack,
+    this.onConfirmed,
+  });
 
   @override
   State<CreateExposureScreen> createState() => _CreateExposureScreenState();
@@ -34,10 +40,6 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
 
   final List<Obra> _obras = [Obra()];
 
-  // Instâncias dos serviços: ExposureService e ArtworkService
-  final ExposureService _exposureService = ExposureService();
-  final ArtworkService _artworkService = ArtworkService();
-
   @override
   void initState() {
     super.initState();
@@ -53,16 +55,15 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Preencha as informações para cadastrar uma nova exposição:',
-                style: TextStyle(fontSize: 16),
-              ),
+              _buildSectionHeader('Dados da exposição'),
               const SizedBox(height: 16),
               _buildTextField(
                 _nomeExposicaoController,
                 'Nome da exposição',
                 true,
+                maxLength: 30,
               ),
               const SizedBox(height: 16),
               _buildDropdownMuseus(),
@@ -74,6 +75,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
                 'Descrição da exposição',
                 false,
                 maxLines: 4,
+                maxLength: 255,
               ),
               const SizedBox(height: 24),
               _buildObras(),
@@ -124,11 +126,75 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 22,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(primaryColorGradient),
+                  Color(secondaryColorGradient),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: Color(titleColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildObraHeader(int index) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(primaryColorGradient),
+                Color(secondaryColorGradient),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            'Obra ${index + 1} de ${_obras.length}',
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildTextField(
     TextEditingController controller,
     String label,
     bool required, {
     int maxLines = 1,
+    int? maxLength,
   }) {
     final double borderRadiusValue = 30.0;
 
@@ -143,6 +209,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      maxLength: maxLength,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Color(darkerGreyButton)),
@@ -236,6 +303,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildSectionHeader('Obras da exposição'),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -244,13 +312,8 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Obra ${index + 1} de ${_obras.length}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const SizedBox(height: 16),
+                _buildObraHeader(index),
                 _buildObraForm(_obras, index),
               ],
             );
@@ -296,133 +359,69 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
             'Texto sobre a obra',
             false,
             maxLines: 4,
+            maxLength: 255,
           ),
           const SizedBox(height: 16),
           _buildTextField(obra.linkController, 'Link da obra', false),
           const SizedBox(height: 16),
-          Row(
+          _buildQrCodeScanner(obra),
+          const SizedBox(height: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(
-                      'Imagem da obra',
-                      style: TextStyle(
-                        color: Color(greySubtitleColor),
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () async {
-                        if (obra.imagem != null) {
-                          setState(() => obra.imagem = null);
-                        } else {
-                          final picked = await ImagePicker().pickImage(
-                            source: ImageSource.gallery,
-                          );
-                          if (picked != null) {
-                            setState(() => obra.imagem = picked);
-                          }
-                        }
-                      },
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16.0),
-                          border: Border.all(
-                            color: Color(focusedBorderColor),
-                            width: 2.0,
-                          ),
-                          color: Colors.white,
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            if (obra.imagem != null)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(14.0),
-                                child: Image.file(
-                                  File(obra.imagem!.path),
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            else
-                              Icon(
-                                Icons.attachment,
-                                color: Color(darkerGreyButton),
-                                size: 40,
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+              Text(
+                'Imagem da obra',
+                style: TextStyle(
+                  color: Color(greySubtitleColor),
+                  fontSize: 16,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(
-                      'QR Code Vinculado',
-                      style: TextStyle(
-                        color: Color(greySubtitleColor),
-                        fontSize: 16,
-                      ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () async {
+                  if (obra.imagem != null) {
+                    setState(() => obra.imagem = null);
+                  } else {
+                    final picked = await ImagePicker().pickImage(
+                      source: ImageSource.gallery,
+                    );
+                    if (picked != null) {
+                      setState(() => obra.imagem = picked);
+                    }
+                  }
+                },
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: Border.all(
+                      color: Color(focusedBorderColor),
+                      width: 2.0,
                     ),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () async {
-                        if (obra.qrCode != null) {
-                          setState(() => obra.qrCode = null);
-                        } else {
-                          final picked = await ImagePicker().pickImage(
-                            source: ImageSource.gallery,
-                          );
-                          if (picked != null) {
-                            setState(() => obra.qrCode = picked);
-                          }
-                        }
-                      },
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16.0),
-                          border: Border.all(
-                            color: Color(focusedBorderColor),
-                            width: 2.0,
+                    color: Colors.white,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (obra.imagem != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14.0),
+                          child: Image.file(
+                            File(obra.imagem!.path),
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.cover,
                           ),
-                          color: Colors.white,
+                        )
+                      else
+                        Icon(
+                          Icons.attachment,
+                          color: Color(darkerGreyButton),
+                          size: 40,
                         ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            if (obra.qrCode != null)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(14.0),
-                                child: Image.file(
-                                  File(obra.qrCode!.path),
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            else
-                              Icon(
-                                Icons.attachment,
-                                color: Color(darkerGreyButton),
-                                size: 40,
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -462,112 +461,105 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     );
   }
 
+  Widget _buildQrCodeScanner(Obra obra) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'QR Code Vinculado',
+          style: TextStyle(color: Color(greySubtitleColor), fontSize: 16),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => _scanQrCode(obra),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Color(focusedBorderColor), width: 2.0),
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  obra.qrCodeValue != null
+                      ? Icons.qr_code
+                      : Icons.qr_code_scanner,
+                  color: Color(
+                    obra.qrCodeValue != null ? titleColor : darkerGreyButton,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    obra.qrCodeValue ?? 'Toque para escanear o QR Code',
+                    style: TextStyle(
+                      color: Color(
+                        obra.qrCodeValue != null
+                            ? titleColor
+                            : darkerGreyButton,
+                      ),
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (obra.qrCodeValue != null)
+                  GestureDetector(
+                    onTap: () => setState(() => obra.qrCodeValue = null),
+                    child: Icon(Icons.close, color: Color(darkerGreyButton)),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _scanQrCode(Obra obra) async {
+    final result = await FlutterBarcodeScanner.scanBarcode(
+      '#FF6600',
+      'Cancelar',
+      true,
+      ScanMode.QR,
+    );
+    if (result != '-1' && mounted) {
+      setState(() => obra.qrCodeValue = result);
+    }
+  }
+
   Future<void> _salvarExposicao() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_localSelecionadoId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, selecione um local')),
+        SnackBarRejeitada(
+          titulo: 'Local não selecionado',
+          subtitulo: 'Por favor, selecione um local antes de salvar.',
+        ).buildSnackBar(context),
       );
       return;
     }
 
-    Location? selectedLocation;
-    for (final location in _locais) {
-      if (location.id == _localSelecionadoId) {
-        selectedLocation = location;
-        break;
-      }
-    }
+    final locationName = _locais
+        .firstWhere((l) => l.id == _localSelecionadoId)
+        .name;
 
-    if (selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Local selecionado não encontrado')),
-      );
-      return;
-    }
-
-    final enderecoDTO = {
-      'rua': selectedLocation.street,
-      'numero': selectedLocation.number,
-      'cep': selectedLocation.zipCode,
-      'complemento': selectedLocation.complement,
-    };
-    int? exhibitionId;
-
-    try {
-      exhibitionId = await _exposureService.createExhibition(
-        name: _nomeExposicaoController.text,
-        description: _descricaoExposicaoController.text,
-        enderecoDTO: enderecoDTO,
-      );
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao criar exposição: ${e.toString()}')),
-      );
-      return;
-    }
-
-    if (!mounted) {
-      return;
-    }
-    if (exhibitionId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erro ao criar exposição: ID não retornado.'),
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ReviewExposureScreen(
+          exhibitionName: _nomeExposicaoController.text,
+          locationName: locationName,
+          artworksCount: _obras.length,
+          description: _descricaoExposicaoController.text,
+          locationId: int.parse(_localSelecionadoId!),
+          obras: _obras,
+          onBack: widget.onConfirmed ?? widget.onBack,
         ),
-      );
-      return;
-    }
-
-    for (var obra in _obras) {
-      bool success;
-      try {
-        success = await _artworkService.createArtworkMultipart(
-          // Chamando a função do serviço unificado
-          exhibitionId: exhibitionId,
-          nome: obra.tituloController.text,
-          descricao: obra.descricaoController.text,
-          nomeArtista: obra.artistaController.text,
-          link: obra.linkController.text,
-          imagem: obra.imagem,
-          qrCode: obra.qrCode,
-        );
-      } catch (e) {
-        if (!mounted) {
-          return;
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao salvar uma das obras: ${e.toString()}'),
-          ),
-        );
-        return;
-      }
-
-      if (!success) {
-        if (!mounted) {
-          return;
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro desconhecido ao salvar uma das obras.'),
-          ),
-        );
-        return;
-      }
-    }
-
-    if (!mounted) {
-      return;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Exposição salva com sucesso!')),
+      ),
     );
-    widget.onBack();
   }
 
   Future<void> _openAddLocationForm() async {
@@ -612,7 +604,10 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar locais: ${e.toString()}')),
+        SnackBarRejeitada(
+          titulo: 'Erro ao carregar locais',
+          subtitulo: e.toString(),
+        ).buildSnackBar(context),
       );
     }
   }
@@ -634,7 +629,7 @@ class Obra {
   final TextEditingController descricaoController = TextEditingController();
   final TextEditingController linkController = TextEditingController();
   XFile? imagem;
-  XFile? qrCode;
+  String? qrCodeValue;
 
   void dispose() {
     artistaController.dispose();

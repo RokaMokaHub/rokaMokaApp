@@ -1,8 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roka_moka_app/constants/routes.dart';
+import 'package:roka_moka_app/presentation/widgets/urgent_alert_dialog.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  final bool sessionExpired;
+
+  const LoginScreen({Key? key, this.sessionExpired = false}) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.sessionExpired) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => UrgentAlertDialog(
+            title: 'Sessão expirada',
+            content:
+                'Sua sessão expirou. Por favor, faça login novamente para continuar.',
+            confirmText: 'Fazer login',
+            cancelText: 'Fechar',
+            confirmTextColor: Colors.white,
+          ),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

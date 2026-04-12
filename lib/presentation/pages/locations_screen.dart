@@ -4,6 +4,7 @@ import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/location_service.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
+import 'package:roka_moka_app/presentation/widgets/urgent_alert_dialog.dart';
 
 import '../widgets/snack_bar_aceita.dart';
 
@@ -206,19 +207,11 @@ class _LocationsScreenState extends State<LocationsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Excluir local'),
-          content: Text('Deseja realmente excluir "${location.name}"?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Excluir'),
-            ),
-          ],
+        return UrgentAlertDialog(
+          title: 'Excluir local',
+          content: 'Deseja realmente excluir "${location.name}"?',
+          confirmText: 'Excluir',
+          cancelText: 'Cancelar',
         );
       },
     );
@@ -287,47 +280,15 @@ class _LocationCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          OutlinedButton(
+          IconButton(
+            icon: Icon(Icons.edit_outlined, color: Color(titleColor)),
+            tooltip: 'Editar local',
             onPressed: onEdit,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(
-                color: Color(focusedBorderColor),
-                width: 2,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            ),
-            child: const Text(
-              'Editar',
-              style: TextStyle(
-                color: Color(focusedBorderColor),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
           ),
-          const SizedBox(width: 12),
-          OutlinedButton(
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            tooltip: 'Excluir local',
             onPressed: onDelete,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(
-                color: Color(focusedBorderColor),
-                width: 2,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            ),
-            child: const Text(
-              'Excluir',
-              style: TextStyle(
-                color: Color(focusedBorderColor),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
           ),
         ],
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
@@ -11,6 +13,7 @@ class BottomNavBar extends StatelessWidget {
   final Function(int) onTap;
   final VoidCallback onShowPermissions;
   final VoidCallback onShowCreateExposure;
+  final VoidCallback onShowEditExposure;
   final VoidCallback onShowLocations;
 
   const BottomNavBar({
@@ -19,6 +22,7 @@ class BottomNavBar extends StatelessWidget {
     required this.onTap,
     required this.onShowPermissions,
     required this.onShowCreateExposure,
+    required this.onShowEditExposure,
     required this.onShowLocations,
   });
 
@@ -89,10 +93,59 @@ class BottomNavBar extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.image_outlined),
-                title: const Text('Inserir Exposição'),
+                title: const Text('Exposição'),
                 onTap: () {
                   Navigator.pop(modalContext);
-                  onShowCreateExposure();
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(28, 32, 28, 28),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Exposição',
+                              style: GoogleFonts.poppins(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Color(titleColor),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'O que você deseja fazer?',
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                color: Color(greySubtitleColor),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 28),
+                            _buildDialogButton(
+                              label: 'Inserir',
+                              onPressed: () {
+                                Navigator.pop(ctx);
+                                onShowCreateExposure();
+                              },
+                            ),
+                            const SizedBox(height: 14),
+                            _buildDialogButton(
+                              label: 'Editar',
+                              onPressed: () {
+                                Navigator.pop(ctx);
+                                onShowEditExposure();
+                              },
+                            ),
+                            const SizedBox(height: 4),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
                 },
               ),
               ListTile(
@@ -148,12 +201,43 @@ class BottomNavBar extends StatelessWidget {
       builder:
           (modalContext) => ListTile(
             leading: const Icon(Icons.image_outlined),
-            title: const Text('Inserir Exposição'),
+            title: const Text('Exposição'),
             onTap: () {
               Navigator.pop(modalContext);
               onShowCreateExposure();
             },
           ),
+    );
+  }
+
+  Widget _buildDialogButton({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(primaryColorGradient), Color(secondaryColorGradient)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(32),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
     );
   }
 

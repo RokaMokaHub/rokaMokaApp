@@ -110,9 +110,10 @@ class _ConnectPageState extends State<ConnectScreen> {
         ).buildSnackBar(context);
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const HomeController()),
+          (route) => false,
         );
       } catch (error) {
         final snackBar = SnackBarRejeitada(
@@ -158,9 +159,10 @@ class _ConnectPageState extends State<ConnectScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
       context.read<UserProvider>().setRole(UserRole.anon);
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const HomeController()),
+        (route) => false,
       );
     } catch (error) {
       final snackBar = SnackBarRejeitada(

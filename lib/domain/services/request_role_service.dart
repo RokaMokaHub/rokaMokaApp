@@ -12,14 +12,12 @@ class RequestRoleService {
 
   /// Solicita acesso como pesquisador.
   Future<Map<String, dynamic>> requestAccessAsResearcher() async {
-    final name = await _authService.getUserName();
-    final password = await _authService.getPassword();
-    final credentials = base64Encode(utf8.encode('$name:$password'));
+    final token = await _authService.getToken();
     final response = await http.post(
       urlResearcher,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
+        'Authorization': 'Bearer $token',
       },
     );
 
@@ -36,14 +34,12 @@ class RequestRoleService {
 
   /// Solicita acesso como curador
   Future<Map<String, dynamic>> requestAccessAsCurator() async {
-    final name = await _authService.getUserName();
-    final password = await _authService.getPassword();
-    final credentials = base64Encode(utf8.encode('$name:$password'));
+    final token = await _authService.getToken();
     final response = await http.post(
       urlCurator,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
+        'Authorization': 'Bearer $token',
       },
     );
 

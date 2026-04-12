@@ -19,7 +19,7 @@ class ArtworkService {
     required String nomeArtista,
     String? link,
     XFile? imagem,
-    XFile? qrCode,
+    String? qrCode,
   }) async {
     try {
       final token = await _authService.getToken();
@@ -47,11 +47,8 @@ class ArtworkService {
         request.files.add(multipartFile);
       }
 
-      if (qrCode != null) {
-        final qrBytes = await qrCode.readAsBytes();
-        // Assumindo que seu backend espera uma string base64 para o QR code
-        final qrBase64 = base64Encode(qrBytes);
-        request.fields['qrCode'] = qrBase64;
+      if (qrCode != null && qrCode.isNotEmpty) {
+        request.fields['qrCode'] = qrCode;
       }
 
       final response = await request.send();
@@ -60,13 +57,186 @@ class ArtworkService {
       } else {
         final responseBody = await response.stream.bytesToString();
         final errorData = jsonDecode(responseBody);
+        final exceptionMessage =
+            errorData['exceptionMessage']?.toString() ?? '';
+        if (exceptionMessage.contains('value too long for type character varying')) {
+          throw Exception(
+            'Um ou mais campos da obra excedem o limite de 255 caracteres.',
+          );
+        }
         throw Exception(
-          'Falha ao criar obra: ${errorData['error'] ?? response.statusCode}',
+          errorData['error'] ?? 'Erro ${response.statusCode} ao criar obra.',
         );
       }
     } catch (e) {
       print('Erro ao salvar obra: $e');
       rethrow;
+    }
+  }
+
+  Future<void> updateArtwork({
+    required int id,
+    required String nome,
+    String? nomeArtista,
+    String? descricao,
+    String? link,
+    String? qrCode,
+    XFile? imagem,
+  }) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final uri = Uri.parse(updateArtworkEndpoint);
+    final request = http.MultipartRequest('PATCH', uri);
+    request.headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
+
+    request.fields['id'] = id.toString();
+    request.fields['nome'] = nome;
+    if (nomeArtista != null) request.fields['nomeArtista'] = nomeArtista;
+    if (descricao != null) request.fields['descricao'] = descricao;
+    if (link != null) request.fields['link'] = link;
+    if (qrCode != null && qrCode.isNotEmpty) request.fields['qrCode'] = qrCode;
+
+    if (imagem != null) {
+      final fileBytes = await imagem.readAsBytes();
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          fileBytes,
+          filename: imagem.name,
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      );
+    }
+
+    final streamed = await request.send();
+    if (streamed.statusCode != 200) {
+      final body = await streamed.stream.bytesToString();
+      final errorData = jsonDecode(body);
+      throw Exception(
+        'Erro ao atualizar obra: ${errorData['error'] ?? streamed.statusCode}',
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> listArtworksByExhibition(
+    int exhibitionId,
+  ) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.get(
+      Uri.parse(listArtworksByExhibitionEndpoint(exhibitionId.toString())),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final body = data['body'];
+      if (body is List) {
+        return body.whereType<Map<String, dynamic>>().toList();
+      }
+      return [];
+    } else {
+      throw Exception('Falha ao listar obras: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getMissingArtworks(
+    int exhibitionId,
+  ) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.get(
+      Uri.parse(getMissingArtworksEndpoint(exhibitionId.toString())),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final body = data['body'];
+      if (body is List) {
+        return body.whereType<Map<String, dynamic>>().toList();
+      }
+      return [];
+    } else {
+      throw Exception(
+        'Falha ao buscar obras não coletadas: ${response.statusCode}',
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchArtworkByQrcode(String qrcode) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.get(
+      Uri.parse(getArtworkByQrcodeEndpoint(qrcode)),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['body'] as Map<String, dynamic>;
+    } else {
+      final errorBody = jsonDecode(response.body);
+      throw Exception(
+        'Obra não encontrada para este QR code: ${errorBody['exceptionMessage'] ?? response.statusCode}',
+      );
+    }
+  }
+
+  /// Coleta uma estrela via QR code. Retorna o MokadexOutputDTO (body).
+  Future<Map<String, dynamic>> collectStar(String qrcode) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.post(
+      Uri.parse(collectStarEndpoint(qrcode)),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['body'] as Map<String, dynamic>;
+    } else {
+      final errorBody = jsonDecode(response.body);
+      throw Exception(
+        'Erro ao coletar estrela: ${errorBody['exceptionMessage'] ?? response.statusCode}',
+      );
+    }
+  }
+
+  Future<void> deleteArtwork(int id) async {
+    final token = await _authService.getToken();
+    if (token == null) throw Exception('Token de autenticação não encontrado.');
+
+    final response = await http.delete(
+      Uri.parse(deleteArtworkEndpoint(id.toString())),
+      headers: {
+        'Content-Type': 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(
+        'Erro ao deletar obra: ${errorData['error'] ?? response.statusCode}',
+      );
     }
   }
 

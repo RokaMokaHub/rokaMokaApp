@@ -44,7 +44,6 @@ class UserService {
         deviceId: deviceId,
         firstName: firstName,
         lastName: lastName,
-        password: password,
       );
       return data;
     } else {
@@ -142,7 +141,7 @@ class UserService {
 
   //envia email para recuperar senha
   Future<Map<String, dynamic>> sendEmailForgotPassword(String email) async {
-    final url = Uri.parse(sendEmailForgotPasswordEndpoint(email));
+    final url = sendEmailForgotPasswordEndpoint(email);
 
     final response = await http.post(
       url,
@@ -175,6 +174,30 @@ class UserService {
       return data;
     } else {
       final errorMessage = data['error'] ?? 'Erro ao redefinir senha.';
+      throw errorMessage;
+    }
+  }
+
+  // Obter resumo do Mokadex (estrelas e emblemas)
+  Future<Map<String, dynamic>> getMokadexSummary() async {
+    final token = await _authService.getToken();
+    final url = Uri.parse(mokadexSummaryEndpoint);
+
+    final response = await http.get(
+      url,
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      final errorMessage =
+          data['error'] ?? 'Erro ao obter resumo do Mokadex.';
       throw errorMessage;
     }
   }

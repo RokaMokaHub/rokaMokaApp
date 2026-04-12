@@ -11,14 +11,12 @@ class ManageRoleRequestService {
 
   /// lista de permissoes
   Future<Map<String, dynamic>> listRequestpermissions() async {
-    final name = await _authService.getUserName();
-    final password = await _authService.getPassword();
-    final credentials = base64Encode(utf8.encode('$name:$password'));
+    final token = await _authService.getToken();
     final response = await http.get(
       urlListPermission,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
+        'Authorization': 'Bearer $token',
       },
     );
 
@@ -35,9 +33,7 @@ class ManageRoleRequestService {
 
   //aceita permissoes
   Future<Map<String, dynamic>> acceptPermissions(int permissionId) async {
-    final name = await _authService.getUserName();
-    final password = await _authService.getPassword();
-    final credentials = base64Encode(utf8.encode('$name:$password'));
+    final token = await _authService.getToken();
     final urlAcceptPermission = Uri.parse(
       acceptPermissionEndpoint(permissionId),
     );
@@ -45,7 +41,7 @@ class ManageRoleRequestService {
       urlAcceptPermission,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
+        'Authorization': 'Bearer $token',
       },
     );
 
@@ -66,9 +62,7 @@ class ManageRoleRequestService {
     String motivo,
     String userName,
   ) async {
-    final name = await _authService.getUserName();
-    final password = await _authService.getPassword();
-    final credentials = base64Encode(utf8.encode('$name:$password'));
+    final token = await _authService.getToken();
 
     final urlRejectPermission = Uri.parse(
       rejectPermissionEndpoint(permissionId),
@@ -78,7 +72,7 @@ class ManageRoleRequestService {
       urlRejectPermission,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic $credentials',
+        'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
         'id': permissionId,

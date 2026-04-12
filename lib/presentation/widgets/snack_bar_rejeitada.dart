@@ -13,6 +13,7 @@ class SnackBarRejeitada extends StatelessWidget {
   }) : super(key: key);
 
   SnackBar buildSnackBar(BuildContext context) {
+    final messenger = ScaffoldMessenger.of(context);
     return SnackBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -49,7 +50,7 @@ class SnackBarRejeitada extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+              onTap: () => messenger.hideCurrentSnackBar(),
               child: Icon(Icons.close, color: Colors.black54),
             ),
           ],

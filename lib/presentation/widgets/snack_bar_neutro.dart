@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
-class SnackBarAceita extends StatelessWidget {
-  final String? nome;
+class SnackBarNeutro extends StatelessWidget {
   final String titulo;
   final String subtitulo;
 
-  const SnackBarAceita({
+  const SnackBarNeutro({
     Key? key,
-    this.nome,
     required this.titulo,
     required this.subtitulo,
   }) : super(key: key);
@@ -20,15 +18,15 @@ class SnackBarAceita extends StatelessWidget {
       behavior: SnackBarBehavior.fixed,
       content: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         decoration: BoxDecoration(
-          color: Color(0xFFCBF7C4),
+          color: const Color(0xFFE8E8E8),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            Icon(Icons.check_circle_outline, color: Colors.black87),
-            SizedBox(width: 12),
+            const Icon(Icons.info_outline, color: Colors.black54),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +34,7 @@ class SnackBarAceita extends StatelessWidget {
                 children: [
                   Text(
                     titulo,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -44,24 +42,24 @@ class SnackBarAceita extends StatelessWidget {
                   ),
                   Text(
                     subtitulo,
-                    style: TextStyle(color: Colors.black87, fontSize: 14),
+                    style: const TextStyle(color: Colors.black54, fontSize: 14),
                   ),
                 ],
               ),
             ),
             GestureDetector(
               onTap: () => messenger.hideCurrentSnackBar(),
-              child: Icon(Icons.close, color: Colors.black54),
+              child: const Icon(Icons.close, color: Colors.black38),
             ),
           ],
         ),
       ),
-      duration: Duration(seconds: 3),
+      duration: const Duration(seconds: 3),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
   }
 }
