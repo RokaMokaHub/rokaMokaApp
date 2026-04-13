@@ -282,6 +282,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           icon: Icons.badge_outlined,
                                           error: _firstNameError,
                                           validator: _validateFirstName,
+                                          onErrorChanged: (e) => _firstNameError = e,
                                         ),
                                         const SizedBox(height: 16),
 
@@ -292,6 +293,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           icon: Icons.person_outline,
                                           error: _lastNameError,
                                           validator: _validateLastName,
+                                          onErrorChanged: (e) => _lastNameError = e,
                                         ),
                                         const SizedBox(height: 16),
 
@@ -302,6 +304,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           icon: Icons.account_circle_outlined,
                                           error: _nameError,
                                           validator: _validateName,
+                                          onErrorChanged: (e) => _nameError = e,
                                         ),
                                         const SizedBox(height: 16),
 
@@ -312,6 +315,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           icon: Icons.alternate_email,
                                           error: _emailError,
                                           validator: _validateEmail,
+                                          onErrorChanged: (e) => _emailError = e,
                                         ),
                                         const SizedBox(height: 16),
 
@@ -322,6 +326,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           icon: Icons.lock_outline,
                                           error: _passwordError,
                                           validator: _validatePassword,
+                                          onErrorChanged: (e) => _passwordError = e,
                                           obscureText: _obscureTextPassword,
                                           onSuffixTap: () {
                                             setState(
@@ -341,6 +346,7 @@ class _SignupPageState extends State<SignupScreen> {
                                           icon: Icons.lock_outline,
                                           error: _confirmPasswordError,
                                           validator: _validateConfirmPassword,
+                                          onErrorChanged: (e) => _confirmPasswordError = e,
                                           obscureText:
                                               _obscureTextConfirmPassword,
                                           onSuffixTap: () {
@@ -411,6 +417,7 @@ class _SignupPageState extends State<SignupScreen> {
     required IconData icon,
     required String? error,
     required String? Function(String) validator,
+    required void Function(String?) onErrorChanged,
     bool obscureText = false,
     VoidCallback? onSuffixTap,
   }) {
@@ -422,7 +429,7 @@ class _SignupPageState extends State<SignupScreen> {
           obscureText: obscureText,
           onChanged: (value) {
             setState(() {
-              error = validator(value);
+              onErrorChanged(validator(value));
             });
           },
           decoration: InputDecoration(

@@ -1,7 +1,7 @@
 // SERVERS
 import 'package:flutter/foundation.dart';
 
-const String devServer = 'https://10.0.2.2:8080';
+const String devServer = 'http://10.0.2.2:8080';
 const String servidorRokaMoka = 'https://rokamoka.inf.ufpel.edu.br';
 const String activeserver = kReleaseMode ? servidorRokaMoka : devServer;
 
@@ -71,14 +71,16 @@ String acceptPermissionEndpoint(int permissionId) =>
 String rejectPermissionEndpoint(int permissionId) =>
     '$activeserver/evaluation/permission/deny/$permissionId';
 // send email forgot password
-Uri sendEmailForgotPasswordEndpoint(String email) =>
-    Uri.parse('$activeserver/auth/forgot-password/send')
-        .replace(queryParameters: {'email': email});
+Uri sendEmailForgotPasswordEndpoint(String email) => Uri.parse(
+  '$activeserver/auth/forgot-password/send',
+).replace(queryParameters: {'email': email});
 // forgot password
 const forgotPasswordEndpoint = '$activeserver/auth/forgot-password/reset';
 // MOKADEX SUMMARY
 const String mokadexSummaryEndpoint = '$activeserver/mokadex/summary';
 // EMBLEM
 const String createEmblemEndpoint = '$activeserver/emblem/create';
+
 String getEmblemByIdEndpoint(String id) => '$activeserver/emblem/$id';
+
 String deleteEmblemEndpoint(String id) => '$activeserver/emblem/$id';
