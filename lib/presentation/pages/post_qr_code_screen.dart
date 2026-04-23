@@ -496,8 +496,12 @@ class _LinkSection extends StatelessWidget {
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
-            final uri = Uri.tryParse(link);
-            if (uri != null && await canLaunchUrl(uri)) {
+            var url = link;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+              url = 'https://$url';
+            }
+            final uri = Uri.tryParse(url);
+            if (uri != null) {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
             }
           },

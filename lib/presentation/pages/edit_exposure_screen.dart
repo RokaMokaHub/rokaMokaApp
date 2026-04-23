@@ -42,6 +42,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
   List<Location> _locais = const [];
   bool _isLoadingLocais = true;
   List<ObraEdit> _obras = [];
+  List<ObraNova> _obrasNovas = [];
   bool _isLoadingObraData = true;
   String? _loadObraError;
   bool _isSaving = false;
@@ -69,6 +70,9 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
     _nomeController.dispose();
     _descricaoController.dispose();
     for (final obra in _obras) {
+      obra.dispose();
+    }
+    for (final obra in _obrasNovas) {
       obra.dispose();
     }
     super.dispose();
@@ -205,6 +209,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
         _isLoadingLocais = false;
         _localSelecionadoId = matchedLocation?.id;
         _obras = obras;
+        _obrasNovas = [];
         _isLoadingObraData = false;
       });
     } catch (e) {
@@ -276,6 +281,31 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
       }
     }
 
+    // Criar obras novas
+    for (final obra in _obrasNovas) {
+      try {
+        await _artworkService.createArtworkMultipart(
+          exhibitionId: _selectedExhibitionId!,
+          nome: obra.tituloController.text,
+          descricao: obra.descricaoController.text,
+          nomeArtista: obra.artistaController.text,
+          link: obra.linkController.text,
+          imagem: obra.imagem,
+          qrCode: obra.qrCodeValue,
+        );
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBarRejeitada(
+            titulo: 'Erro ao criar nova obra',
+            subtitulo: e.toString(),
+          ).buildSnackBar(context),
+        );
+        return;
+      }
+    }
+
     if (!mounted) return;
     setState(() => _isSaving = false);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -333,7 +363,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
   // ── Excluir obra ──────────────────────────────────────────────────────────
 
   Future<void> _excluirObra(int index) async {
-    if (_obras.length <= 1) {
+    if ((_obras.length + _obrasNovas.length) <= 1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBarRejeitada(
           titulo: 'Não é possível excluir',
@@ -1010,7 +1040,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
               maxLines: 4,
             ),
             const SizedBox(height: 24),
-            if (_obras.isNotEmpty) ...[
+            if (_obras.isNotEmpty || _obrasNovas.isNotEmpty) ...[
               _buildSectionHeader('Obras da exposição'),
               ListView.builder(
                 shrinkWrap: true,
@@ -1027,8 +1057,35 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
                   );
                 },
               ),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _obrasNovas.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      _buildObraNovaHeader(index),
+                      _buildObraNovaForm(_obrasNovas[index]),
+                    ],
+                  );
+                },
+              ),
             ],
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () => setState(() => _obrasNovas.add(ObraNova())),
+                icon: Icon(Icons.add, color: Color(titleColor)),
+                label: Text(
+                  'Adicionar obra',
+                  style: TextStyle(color: Color(titleColor)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             _buildSalvarButton(),
             const SizedBox(height: 24),
             _buildEmblemaSectionStep1(),
@@ -1094,7 +1151,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'Obra ${index + 1} de ${_obras.length}',
+              'Obra ${index + 1} de ${_obras.length + _obrasNovas.length}',
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -1451,6 +1508,211 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
     );
   }
 
+  // ── Obras novas ───────────────────────────────────────────────────────────
+
+  void _removerObraNova(int index) {
+    if ((_obras.length + _obrasNovas.length) <= 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarRejeitada(
+          titulo: 'Não é possível excluir',
+          subtitulo: 'A exposição deve ter ao menos uma obra.',
+        ).buildSnackBar(context),
+      );
+      return;
+    }
+    setState(() {
+      _obrasNovas[index].dispose();
+      _obrasNovas.removeAt(index);
+    });
+  }
+
+  Widget _buildObraNovaHeader(int index) {
+    final displayIndex = _obras.length + index + 1;
+    final totalCount = _obras.length + _obrasNovas.length;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(primaryColorGradient),
+                  Color(secondaryColorGradient),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              'Obra $displayIndex de $totalCount (nova)',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            tooltip: 'Remover obra',
+            onPressed: () => _removerObraNova(index),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildObraNovaForm(ObraNova obra) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        children: [
+          _buildTextField(obra.artistaController, 'Nome do artista', true),
+          const SizedBox(height: 16),
+          _buildTextField(obra.tituloController, 'Título da obra', false),
+          const SizedBox(height: 16),
+          _buildTextField(
+            obra.descricaoController,
+            'Texto sobre a obra',
+            false,
+            maxLines: 4,
+            maxLength: 400,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(obra.linkController, 'Link da obra', false),
+          const SizedBox(height: 16),
+          _buildQrCodeScannerNova(obra),
+          const SizedBox(height: 16),
+          _buildImagePickerNova(obra),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQrCodeScannerNova(ObraNova obra) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'QR Code Vinculado',
+          style: TextStyle(color: Color(greySubtitleColor), fontSize: 16),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => _scanQrCodeNova(obra),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Color(focusedBorderColor), width: 2),
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  obra.qrCodeValue != null
+                      ? Icons.qr_code
+                      : Icons.qr_code_scanner,
+                  color: Color(
+                    obra.qrCodeValue != null ? titleColor : darkerGreyButton,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    obra.qrCodeValue ?? 'Toque para escanear o QR Code',
+                    style: TextStyle(
+                      color: Color(
+                        obra.qrCodeValue != null
+                            ? titleColor
+                            : darkerGreyButton,
+                      ),
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (obra.qrCodeValue != null)
+                  GestureDetector(
+                    onTap: () => setState(() => obra.qrCodeValue = null),
+                    child: Icon(Icons.close, color: Color(darkerGreyButton)),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImagePickerNova(ObraNova obra) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Imagem da obra',
+          style: TextStyle(color: Color(greySubtitleColor), fontSize: 16),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () async {
+            if (obra.imagem != null) {
+              setState(() => obra.imagem = null);
+            } else {
+              final picked = await ImagePicker().pickImage(
+                source: ImageSource.gallery,
+              );
+              if (picked != null) setState(() => obra.imagem = picked);
+            }
+          },
+          child: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Color(focusedBorderColor), width: 2),
+              color: Colors.white,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: obra.imagem != null
+                  ? Image.file(
+                      File(obra.imagem!.path),
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    )
+                  : Center(
+                      child: Icon(
+                        Icons.attachment,
+                        color: Color(darkerGreyButton),
+                        size: 40,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _scanQrCodeNova(ObraNova obra) async {
+    final result = await FlutterBarcodeScanner.scanBarcode(
+      '#FF6600',
+      'Cancelar',
+      true,
+      ScanMode.QR,
+    );
+    if (result != '-1' && mounted) {
+      setState(() => obra.qrCodeValue = result);
+    }
+  }
+
   Future<void> _scanQrCode(ObraEdit obra) async {
     final result = await FlutterBarcodeScanner.scanBarcode(
       '#FF6600',
@@ -1494,6 +1756,22 @@ class ObraEdit {
   XFile? imagemNova;
 
   ObraEdit({required this.id, this.imagemBase64Atual});
+
+  void dispose() {
+    artistaController.dispose();
+    tituloController.dispose();
+    descricaoController.dispose();
+    linkController.dispose();
+  }
+}
+
+class ObraNova {
+  final TextEditingController artistaController = TextEditingController();
+  final TextEditingController tituloController = TextEditingController();
+  final TextEditingController descricaoController = TextEditingController();
+  final TextEditingController linkController = TextEditingController();
+  XFile? imagem;
+  String? qrCodeValue;
 
   void dispose() {
     artistaController.dispose();
