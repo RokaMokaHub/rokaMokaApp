@@ -96,56 +96,7 @@ class BottomNavBar extends StatelessWidget {
                 title: const Text('Exposição'),
                 onTap: () {
                   Navigator.pop(modalContext);
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(28, 32, 28, 28),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Exposição',
-                              style: GoogleFonts.poppins(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Color(titleColor),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'O que você deseja fazer?',
-                              style: GoogleFonts.poppins(
-                                fontSize: 15,
-                                color: Color(greySubtitleColor),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 28),
-                            _buildDialogButton(
-                              label: 'Inserir',
-                              onPressed: () {
-                                Navigator.pop(ctx);
-                                onShowCreateExposure();
-                              },
-                            ),
-                            const SizedBox(height: 14),
-                            _buildDialogButton(
-                              label: 'Editar',
-                              onPressed: () {
-                                Navigator.pop(ctx);
-                                onShowEditExposure();
-                              },
-                            ),
-                            const SizedBox(height: 4),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
+                  _showExposureChoiceDialog(context);
                 },
               ),
               ListTile(
@@ -199,14 +150,72 @@ class BottomNavBar extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder:
-          (modalContext) => ListTile(
-            leading: const Icon(Icons.image_outlined),
-            title: const Text('Exposição'),
-            onTap: () {
-              Navigator.pop(modalContext);
-              onShowCreateExposure();
-            },
+          (modalContext) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.image_outlined),
+                title: const Text('Exposição'),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  _showExposureChoiceDialog(context);
+                },
+              ),
+            ],
           ),
+    );
+  }
+
+  void _showExposureChoiceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(28, 32, 28, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Exposição',
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(titleColor),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'O que você deseja fazer?',
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  color: Color(greySubtitleColor),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 28),
+              _buildDialogButton(
+                label: 'Inserir',
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  onShowCreateExposure();
+                },
+              ),
+              const SizedBox(height: 14),
+              _buildDialogButton(
+                label: 'Editar',
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  onShowEditExposure();
+                },
+              ),
+              const SizedBox(height: 4),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
