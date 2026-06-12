@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io'; // Para HttpHeaders
 import 'package:http/http.dart' as http;
+import 'package:roka_moka_app/constants/auth_messages.dart';
 import 'package:roka_moka_app/constants/webservice.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 
@@ -37,6 +38,8 @@ class ExposureService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         return data['body']['id'];
+      } else if (response.statusCode == 403) {
+        throw Exception(permissionChangedMessage);
       } else {
         final errorData = jsonDecode(response.body);
         throw Exception(

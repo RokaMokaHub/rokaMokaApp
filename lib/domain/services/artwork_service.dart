@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:roka_moka_app/constants/auth_messages.dart';
 import 'package:roka_moka_app/constants/webservice.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 
@@ -54,6 +55,8 @@ class ArtworkService {
       final response = await request.send();
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
+      } else if (response.statusCode == 403) {
+        throw Exception(permissionChangedMessage);
       } else {
         final responseBody = await response.stream.bytesToString();
         final errorData = jsonDecode(responseBody);
