@@ -130,14 +130,6 @@ class BottomNavBar extends StatelessWidget {
                   onShowPermissions();
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.place_outlined),
-                title: const Text('Locais'),
-                onTap: () {
-                  Navigator.pop(modalContext);
-                  onShowLocations();
-                },
-              ),
             ],
           ),
     );
