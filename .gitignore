@@ -33,6 +33,11 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Build outputs (APK/AAB/IPA)
+*.apk
+*.aab
+*.ipa
+
 # Symbolication related
 app.*.symbols
 
