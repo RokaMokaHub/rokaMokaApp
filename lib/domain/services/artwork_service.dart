@@ -77,7 +77,12 @@ class ArtworkService {
     }
   }
 
-  Future<void> updateArtwork({
+  /// Atualiza uma obra. Retorna o `ArtworkOutputDTO` efetivamente salvo pelo
+  /// servidor (`{id, nome, descricao, nomeArtista, qrCode, link, image}`), que é
+  /// a fonte da verdade: quando a exposição tem um emblema ativo, o backend
+  /// ignora os campos estruturais e devolve os valores originais. O chamador usa
+  /// esse retorno para reconciliar a UI e avisar sobre campos não aplicados.
+  Future<Map<String, dynamic>> updateArtwork({
     required int id,
     required String nome,
     String? nomeArtista,
@@ -113,8 +118,14 @@ class ArtworkService {
     }
 
     final streamed = await request.send();
-    if (streamed.statusCode != 200) {
-      final body = await streamed.stream.bytesToString();
+    final body = await streamed.stream.bytesToString();
+
+    if (streamed.statusCode == 200) {
+      final data = jsonDecode(body);
+      return (data['body'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+    } else if (streamed.statusCode == 403) {
+      throw Exception(permissionChangedMessage);
+    } else {
       final errorData = jsonDecode(body);
       throw Exception(
         'Erro ao atualizar obra: ${errorData['error'] ?? streamed.statusCode}',

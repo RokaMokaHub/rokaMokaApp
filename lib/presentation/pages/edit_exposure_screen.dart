@@ -5,11 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:roka_moka_app/constants/auth_messages.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
 import 'package:roka_moka_app/domain/services/exposure_service.dart';
 import 'package:roka_moka_app/domain/services/location_service.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
+import 'package:roka_moka_app/presentation/widgets/relogin_prompt.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 import 'package:roka_moka_app/domain/services/emblem_service.dart';
@@ -243,18 +245,19 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBarRejeitada(
-          titulo: 'Erro ao atualizar exposição',
-          subtitulo: e.toString(),
-        ).buildSnackBar(context),
-      );
+      await _tratarErroEdicao('Erro ao atualizar exposição', e);
       return;
     }
 
+    // Quando a exposição tem um emblema ativo, o backend ignora os campos
+    // estruturais (nome, artista, QR Code, imagem) e só persiste descrição/link.
+    // Detectamos isso comparando o que foi enviado com o ArtworkOutputDTO de
+    // resposta e avisamos o usuário ao final.
+    var algumCampoEstruturalIgnorado = false;
+
     for (final obra in _obras) {
       try {
-        await _artworkService.updateArtwork(
+        final saved = await _artworkService.updateArtwork(
           id: obra.id,
           nome: obra.tituloController.text,
           nomeArtista: obra.artistaController.text,
@@ -263,28 +266,94 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
           qrCode: obra.qrCodeValue,
           imagem: obra.imagemNova,
         );
+
+        if (_campoEstruturalFoiIgnorado(obra, saved)) {
+          algumCampoEstruturalIgnorado = true;
+        }
+        _reconciliarObra(obra, saved);
       } catch (e) {
         if (!mounted) return;
         setState(() => _isSaving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBarRejeitada(
-            titulo: 'Erro ao atualizar obra',
-            subtitulo: e.toString(),
-          ).buildSnackBar(context),
-        );
+        await _tratarErroEdicao('Erro ao atualizar obra', e);
         return;
       }
     }
 
     if (!mounted) return;
     setState(() => _isSaving = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBarAceita(
-        titulo: 'Exposição atualizada!',
-        subtitulo: 'As alterações foram salvas com sucesso.',
-      ).buildSnackBar(context),
-    );
+
+    if (algumCampoEstruturalIgnorado) {
+      await _avisarEmblemaAtivo();
+      if (!mounted) return;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarAceita(
+          titulo: 'Exposição atualizada!',
+          subtitulo: 'As alterações foram salvas com sucesso.',
+        ).buildSnackBar(context),
+      );
+    }
     widget.onBack();
+  }
+
+  /// Detecta, comparando o enviado com o `ArtworkOutputDTO` retornado, se algum
+  /// campo estrutural foi ignorado pelo backend (indício de emblema ativo).
+  /// A imagem não entra na comparação por não ser confiável de forma reativa.
+  bool _campoEstruturalFoiIgnorado(ObraEdit obra, Map<String, dynamic> saved) {
+    if (saved.isEmpty) return false;
+    final nomeSalvo = (saved['nome'] ?? '').toString();
+    final artistaSalvo = (saved['nomeArtista'] ?? '').toString();
+    final qrCodeSalvo = (saved['qrCode'] ?? '').toString();
+    return nomeSalvo != obra.tituloController.text ||
+        artistaSalvo != obra.artistaController.text ||
+        qrCodeSalvo != (obra.qrCodeValue ?? '');
+  }
+
+  /// Atualiza os controllers da obra com o estado realmente persistido pelo
+  /// servidor, para que a UI não exiba valores que não foram salvos.
+  void _reconciliarObra(ObraEdit obra, Map<String, dynamic> saved) {
+    if (saved.isEmpty) return;
+    obra.tituloController.text = (saved['nome'] ?? '').toString();
+    obra.artistaController.text = (saved['nomeArtista'] ?? '').toString();
+    obra.descricaoController.text = (saved['descricao'] ?? '').toString();
+    obra.linkController.text = (saved['link'] ?? '').toString();
+    obra.qrCodeValue = saved['qrCode']?.toString();
+    obra.imagemNova = null;
+  }
+
+  Future<void> _avisarEmblemaAtivo() async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Emblema ativo'),
+        content: const Text(
+          'Esta exposição possui um emblema ativo. Por isso, apenas a descrição e o '
+          'link das obras foram atualizados — nome, artista, QR Code e imagem não '
+          'podem mais ser alterados.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Entendi'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Exibe o erro de salvamento. Se o servidor recusou por permissões defasadas
+  /// (403 → [permissionChangedMessage]), oferece re-login em vez do snackbar.
+  Future<void> _tratarErroEdicao(String titulo, Object e) async {
+    final msg = e.toString().startsWith('Exception: ')
+        ? e.toString().substring('Exception: '.length)
+        : e.toString();
+    if (msg == permissionChangedMessage) {
+      await promptPermissionChangedReLogin(context);
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBarRejeitada(titulo: titulo, subtitulo: msg).buildSnackBar(context),
+    );
   }
 
   // ── Excluir exposição ─────────────────────────────────────────────────────

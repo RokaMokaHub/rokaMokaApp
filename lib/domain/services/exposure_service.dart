@@ -99,12 +99,14 @@ class ExposureService {
       }),
     );
 
-    if (response.statusCode != 200) {
-      final errorData = jsonDecode(response.body);
-      throw Exception(
-        'Erro ao atualizar exposição: ${errorData['error'] ?? response.statusCode}',
-      );
+    if (response.statusCode == 200) return;
+    if (response.statusCode == 403) {
+      throw Exception(permissionChangedMessage);
     }
+    final errorData = jsonDecode(response.body);
+    throw Exception(
+      'Erro ao atualizar exposição: ${errorData['error'] ?? response.statusCode}',
+    );
   }
 
   Future<void> deleteExhibition(int id) async {
