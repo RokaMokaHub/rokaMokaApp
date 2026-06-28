@@ -237,7 +237,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                           onSelected: _applyFilter,
                           child: const Row(
                             children: [
-                              Icon(
+                              FaIcon(
                                 FontAwesomeIcons.filter,
                                 color: Colors.grey,
                                 size: 16,
