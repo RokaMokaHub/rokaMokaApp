@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:roka_moka_app/domain/providers/user_provider.dart';
 
 //Classe de autenticação do usuário localmente
 class AuthService {
@@ -52,6 +55,62 @@ class AuthService {
   Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null;
+  }
+
+  /// Lê o cargo efetivo embutido no JWT armazenado (claim `scope`).
+  ///
+  /// O `scope` é definido pelo backend no login e representa a autoridade que o
+  /// servidor realmente honra (`RoleEnum.name()`: ADMINISTRATOR, RESEARCHER,
+  /// CURATOR, USER). É a fonte confiável do cargo do token — ao contrário do
+  /// cargo exibido, que o app sincroniza separadamente via `/user/me`.
+  ///
+  /// Retorna `null` quando não há token ou o `scope` não pôde ser lido.
+  Future<UserRole?> getTokenRole() async {
+    final token = await getToken();
+    if (token == null) return null;
+
+    final scope = _decodeScope(token);
+    if (scope == null || scope.isEmpty) return null;
+
+    // O scope pode conter múltiplas autoridades separadas por espaço.
+    for (final authority in scope.split(' ')) {
+      final role = _mapScopeToRole(authority);
+      if (role != null) return role;
+    }
+    return null;
+  }
+
+  /// Decodifica o payload do JWT e devolve o valor do claim `scope`, se existir.
+  String? _decodeScope(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+
+      final payload = utf8.decode(
+        base64Url.decode(base64Url.normalize(parts[1])),
+      );
+      final claims = jsonDecode(payload);
+      final scope = claims['scope'];
+      return scope is String ? scope : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Mapeia o valor de `RoleEnum.name()` do backend para o [UserRole] do app.
+  UserRole? _mapScopeToRole(String authority) {
+    switch (authority.toUpperCase()) {
+      case 'ADMINISTRATOR':
+        return UserRole.administrador;
+      case 'RESEARCHER':
+        return UserRole.pesquisador;
+      case 'CURATOR':
+        return UserRole.curador;
+      case 'USER':
+        return UserRole.comum;
+      default:
+        return null;
+    }
   }
 
   // Limpa todos os dados (logout)
