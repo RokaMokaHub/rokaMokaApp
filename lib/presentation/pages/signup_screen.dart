@@ -89,24 +89,26 @@ class _SignupPageState extends State<SignupScreen> {
   }
 
   String? _validateName(String name) {
+    final trimmedName = name.trim();
     final validPattern = RegExp(r'^[a-zA-Z0-9_-]+$');
-    if (_submitted && name.isEmpty) {
+    if (_submitted && trimmedName.isEmpty) {
       return 'O nome de usuário é obrigatório.';
     }
-    if (_submitted && !validPattern.hasMatch(name)) {
+    if (_submitted && !validPattern.hasMatch(trimmedName)) {
       return 'Apenas letras, números, hífen e underline são permitidos.';
     }
     return null;
   }
 
   String? _validateEmail(String email) {
+    final trimmedEmail = email.trim();
     if (_submitted) {
-      if (email.isEmpty) {
+      if (trimmedEmail.isEmpty) {
         return 'O email é obrigatório.';
       }
       if (!RegExp(
         r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$',
-      ).hasMatch(email)) {
+      ).hasMatch(trimmedEmail)) {
         return 'Insira um email válido.';
       }
     }
@@ -164,11 +166,11 @@ class _SignupPageState extends State<SignupScreen> {
 
     try {
       await _userService.createUser(
-        _emailController.text,
+        _emailController.text.trim(),
         _passwordController.text,
-        _nameController.text,
-        _firstNameController.text,
-        _lastNameController.text,
+        _nameController.text.trim(),
+        _firstNameController.text.trim(),
+        _lastNameController.text.trim(),
       );
 
       context.read<UserProvider>().setRole(UserRole.comum);

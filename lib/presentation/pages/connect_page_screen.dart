@@ -50,7 +50,7 @@ class _ConnectPageState extends State<ConnectScreen> {
 
   // Função para validar o campo de username
   void _validateUsername() {
-    final username = _usernameController.text;
+    final username = _usernameController.text.trim();
     if (_submitted) {
       setState(() {
         if (username.isEmpty) {
@@ -92,7 +92,7 @@ class _ConnectPageState extends State<ConnectScreen> {
     if (_isUsernameValid && _isPasswordValid) {
       try {
         await _loginService.login(
-          _usernameController.text,
+          _usernameController.text.trim(),
           _passwordController.text,
         );
 
@@ -127,7 +127,7 @@ class _ConnectPageState extends State<ConnectScreen> {
 
   //Metodo para login anonimo
   Future<void> _loginAnonimo() async {
-    if (_usernameController.text.isEmpty) {
+    if (_usernameController.text.trim().isEmpty) {
       final snackBar = SnackBarRejeitada(
         titulo: "Login Recusado",
         subtitulo: "O nome de usuário deve estar preenchido.",
@@ -151,7 +151,7 @@ class _ConnectPageState extends State<ConnectScreen> {
     if (shouldProceed != true) return; // Se não confirmou, cancela o login
 
     try {
-      await _userService.createAnonymousUser(_usernameController.text);
+      await _userService.createAnonymousUser(_usernameController.text.trim());
       final snackBar = SnackBarAceita(
         titulo: "Login realizado com sucesso!",
         subtitulo: "Bem-vindo(a) ao Roka Moka!",

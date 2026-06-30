@@ -80,7 +80,7 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
                       color: Colors.white,
                       size: 30,
                     ),
-                    onPressed: widget.onBack ?? () {},
+                    onPressed: widget.onBack ?? () => Navigator.pop(context),
                   ),
                 ),
               ),
