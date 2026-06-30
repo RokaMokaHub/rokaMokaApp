@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:roka_moka_app/constants/auth_messages.dart';
 import 'package:roka_moka_app/constants/webservice.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 
@@ -54,6 +55,8 @@ class ArtworkService {
       final response = await request.send();
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
+      } else if (response.statusCode == 403) {
+        throw Exception(permissionChangedMessage);
       } else {
         final responseBody = await response.stream.bytesToString();
         final errorData = jsonDecode(responseBody);
@@ -74,7 +77,12 @@ class ArtworkService {
     }
   }
 
-  Future<void> updateArtwork({
+  /// Atualiza uma obra. Retorna o `ArtworkOutputDTO` efetivamente salvo pelo
+  /// servidor (`{id, nome, descricao, nomeArtista, qrCode, link, image}`), que é
+  /// a fonte da verdade: quando a exposição tem um emblema ativo, o backend
+  /// ignora os campos estruturais e devolve os valores originais. O chamador usa
+  /// esse retorno para reconciliar a UI e avisar sobre campos não aplicados.
+  Future<Map<String, dynamic>> updateArtwork({
     required int id,
     required String nome,
     String? nomeArtista,
@@ -110,8 +118,14 @@ class ArtworkService {
     }
 
     final streamed = await request.send();
-    if (streamed.statusCode != 200) {
-      final body = await streamed.stream.bytesToString();
+    final body = await streamed.stream.bytesToString();
+
+    if (streamed.statusCode == 200) {
+      final data = jsonDecode(body);
+      return (data['body'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+    } else if (streamed.statusCode == 403) {
+      throw Exception(permissionChangedMessage);
+    } else {
       final errorData = jsonDecode(body);
       throw Exception(
         'Erro ao atualizar obra: ${errorData['error'] ?? streamed.statusCode}',

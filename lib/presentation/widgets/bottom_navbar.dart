@@ -130,14 +130,6 @@ class BottomNavBar extends StatelessWidget {
                   onShowPermissions();
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.place_outlined),
-                title: const Text('Locais'),
-                onTap: () {
-                  Navigator.pop(modalContext);
-                  onShowLocations();
-                },
-              ),
             ],
           ),
     );
@@ -291,13 +283,22 @@ class BottomNavBar extends StatelessWidget {
             final isDisabled = isAnon && isSolicitarCargo;
 
             return BottomNavigationBarItem(
-              icon: Icon(
-                item['icon'] as IconData,
-                color: isDisabled ? Colors.grey : null,
+              icon: _buildIcon(
+                item['icon'],
+                isDisabled ? Colors.grey : null,
               ),
               label: item['label'] as String,
             );
           }).toList(),
     );
+  }
+
+  /// Constrói o ícone tratando tanto ícones do Material (`IconData`) quanto do
+  /// Font Awesome (`FaIconData`, introduzido no font_awesome_flutter 11), que
+  /// não são mais `IconData` e exigem o widget `FaIcon`.
+  Widget _buildIcon(Object? icon, Color? color) {
+    if (icon is FaIconData) return FaIcon(icon, color: color);
+    if (icon is IconData) return Icon(icon, color: color);
+    return const SizedBox.shrink();
   }
 }

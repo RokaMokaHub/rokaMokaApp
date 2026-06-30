@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roka_moka_app/constants/auth_messages.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/exposure_service.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
 import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
+import 'package:roka_moka_app/presentation/widgets/relogin_prompt.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
 
@@ -42,6 +44,22 @@ class _ReviewExposureScreenState extends State<ReviewExposureScreen> {
     return msg;
   }
 
+  /// Mostra o erro adequado. Se o servidor recusou por permissões defasadas
+  /// (token com `scope` anterior ao upgrade de cargo), oferece re-login em vez
+  /// do snackbar genérico de erro.
+  Future<void> _exibirErro(String titulo, Object e) async {
+    if (_mensagemErro(e) == permissionChangedMessage) {
+      await promptPermissionChangedReLogin(context);
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBarRejeitada(
+        titulo: titulo,
+        subtitulo: _mensagemErro(e),
+      ).buildSnackBar(context),
+    );
+  }
+
   Future<void> _confirmar() async {
     setState(() => _isLoading = true);
 
@@ -56,12 +74,7 @@ class _ReviewExposureScreenState extends State<ReviewExposureScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBarRejeitada(
-          titulo: 'Erro ao criar exposição',
-          subtitulo: _mensagemErro(e),
-        ).buildSnackBar(context),
-      );
+      await _exibirErro('Erro ao criar exposição', e);
       return;
     }
 
@@ -93,12 +106,7 @@ class _ReviewExposureScreenState extends State<ReviewExposureScreen> {
       } catch (e) {
         if (!mounted) return;
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBarRejeitada(
-            titulo: 'Erro ao salvar obra',
-            subtitulo: _mensagemErro(e),
-          ).buildSnackBar(context),
-        );
+        await _exibirErro('Erro ao salvar obra', e);
         return;
       }
 

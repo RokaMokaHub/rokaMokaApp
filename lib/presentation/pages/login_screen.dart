@@ -5,8 +5,13 @@ import 'package:roka_moka_app/presentation/widgets/urgent_alert_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   final bool sessionExpired;
+  final bool permissionsChanged;
 
-  const LoginScreen({Key? key, this.sessionExpired = false}) : super(key: key);
+  const LoginScreen({
+    Key? key,
+    this.sessionExpired = false,
+    this.permissionsChanged = false,
+  }) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -16,7 +21,22 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.sessionExpired) {
+    if (widget.permissionsChanged) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => UrgentAlertDialog(
+            title: 'Perfil atualizado',
+            content:
+                'Seu perfil foi atualizado. Faça login novamente para aplicar suas novas permissões.',
+            confirmText: 'Fazer login',
+            cancelText: 'Fechar',
+            confirmTextColor: Colors.white,
+          ),
+        );
+      });
+    } else if (widget.sessionExpired) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
           context: context,

@@ -44,6 +44,7 @@ void main() async {
   final authService = AuthService();
   bool loggedIn = await authService.isLoggedIn();
   bool sessionExpired = false;
+  bool permissionsChanged = false;
 
   final userProvider = UserProvider();
   await userProvider.loadRole();
@@ -54,6 +55,24 @@ void main() async {
       final userInfo = await userService.getUserInfo();
       final role = userInfo['body']?['role'] ?? userInfo['role'] ?? 'comum';
       await userProvider.setRoleByName(role.toString());
+
+      // Detecta token defasado após upgrade de cargo: o cargo exibido (vindo de
+      // /user/me) pode já ser privilegiado enquanto o JWT ainda carrega um
+      // `scope` antigo, o que causaria 403 em ações privilegiadas (ex.: cadastrar
+      // exposição). Como a senha não é persistida, a única forma de renovar o
+      // `scope` é fazer login novamente.
+      final serverRole = userProvider.role;
+      final tokenRole = await authService.getTokenRole();
+      const privilegedRoles = {
+        UserRole.administrador,
+        UserRole.curador,
+        UserRole.pesquisador,
+      };
+      if (privilegedRoles.contains(serverRole) && tokenRole != serverRole) {
+        await authService.clearAuthData();
+        loggedIn = false;
+        permissionsChanged = true;
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Erro ao sincronizar usuário: $e');
@@ -70,7 +89,11 @@ void main() async {
       builder:
           (_) => ChangeNotifierProvider.value(
             value: userProvider,
-            child: MyApp(loggedIn: loggedIn, sessionExpired: sessionExpired),
+            child: MyApp(
+              loggedIn: loggedIn,
+              sessionExpired: sessionExpired,
+              permissionsChanged: permissionsChanged,
+            ),
           ),
     ),
   );
@@ -81,8 +104,14 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class MyApp extends StatefulWidget {
   final bool loggedIn;
   final bool sessionExpired;
+  final bool permissionsChanged;
 
-  const MyApp({super.key, required this.loggedIn, this.sessionExpired = false});
+  const MyApp({
+    super.key,
+    required this.loggedIn,
+    this.sessionExpired = false,
+    this.permissionsChanged = false,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -138,7 +167,10 @@ class _MyAppState extends State<MyApp> {
 
       home: widget.loggedIn
           ? HomeController()
-          : LoginScreen(sessionExpired: widget.sessionExpired),
+          : LoginScreen(
+              sessionExpired: widget.sessionExpired,
+              permissionsChanged: widget.permissionsChanged,
+            ),
 
       routes: {
         loginRoute: (_) => LoginScreen(),
