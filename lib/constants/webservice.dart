@@ -79,8 +79,8 @@ const forgotPasswordEndpoint = '$activeserver/auth/forgot-password/reset';
 // MOKADEX SUMMARY
 const String mokadexSummaryEndpoint = '$activeserver/mokadex/summary';
 // EMBLEM
-const String createEmblemEndpoint = '$activeserver/emblem/create';
+const String createEmblemEndpoint = '$activeserver/emblems/create';
 
-String getEmblemByIdEndpoint(String id) => '$activeserver/emblem/$id';
+String getEmblemByIdEndpoint(String id) => '$activeserver/emblems/$id';
 
-String deleteEmblemEndpoint(String id) => '$activeserver/emblem/$id';
+String deleteEmblemEndpoint(String id) => '$activeserver/emblems/$id';
