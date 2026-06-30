@@ -9,6 +9,7 @@ import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
 import 'package:roka_moka_app/domain/services/exposure_service.dart';
 import 'package:roka_moka_app/domain/services/location_service.dart';
+import 'package:roka_moka_app/domain/validators/link_validator.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
@@ -259,7 +260,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
           nome: obra.tituloController.text,
           nomeArtista: obra.artistaController.text,
           descricao: obra.descricaoController.text,
-          link: obra.linkController.text,
+          link: LinkValidator.normalizeOrNull(obra.linkController.text) ?? '',
           qrCode: obra.qrCodeValue,
           imagem: obra.imagemNova,
         );
@@ -1119,6 +1120,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
     bool required, {
     int maxLines = 1,
     int? maxLength,
+    String? Function(String?)? validator,
   }) {
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: const BorderRadius.all(Radius.circular(30)),
@@ -1144,7 +1146,7 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
         if (required && (value == null || value.isEmpty)) {
           return 'Por favor, insira $label';
         }
-        return null;
+        return validator?.call(value);
       },
     );
   }
@@ -1216,7 +1218,12 @@ class _EditExposureScreenState extends State<EditExposureScreen> {
             maxLength: 400,
           ),
           const SizedBox(height: 16),
-          _buildTextField(obra.linkController, 'Link da obra', false),
+          _buildTextField(
+            obra.linkController,
+            'Link da obra',
+            false,
+            validator: (value) => LinkValidator.validate(value).errorMessage,
+          ),
           const SizedBox(height: 16),
           _buildQrCodeScanner(obra),
           const SizedBox(height: 16),
