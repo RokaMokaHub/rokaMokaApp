@@ -4,6 +4,7 @@ import 'package:roka_moka_app/constants/auth_messages.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/exposure_service.dart';
 import 'package:roka_moka_app/domain/services/artwork_service.dart';
+import 'package:roka_moka_app/domain/validators/link_validator.dart';
 import 'package:roka_moka_app/presentation/pages/create_exposure_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/relogin_prompt.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_aceita.dart';
@@ -99,7 +100,7 @@ class _ReviewExposureScreenState extends State<ReviewExposureScreen> {
           nome: obra.tituloController.text,
           descricao: obra.descricaoController.text,
           nomeArtista: obra.artistaController.text,
-          link: obra.linkController.text,
+          link: LinkValidator.normalizeOrNull(obra.linkController.text) ?? '',
           imagem: obra.imagem,
           qrCode: obra.qrCodeValue,
         );

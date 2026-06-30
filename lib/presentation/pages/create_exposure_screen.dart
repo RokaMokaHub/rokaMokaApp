@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
 import 'package:roka_moka_app/constants/colors.dart';
 import 'package:roka_moka_app/domain/services/location_service.dart';
+import 'package:roka_moka_app/domain/validators/link_validator.dart';
 import 'package:roka_moka_app/presentation/pages/location_form_screen.dart';
 import 'package:roka_moka_app/presentation/pages/review_exposure_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_rejeitada.dart';
@@ -195,6 +196,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
     bool required, {
     int maxLines = 1,
     int? maxLength,
+    String? Function(String?)? validator,
   }) {
     final double borderRadiusValue = 30.0;
 
@@ -226,7 +228,7 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
         if (required && (value == null || value.isEmpty)) {
           return 'Por favor, insira $label';
         }
-        return null;
+        return validator?.call(value);
       },
     );
   }
@@ -362,7 +364,12 @@ class _CreateExposureScreenState extends State<CreateExposureScreen> {
             maxLength: 255,
           ),
           const SizedBox(height: 16),
-          _buildTextField(obra.linkController, 'Link da obra', false),
+          _buildTextField(
+            obra.linkController,
+            'Link da obra',
+            false,
+            validator: (value) => LinkValidator.validate(value).errorMessage,
+          ),
           const SizedBox(height: 16),
           _buildQrCodeScanner(obra),
           const SizedBox(height: 16),
