@@ -36,7 +36,7 @@ class _SendEmailForgotPasswordScreenState
     _mostrarLoading();
 
     try {
-      await userService.sendEmailForgotPassword(_emailController.text);
+      await userService.sendEmailForgotPassword(_emailController.text.trim());
 
       Navigator.pop(context);
 
