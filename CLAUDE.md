@@ -52,7 +52,7 @@ The app follows a layered structure under `lib/`:
 
 **Authentication**: `AuthService` uses `flutter_secure_storage` to persist the JWT token and user credentials. `UserProvider` uses `SharedPreferences` for role persistence.
 
-**Navigation**: Named routes defined in `constants/routes.dart` and registered in `main.dart`. Deep links handled via `app_links` — links to `rokamoka-mobile.inf.ufpel.edu.br` with a `token` query param redirect to the forgot-password flow.
+**Navigation**: Named routes defined in `constants/routes.dart` and registered in `main.dart`. Deep links handled via `app_links` — links to `rokamoka-mobile.inf.ufpel.edu.br` with a `token` query param redirect to the forgot-password flow. Some screens (e.g. `EmblemArtworksScreen`) are pushed with `Navigator.push(MaterialPageRoute(...))` directly instead of named routes — this is intentional when argument typing is needed.
 
 ## User Roles and Navigation
 
@@ -66,11 +66,32 @@ The bottom navigation bar adapts per role:
 
 `HomeController` manages switching between the 4 main pages (Profile, QR, Collections, Emblems) and modal pages (CreateExposure, Permissions, Locations) without pushing to the navigator stack.
 
+**Token staleness**: On startup, `main.dart` compares the role from `/user/me` against the `scope` claim decoded from the stored JWT. If the server role is privileged and the token scope doesn't match, the token is cleared and the user is sent back to login. This handles the case where a role upgrade happened but the old JWT was never replaced.
+
 ## API Integration
 
 All endpoints are in `lib/constants/webservice.dart`. Services attach the Bearer token from `AuthService.getToken()` to every request using `HttpHeaders.authorizationHeader`.
 
 **OBRIGATÓRIO**: Antes de adicionar ou modificar qualquer endpoint no app, consulte o contrato da API no Swagger. Nunca assuma um path, método ou DTO — sempre verifique.
+
+### API response envelope
+
+Every response follows the same envelope shape — always extract via `data['body']`, never assume the root is the payload:
+
+```dart
+final data = jsonDecode(response.body);
+if (response.statusCode == 200) {
+  return data['body'] as Map<String, dynamic>;
+} else {
+  throw Exception(data['exceptionMessage'] ?? data['error'] ?? 'Erro ${response.statusCode}');
+}
+```
+
+For typed HTTP-error semantics (e.g. 403 = not yet earned), declare a custom exception class and throw it in the service; the screen catches it and renders a dedicated state. See `EmblemForbiddenException` in `emblem_service.dart` as the reference pattern.
+
+### Artwork images
+
+Images are stored and transmitted as **base64-encoded strings** in the `image` field of artwork objects. Decode with `base64Decode(image)` and display with `Image.memory(bytes)`. An empty `image` string means no image is available.
 
 ### Como consultar endpoints no Swagger
 
@@ -144,7 +165,7 @@ print(json.dumps(data['components']['schemas'][schema_name], indent=2, ensure_as
 | POST | /auth/forgot-password/send | Autenticação | Disparo de email para redefinição |
 | GET | /auth/login | Autenticação | Login de usuário |
 | POST | /auth/reset-password | Autenticação | Redefinição de senha |
-| GET | /emblems | Emblema | Listar emblemas por exposição (query `exhibitionId`) |
+| GET | /emblems | Emblema | Listar emblemas por exposição (query `exhibitionId`) — sem constante em `webservice.dart` ainda |
 | POST | /emblems/create | Emblema | Criar novo emblema |
 | DELETE | /emblems/{id} | Emblema | Deletar emblema |
 | GET | /emblems/{id} | Emblema | Buscar emblema por ID (retorna `artworks`; 403 se o usuário não conquistou o emblema) |
@@ -174,6 +195,28 @@ print(json.dumps(data['components']['schemas'][schema_name], indent=2, ensure_as
 | POST | /user/anonymous/create | Usuário | Criação de usuário anônimo |
 | GET | /user/me | Usuário | Visualizar dados do usuário |
 | POST | /user/normal/create | Usuário | Criação de usuário "normal" |
+
+### Emblem data from /user/me
+
+Emblem data is nested inside the mokadex object, not a top-level field:
+
+```
+data['body']['mokaDex']['emblemSet']  →  List of conquered emblems
+```
+
+Each emblem entry has `id`, `nome`, `descricao`, and an `exhibition` map (`name`, `description`, `location`). The full artwork list for a conquered emblem is fetched separately via `GET /emblems/{id}`, which returns `artworks` in the response body.
+
+## Dev tooling
+
+**`device_preview`** is enabled in all non-release builds (`!kReleaseMode`). It wraps the entire widget tree, which affects layout measurements and `MediaQuery`. When debugging layout issues, be aware that the preview frame adds its own constraints.
+
+## Tests
+
+Tests live under `test/`:
+- `test/domain/validators/` — unit tests for validators
+- `test/presentation/` — widget tests for screens (e.g. `emblem_artworks_screen_test.dart`)
+
+Widget tests that depend on `EmblemService` can inject a mock via the optional `emblemService` constructor parameter on `EmblemArtworksScreen`.
 
 ## Code Conventions
 

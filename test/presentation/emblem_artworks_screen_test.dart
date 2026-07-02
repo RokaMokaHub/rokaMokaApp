@@ -83,8 +83,8 @@ void main() {
     // Não deve existir botão de coletar estrela nesta tela somente-leitura.
     expect(find.text('Coletar Estrela'), findsNothing);
 
-    // Abre o modal de informações e verifica os detalhes da exposição.
-    await tester.tap(find.text('Informações da exposição'));
+    // Abre o modal via ícone ⓘ no header.
+    await tester.tap(find.byIcon(Icons.info_outline));
     await tester.pumpAndSettle();
     expect(find.text('Uma exposição de teste'), findsOneWidget);
     expect(find.text('Museu de Pelotas'), findsOneWidget);

@@ -76,6 +76,8 @@ class _EmblemArtworksScreenState extends State<EmblemArtworksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final canShowInfo =
+        !_isLoading && !_isForbidden && _errorMessage == null && _obras.isNotEmpty;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -83,6 +85,7 @@ class _EmblemArtworksScreenState extends State<EmblemArtworksScreen> {
           _Header(
             titulo: _exhibitionName ?? widget.emblemNome ?? 'Obras',
             onBack: () => Navigator.pop(context),
+            onInfo: canShowInfo ? () => _showExhibitionInfo(context) : null,
           ),
           Expanded(child: _buildBody()),
         ],
@@ -97,6 +100,48 @@ class _EmblemArtworksScreenState extends State<EmblemArtworksScreen> {
       if (name != null && name.isNotEmpty) return name;
     }
     return null;
+  }
+
+  Map<String, dynamic>? get _exposicao {
+    final exhibition = _emblema?['exhibition'];
+    return exhibition is Map<String, dynamic> ? exhibition : null;
+  }
+
+  String get _emblemDescricao => (_emblema?['descricao'] as String?) ?? '';
+
+  List<Map<String, dynamic>> get _obras {
+    final artworks = _emblema?['artworks'];
+    final List<Map<String, dynamic>> list = [];
+    if (artworks is List) {
+      for (final a in artworks) {
+        if (a is Map<String, dynamic>) list.add(a);
+      }
+    }
+    return list;
+  }
+
+  void _showExhibitionInfo(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const _BottomSheetHandle(),
+          SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+            child: _ExhibitionHeader(
+              exposicao: _exposicao,
+              quantidadeObras: _obras.length,
+              emblemDescricao: _emblemDescricao,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildBody() {
@@ -124,13 +169,7 @@ class _EmblemArtworksScreenState extends State<EmblemArtworksScreen> {
       );
     }
 
-    final artworks = _emblema?['artworks'];
-    final List<Map<String, dynamic>> obras = [];
-    if (artworks is List) {
-      for (final a in artworks) {
-        if (a is Map<String, dynamic>) obras.add(a);
-      }
-    }
+    final obras = _obras;
 
     if (obras.isEmpty) {
       return _buildMessageState(
@@ -140,47 +179,7 @@ class _EmblemArtworksScreenState extends State<EmblemArtworksScreen> {
       );
     }
 
-    final exhibition = _emblema?['exhibition'];
-    final Map<String, dynamic>? exposicao =
-        exhibition is Map<String, dynamic> ? exhibition : null;
-
-    final emblemDescricao = (_emblema?['descricao'] as String?) ?? '';
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: OutlinedButton.icon(
-            onPressed: () => showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              builder: (_) => SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-                child: _ExhibitionHeader(
-                  exposicao: exposicao,
-                  quantidadeObras: obras.length,
-                  emblemDescricao: emblemDescricao,
-                ),
-              ),
-            ),
-            icon: const Icon(Icons.info_outline, size: 18),
-            label: const Text('Informações da exposição'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(primaryColor),
-              side: const BorderSide(color: Color(primaryColor)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Expanded(child: _ArtworkCarousel(obras: obras)),
-      ],
-    );
+    return _ArtworkCarousel(obras: obras);
   }
 
   Widget _buildMessageState({
@@ -233,8 +232,9 @@ class _EmblemArtworksScreenState extends State<EmblemArtworksScreen> {
 class _Header extends StatelessWidget {
   final String titulo;
   final VoidCallback onBack;
+  final VoidCallback? onInfo;
 
-  const _Header({required this.titulo, required this.onBack});
+  const _Header({required this.titulo, required this.onBack, this.onInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +252,7 @@ class _Header extends StatelessWidget {
           bottomRight: Radius.circular(32),
         ),
       ),
-      padding: EdgeInsets.only(top: topPadding + 4, bottom: 12, right: 12),
+      padding: EdgeInsets.only(top: topPadding + 4, bottom: 12, right: 4),
       child: Row(
         children: [
           IconButton(
@@ -273,13 +273,38 @@ class _Header extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (onInfo != null)
+            IconButton(
+              icon: const Icon(Icons.info_outline, color: Colors.white, size: 24),
+              tooltip: 'Informações da exposição',
+              onPressed: onInfo,
+            ),
         ],
       ),
     );
   }
 }
 
-/// Cabeçalho com as informações da exposição, exibido acima da lista de obras.
+class _BottomSheetHandle extends StatelessWidget {
+  const _BottomSheetHandle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Container(
+        width: 32,
+        height: 4,
+        decoration: BoxDecoration(
+          color: const Color(0xFFD9D9D9),
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    );
+  }
+}
+
+/// Cabeçalho com as informações da exposição, exibido no modal.
 class _ExhibitionHeader extends StatelessWidget {
   final Map<String, dynamic>? exposicao;
   final int quantidadeObras;
@@ -448,36 +473,37 @@ class _ArtworkCarouselState extends State<_ArtworkCarousel> {
                 ),
           ),
         ),
-        const SizedBox(height: 12),
-        Text(
-          '${_realIndex + 1} de $_total',
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Color(greySubtitleColor),
+        if (_total > 1) ...[
+          const SizedBox(height: 12),
+          Text(
+            '${_realIndex + 1} de $_total',
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(greySubtitleColor),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 6,
-          runSpacing: 6,
-          children: List.generate(_total, (i) {
-            final active = i == _realIndex;
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              width: active ? 20 : 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color:
-                    active
-                        ? Color(secondaryColorGradient)
-                        : const Color(0xFFD9D9D9),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            );
-          }),
-        ),
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            runSpacing: 6,
+            children: List.generate(_total, (i) {
+              final active = i == _realIndex;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: active ? 20 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: active
+                      ? Color(secondaryColorGradient)
+                      : const Color(0xFFD9D9D9),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              );
+            }),
+          ),
+        ],
         const SizedBox(height: 16),
       ],
     );
