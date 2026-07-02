@@ -73,15 +73,24 @@ void main() {
 
     expect(find.text('Obra A'), findsOneWidget);
     expect(find.text('Artista A'), findsOneWidget);
-    // Nome da exposição aparece na testa laranja e no cartão de informações.
-    expect(find.text('Exposição Teste'), findsNWidgets(2));
-    expect(find.text('Uma exposição de teste'), findsOneWidget);
-    expect(find.text('Museu de Pelotas'), findsOneWidget);
-    expect(find.text('2 obras'), findsOneWidget);
+    // Nome da exposição só aparece no cabeçalho laranja; o card de info fica no modal.
+    expect(find.text('Exposição Teste'), findsOneWidget);
+    // Detalhes da exposição estão ocultos até abrir o modal.
+    expect(find.text('Uma exposição de teste'), findsNothing);
+    expect(find.text('Museu de Pelotas'), findsNothing);
     // Indicador de posição do carrossel.
     expect(find.text('1 de 2'), findsOneWidget);
     // Não deve existir botão de coletar estrela nesta tela somente-leitura.
     expect(find.text('Coletar Estrela'), findsNothing);
+
+    // Abre o modal de informações e verifica os detalhes da exposição.
+    await tester.tap(find.text('Informações da exposição'));
+    await tester.pumpAndSettle();
+    expect(find.text('Uma exposição de teste'), findsOneWidget);
+    expect(find.text('Museu de Pelotas'), findsOneWidget);
+    expect(find.text('2 obras'), findsOneWidget);
+    await tester.tapAt(const Offset(400, 100)); // fecha o modal
+    await tester.pumpAndSettle();
 
     // Obra B está na próxima página do carrossel; desliza horizontalmente.
     await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);

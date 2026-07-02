@@ -144,17 +144,40 @@ class _EmblemArtworksScreenState extends State<EmblemArtworksScreen> {
     final Map<String, dynamic>? exposicao =
         exhibition is Map<String, dynamic> ? exhibition : null;
 
+    final emblemDescricao = (_emblema?['descricao'] as String?) ?? '';
+
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: _ExhibitionHeader(
-            exposicao: exposicao,
-            quantidadeObras: obras.length,
-            emblemDescricao: (_emblema?['descricao'] as String?) ?? '',
+          child: OutlinedButton.icon(
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              builder: (_) => SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                child: _ExhibitionHeader(
+                  exposicao: exposicao,
+                  quantidadeObras: obras.length,
+                  emblemDescricao: emblemDescricao,
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.info_outline, size: 18),
+            label: const Text('Informações da exposição'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(primaryColor),
+              side: const BorderSide(color: Color(primaryColor)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Expanded(child: _ArtworkCarousel(obras: obras)),
       ],
     );
