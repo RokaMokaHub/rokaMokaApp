@@ -144,20 +144,19 @@ class _EmblemArtworksScreenState extends State<EmblemArtworksScreen> {
     final Map<String, dynamic>? exposicao =
         exhibition is Map<String, dynamic> ? exhibition : null;
 
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      itemCount: obras.length + 1,
-      separatorBuilder: (_, _) => const SizedBox(height: 20),
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return _ExhibitionHeader(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: _ExhibitionHeader(
             exposicao: exposicao,
             quantidadeObras: obras.length,
             emblemDescricao: (_emblema?['descricao'] as String?) ?? '',
-          );
-        }
-        return _ArtworkCard(artwork: obras[index - 1]);
-      },
+          ),
+        ),
+        const SizedBox(height: 10),
+        Expanded(child: _ArtworkCarousel(obras: obras)),
+      ],
     );
   }
 
@@ -285,7 +284,7 @@ class _ExhibitionHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0x33E94C19)),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -293,15 +292,17 @@ class _ExhibitionHeader extends StatelessWidget {
             children: [
               const Icon(
                 Icons.museum_outlined,
-                size: 20,
+                size: 18,
                 color: Color(primaryColor),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   nome.isNotEmpty ? nome : 'Exposição',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Color(titleColor),
                   ),
@@ -310,31 +311,31 @@ class _ExhibitionHeader extends StatelessWidget {
             ],
           ),
           if (descricao.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               descricao,
               style: GoogleFonts.poppins(
-                fontSize: 14,
+                fontSize: 13,
                 color: Colors.black87,
-                height: 1.5,
+                height: 1.4,
               ),
             ),
           ],
           if (local.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             _InfoLine(icon: Icons.place_outlined, texto: local),
           ],
           if (quantidade != null) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             _InfoLine(
               icon: Icons.collections_outlined,
               texto: '$quantidade ${quantidade == 1 ? 'obra' : 'obras'}',
             ),
           ],
           if (emblemDescricao.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             const Divider(height: 1),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _InfoLine(
               icon: Icons.emoji_events_outlined,
               texto: emblemDescricao,
@@ -374,7 +375,94 @@ class _InfoLine extends StatelessWidget {
   }
 }
 
+/// Carrossel horizontal das obras: o usuário desliza para o lado, sem precisar
+/// rolar a página verticalmente.
+class _ArtworkCarousel extends StatefulWidget {
+  final List<Map<String, dynamic>> obras;
+
+  const _ArtworkCarousel({required this.obras});
+
+  @override
+  State<_ArtworkCarousel> createState() => _ArtworkCarouselState();
+}
+
+class _ArtworkCarouselState extends State<_ArtworkCarousel> {
+  late final int _total = widget.obras.length;
+  // Com mais de uma obra, iniciamos numa página bem no meio de um intervalo
+  // "virtual" grande para permitir rolar infinitamente nos dois sentidos.
+  late final int _initialPage = _total > 1 ? _total * 1000 : 0;
+  late final PageController _controller = PageController(
+    viewportFraction: 0.88,
+    initialPage: _initialPage,
+  );
+  late int _current = _initialPage;
+
+  int get _realIndex => _total == 0 ? 0 : _current % _total;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: PageView.builder(
+            controller: _controller,
+            // itemCount nulo => carrossel infinito (loop) quando há >1 obra.
+            itemCount: _total > 1 ? null : 1,
+            onPageChanged: (i) => setState(() => _current = i),
+            itemBuilder:
+                (context, index) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  child: _ArtworkCard(artwork: widget.obras[index % _total]),
+                ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          '${_realIndex + 1} de $_total',
+          style: GoogleFonts.poppins(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(greySubtitleColor),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 6,
+          runSpacing: 6,
+          children: List.generate(_total, (i) {
+            final active = i == _realIndex;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: active ? 20 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color:
+                    active
+                        ? Color(secondaryColorGradient)
+                        : const Color(0xFFD9D9D9),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
 /// Card somente-leitura de uma obra (sem ações de coletar/editar).
+/// Preenche a altura disponível na página do carrossel.
 class _ArtworkCard extends StatelessWidget {
   final Map<String, dynamic> artwork;
 
@@ -402,65 +490,92 @@ class _ArtworkCard extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _ArtworkImage(image: image),
-          const SizedBox(height: 12),
-          Text(
-            nome,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(titleColor),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            autor,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
-              color: Color(greySubtitleColor),
-            ),
-          ),
-          if (descricao.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              descricao,
-              textAlign: TextAlign.justify,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                height: 1.5,
-                color: Colors.black87,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Campo da imagem com altura fixa (proporção da altura do card),
+              // padronizado em todas as obras: independe do tamanho da descrição.
+              // A imagem usa `contain`, então aparece inteira sem cortar.
+              SizedBox(
+                height: constraints.maxHeight * 0.45,
+                width: double.infinity,
+                child: _ArtworkImage(image: image),
               ),
-            ),
-          ],
-          if (link.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: InkWell(
-                onTap: () async {
-                  final uri = Uri.tryParse(link);
-                  if (uri != null && await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-                child: Text(
-                  link,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
+              const SizedBox(height: 12),
+              // Texto em tamanho normal e completo. Fica numa área rolável
+              // apenas como segurança: com descrições de até 255 caracteres e o
+              // espaço disponível, ele aparece inteiro sem precisar rolar.
+              Expanded(
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    width: constraints.maxWidth,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          nome,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 21,
+                            fontWeight: FontWeight.bold,
+                            color: Color(titleColor),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          autor,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontStyle: FontStyle.italic,
+                            color: Color(greySubtitleColor),
+                          ),
+                        ),
+                        if (descricao.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            descricao,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              height: 1.45,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                        if (link.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          InkWell(
+                            onTap: () async {
+                              final uri = Uri.tryParse(link);
+                              if (uri != null && await canLaunchUrl(uri)) {
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              }
+                            },
+                            child: Text(
+                              link,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -487,7 +602,7 @@ class _ArtworkImage extends StatelessWidget {
         final bytes = base64Decode(image);
         child = Image.memory(
           bytes,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           errorBuilder:
               (context, error, stackTrace) => Center(
                 child: Icon(
@@ -509,7 +624,6 @@ class _ArtworkImage extends StatelessWidget {
     }
 
     return Container(
-      height: 260,
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0xFFF2F2F2),

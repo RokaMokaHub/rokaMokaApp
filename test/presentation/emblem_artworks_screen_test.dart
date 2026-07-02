@@ -78,12 +78,16 @@ void main() {
     expect(find.text('Uma exposição de teste'), findsOneWidget);
     expect(find.text('Museu de Pelotas'), findsOneWidget);
     expect(find.text('2 obras'), findsOneWidget);
+    // Indicador de posição do carrossel.
+    expect(find.text('1 de 2'), findsOneWidget);
     // Não deve existir botão de coletar estrela nesta tela somente-leitura.
     expect(find.text('Coletar Estrela'), findsNothing);
 
-    // Obra B está abaixo da dobra (ListView lazy); rola até ela.
-    await tester.scrollUntilVisible(find.text('Obra B'), 300);
+    // Obra B está na próxima página do carrossel; desliza horizontalmente.
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+    await tester.pumpAndSettle();
     expect(find.text('Obra B'), findsOneWidget);
+    expect(find.text('2 de 2'), findsOneWidget);
   });
 
   testWidgets(
