@@ -4,6 +4,16 @@ import 'package:http/http.dart' as http;
 import 'package:roka_moka_app/constants/webservice.dart';
 import 'package:roka_moka_app/domain/services/auth_service.dart';
 
+/// Lançada quando o usuário tenta acessar um emblema que ainda não conquistou
+/// (backend responde 403). Usada para exibir o bloqueio de visualização das obras.
+class EmblemForbiddenException implements Exception {
+  final String message;
+  EmblemForbiddenException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 class EmblemService {
   final AuthService _authService = AuthService();
 
@@ -55,6 +65,10 @@ class EmblemService {
     final data = jsonDecode(response.body);
     if (response.statusCode == 200) {
       return data['body'] as Map<String, dynamic>;
+    } else if (response.statusCode == 403) {
+      throw EmblemForbiddenException(
+        data['exceptionMessage'] ?? 'Você ainda não conquistou este emblema.',
+      );
     } else {
       throw Exception(
         data['exceptionMessage'] ??

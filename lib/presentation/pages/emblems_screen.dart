@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roka_moka_app/domain/services/user_service.dart';
+import 'package:roka_moka_app/presentation/pages/emblem_artworks_screen.dart';
 import 'package:roka_moka_app/presentation/widgets/snack_bar_neutro.dart';
 
 class EmblemsScreen extends StatefulWidget {
@@ -34,8 +35,7 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBarNeutro(
             titulo: 'Aguarde um momento',
-            subtitulo:
-                'Tente novamente em ${remaining.inSeconds}s.',
+            subtitulo: 'Tente novamente em ${remaining.inSeconds}s.',
           ).buildSnackBar(context),
         );
         return;
@@ -140,35 +140,39 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
 
     if (_emblemas.isEmpty) {
       return LayoutBuilder(
-        builder: (context, constraints) => RefreshIndicator(
-          onRefresh: () => _loadEmblemas(fromRefresh: true),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.workspace_premium_outlined,
-                        size: 64, color: Colors.grey),
-                    SizedBox(height: 12),
-                    Text(
-                      'Nenhum emblema conquistado ainda.',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
+        builder:
+            (context, constraints) => RefreshIndicator(
+              onRefresh: () => _loadEmblemas(fromRefresh: true),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.workspace_premium_outlined,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 12),
+                        Text(
+                          'Nenhum emblema conquistado ainda.',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Colete todas as obras de uma exposição\npara ganhar seu emblema!',
+                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Colete todas as obras de uma exposição\npara ganhar seu emblema!',
-                      style: TextStyle(color: Colors.grey, fontSize: 13),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
       );
     }
 
@@ -192,7 +196,7 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
                 exhibition is Map ? (exhibition['name'] as String? ?? '') : '';
 
             return GestureDetector(
-              onTap: () => _showEmblemDetail(emblema),
+              onTap: () => _openEmblemArtworks(emblema),
               child: Column(
                 children: [
                   CircleAvatar(
@@ -236,146 +240,31 @@ class _EmblemsScreenState extends State<EmblemsScreen> {
     );
   }
 
-  void _showEmblemDetail(Map<String, dynamic> emblema) {
-    final String nome = emblema['nome'] as String? ?? '';
-    final String descricao = emblema['descricao'] as String? ?? '';
-    final exhibition = emblema['exhibition'];
-    final String exposicao =
-        exhibition is Map ? (exhibition['name'] as String? ?? '') : '';
+  void _openEmblemArtworks(Map<String, dynamic> emblema) {
+    final dynamic rawId = emblema['id'];
+    final int? emblemId =
+        rawId is int ? rawId : int.tryParse(rawId?.toString() ?? '');
 
-    showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header com gradiente
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(51),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.emoji_events,
-                      size: 40,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Emblema',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ],
-              ),
+    if (emblemId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBarNeutro(
+          titulo: 'Emblema indisponível',
+          subtitulo: 'Não foi possível identificar este emblema.',
+        ).buildSnackBar(context),
+      );
+      return;
+    }
+
+    final String nome = emblema['nome'] as String? ?? '';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => EmblemArtworksScreen(
+              emblemId: emblemId,
+              emblemNome: nome.isNotEmpty ? nome : null,
             ),
-            // Conteúdo
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-              child: Column(
-                children: [
-                  Text(
-                    nome,
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFFD1572A),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (exposicao.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.collections_outlined,
-                            size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            exposicao,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: Colors.grey,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  if (descricao.isNotEmpty) ...[
-                    const SizedBox(height: 14),
-                    const Divider(height: 1),
-                    const SizedBox(height: 14),
-                    Text(
-                      descricao,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.black54,
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-            // Botão fechar
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-              child: SizedBox(
-                width: double.infinity,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(ctx),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFB23F1A), Color(0xFFE94C19)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(32),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Fechar',
-                        style: GoogleFonts.poppins(
-                          fontSize: 15,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
