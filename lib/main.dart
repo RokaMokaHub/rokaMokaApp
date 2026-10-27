@@ -2,7 +2,6 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:provider/provider.dart';
 import 'package:roka_moka_app/constants/routes.dart';
 import 'package:roka_moka_app/domain/providers/user_provider.dart';
@@ -84,17 +83,13 @@ void main() async {
   }
 
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder:
-          (_) => ChangeNotifierProvider.value(
-            value: userProvider,
-            child: MyApp(
-              loggedIn: loggedIn,
-              sessionExpired: sessionExpired,
-              permissionsChanged: permissionsChanged,
-            ),
-          ),
+    ChangeNotifierProvider.value(
+      value: userProvider,
+      child: MyApp(
+        loggedIn: loggedIn,
+        sessionExpired: sessionExpired,
+        permissionsChanged: permissionsChanged,
+      ),
     ),
   );
 }
@@ -158,8 +153,6 @@ class _MyAppState extends State<MyApp> {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Roká Móka',
-      builder: DevicePreview.appBuilder,
-      locale: DevicePreview.locale(context),
 
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
