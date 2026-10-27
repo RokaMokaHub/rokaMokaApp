@@ -37,3 +37,12 @@
 **-- Clone o repositório:** https://github.com/RokaMokaHub/rokaMokaApp.git
 
 **-- Instale as dependências:** cd roka-moka -- flutter pub get
+
+## 🍎 Build iOS
+
+Não é preciso Mac: o `.ipa` sem assinatura é gerado no GitHub Actions pelo workflow
+[`.github/workflows/ios-unsigned.yml`](.github/workflows/ios-unsigned.yml)
+(aba **Actions** → **iOS (sem assinatura)** → **Run workflow**, ou push de uma tag `v*`).
+
+Para instalar no iPhone via sideload com Apple ID gratuito, veja
+[`docs/INSTALAR-NO-IPHONE.md`](docs/INSTALAR-NO-IPHONE.md).
