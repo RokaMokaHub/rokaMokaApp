@@ -43,6 +43,12 @@ jobs:
         id: version
         run: echo "version=$(grep -E '^version:' pubspec.yaml | awk '{print $2}' | tr '+' '-')" >> "$GITHUB_OUTPUT"
 
+      # flutter_barcode_scanner_plus 3.0.15 publica um Package.swift inválido
+      # (path "../Classes" fora da raiz do pacote). Com SwiftPM desligado, o
+      # Flutter usa o podspec via CocoaPods, como acontecia na 3.0.8.
+      - name: Desabilitar Swift Package Manager
+        run: flutter config --no-enable-swift-package-manager
+
       - name: flutter pub get
         run: flutter pub get
 
